@@ -20,9 +20,6 @@ import java.util.regex.Pattern
 apply plugin: 'com.android.application'
 
 android {
-
-    compileSdk 35
-
     signingConfigs {
         release {
             def apkStoreFile = System.getenv("APK_SIGNING_STORE_FILE")
@@ -50,9 +47,6 @@ android {
     defaultConfig {
         signingConfig signingConfigs.debug
         applicationId 'com.qualcomm.ftcrobotcontroller'
-        minSdkVersion 25
-        //noinspection ExpiredTargetSdkVersion
-        targetSdkVersion 28
 
         /**
          * We keep the versionCode and versionName of robot controller applications in sync with
@@ -101,10 +95,10 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
+//    compileOptions {
+//        sourceCompatibility JavaVersion.VERSION_23
+//        targetCompatibility JavaVersion.VERSION_23
+//    }
 
     ndkVersion '21.3.6528147'
 }

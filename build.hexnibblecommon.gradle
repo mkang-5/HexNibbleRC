@@ -1,10 +1,33 @@
+
+android {
+    compileSdk 35
+
+    defaultConfig {
+        // The Rev Control Hub SDK is 25 so the minSdkVersion cannot be greater
+        minSdkVersion 25
+
+        targetSdkVersion 36
+        //noinspection ExpiredTargetSdkVersion
+    }
+
+    compileOptions {
+        // May 2025:
+        // JavaVersion >17 will cause the RobotController to be unable to load with an
+        // Annotation-related fatal error
+        sourceCompatibility JavaVersion.VERSION_24
+        targetCompatibility JavaVersion.VERSION_24
+    }
+}
+
 repositories {
     maven { url= 'https://maven.pedropathing.com/' }    // Pedro
 }
 
 dependencies {
 //    // This is for Kotlin. v1.16 needs at least compileSDK 35
+    // v1.16 causes endless crashing of RC
 //    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.core:core-ktx:1.15.0'
 
     // Needed for matrices for 3-wheel odometry
     implementation 'org.apache.commons:commons-math3:3.6.1'
