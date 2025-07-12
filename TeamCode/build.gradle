@@ -29,3 +29,4 @@ android {
 dependencies {
     implementation project(':FtcRobotController')
 }
+apply from: '../build.hexnibblecommon.gradle'

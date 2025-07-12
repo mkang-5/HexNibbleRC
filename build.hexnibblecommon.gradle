@@ -1,0 +1,14 @@
+
+repositories {
+    maven { url= 'https://maven.pedropathing.com/' }    // Pedro
+}
+
+dependencies {
+    // This is for Kotlin. v1.16 needs at least compileSDK 35
+    implementation 'androidx.core:core-ktx:1.16.0'
+
+    // Needed for matrices for 3-wheel odometry
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+
+    implementation 'com.pedropathing:pedro:1.0.9' // Pedro
+}

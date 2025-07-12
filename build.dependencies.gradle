@@ -1,8 +1,6 @@
 repositories {
     mavenCentral()
     google() // Needed for androidx
-
-    maven { url= 'https://maven.pedropathing.com/' }    // Pedro
 }
 
 dependencies {
@@ -23,7 +21,5 @@ dependencies {
 //    implementation 'androidx.appcompat:appcompat:1.2.0'       // This is default
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:2.2.0"))
-
-    implementation 'com.pedropathing:pedro:1.0.9' // Pedro
 }
 
