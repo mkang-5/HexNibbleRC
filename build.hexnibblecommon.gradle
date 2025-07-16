@@ -1,3 +1,4 @@
+// This file is included by CoreLib and TeamCode
 
 android {
     compileSdk 35
@@ -6,7 +7,7 @@ android {
         // The Rev Control Hub SDK is 25 so the minSdkVersion cannot be greater
         minSdkVersion 25
 
-        targetSdkVersion 36
+        targetSdkVersion 35
         //noinspection ExpiredTargetSdkVersion
     }
 
@@ -14,8 +15,8 @@ android {
         // May 2025:
         // JavaVersion >17 will cause the RobotController to be unable to load with an
         // Annotation-related fatal error
-        sourceCompatibility JavaVersion.VERSION_24
-        targetCompatibility JavaVersion.VERSION_24
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
@@ -28,6 +29,10 @@ dependencies {
     // v1.16 causes endless crashing of RC
 //    implementation 'androidx.core:core-ktx:1.16.0'
     implementation 'androidx.core:core-ktx:1.15.0'
+
+    implementation 'org.firstinspires.ftc:Hardware:10.3.0'
+    implementation 'org.firstinspires.ftc:RobotCore:10.3.0'
+    implementation 'org.firstinspires.ftc:Vision:10.3.0'
 
     // Needed for matrices for 3-wheel odometry
     implementation 'org.apache.commons:commons-math3:3.6.1'

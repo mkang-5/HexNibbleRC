@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
@@ -5,11 +7,8 @@ plugins {
 
 android {
     namespace 'org.hexnibble.corelib'
-    compileSdk 35
 
     defaultConfig {
-        minSdk 25
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -24,6 +23,15 @@ android {
 //        sourceCompatibility JavaVersion.VERSION_23
 //        targetCompatibility JavaVersion.VERSION_23
 //    }
+
+    // The jvmTarget is limited by the Kotlin version and must be the same as the source/target
+    // Compatability JavaVersion
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+        }
+    }
+
 }
 
 dependencies {
