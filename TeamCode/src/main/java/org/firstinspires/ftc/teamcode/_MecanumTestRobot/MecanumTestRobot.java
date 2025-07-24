@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode._MecanumTestRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.robot.CoreRobot;
 import org.hexnibble.corelib.robot.MecanumDrivetrain;
-import org.hexnibble.corelib.robot.ThreeWheelOdometry;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadWrapper;
@@ -20,9 +20,10 @@ public class MecanumTestRobot extends CoreRobot {
 
     @Override
     public void initializeSystem() {
-        oq = new OctoQuadWrapper(hwMap, "OctoQuad", 1, OctoQuadFWv3.EncoderDirection.FORWARD,
-                2, OctoQuadFWv3.EncoderDirection.FORWARD,
+        oq = new OctoQuadWrapper(hwMap, "OctoQuad", 0, OctoQuadFWv3.EncoderDirection.REVERSE,
+                1, OctoQuadFWv3.EncoderDirection.FORWARD,
                 -141.9f, 0.0f);
+//                                0.0f, 0.0f);
 
         // Create drivetrain object
         drivetrain =
@@ -45,13 +46,30 @@ public class MecanumTestRobot extends CoreRobot {
         return oq.getCurrentPose();
     }
 
+    // region ** IMU Functions **
+    /** Reset the IMU heading (yaw) on the Octoquad. */
+    @Override
+    public void resetIMUHeading() {
+        oq.resetIMUHeading();
+    }
+    @Override
+    public double readIMUHeading() {
+        return oq.readIMUHeading();
+    }
+
+    @Override
+    public double getStoredIMUHeadingDegrees() {
+        return oq.getStoredIMUHeadingDegrees();
+    }
+    // endregion ** IMU Functions **
+
     @Override
     public void processCommands() {
         boolean sendDriveTrainCommand = false;
 
         // Update the caches for both the control hub and expansion hub (if it was detected).
         bulkReadControlHub();
-        bulkReadExpansionHub();
+//        bulkReadExpansionHub();
 
         // Update odometry if being used. This needs to be done before any robot commands are processed
         // to have a fresh pose available for use.

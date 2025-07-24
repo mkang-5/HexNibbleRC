@@ -3,8 +3,6 @@ package org.hexnibble.corelib.opmodes;
 import static org.hexnibble.corelib.wrappers.controller.ButtonWrapper.BUTTON_STATE.*;
 import static org.hexnibble.corelib.wrappers.controller.ControllerWrapper.ANALOG_STICK.*;
 
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.hexnibble.corelib.commands.DrivetrainRC;
@@ -56,8 +54,8 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   protected Pose2D startingFieldPose;
 
   // PedroPathing
-  protected Follower pedroFollower;
-  protected Pose startingPedroPose;
+//  protected Follower pedroFollower;
+//  protected Pose startingPedroPose;
 
   // Loop Monitoring
   protected long loopCounter = 0L;
@@ -105,6 +103,9 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     initializeOpMode();
 
     rcController = new RCController(robot, opModeType, controller1, controller2);
+
+    telemetry.addLine("Ready.");
+    telemetry.update();
 
     waitForStart();
     // Play pressed
@@ -195,7 +196,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
 
   protected void processCommands() {
     rcController.processCommands();
-    processLoopTime();
+
     createTelemetryMessageForEachLoop();
   }
 
@@ -310,7 +311,11 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
           className,
           "promptForAllianceColorAndSide",
           "Alliance Color=" + allianceColor + ", Alliance Side=" + allianceSide);
-    } catch (StopOpModeException e) {
+
+      telemetry.addLine("");
+      telemetry.update();
+    }
+    catch (StopOpModeException e) {
       Msg.log(
           className,
           "promptForAndSetAllianceColorAndSide",
@@ -467,9 +472,9 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
    * Calculate the time taken for the current loop (since the last time this function was called).
    * Call this function towards the end of each loop.
    *
-   * @return
+   * @return Last loop time (ms)
    */
-  protected long processLoopTime() {
+  private long processLoopTime() {
     final long currentElapsedTime_ms = OpModeRunTimer.getElapsedTime(Timer.TimerUnit.ms);
 
     long currentLoopTime_ms = (currentElapsedTime_ms - prevElapsedTime_ms);
@@ -541,16 +546,14 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
             "Robot Pose: Alliance CF hdg (deg)=", "%.2f", Math.toDegrees(pose.heading));
       }
     }
-
-    addLoopTimeInfoToTelemetry(processLoopTime());
   }
 
   /** Report loop times in telemetry. */
-  protected void addLoopTimeInfoToTelemetry(final long currentLoopTime_ms) {
-    telemetry.addData("Avg Time per Loop (ms):", "%.4f", averageLoopTime_ms);
+  private void addLoopTimeInfoToTelemetry(final long currentLoopTime_ms) {
+    telemetry.addData("\nAvg Time per Loop (ms):", "%.4f", averageLoopTime_ms);
     telemetry.addLine("Last loop time (ms): " + currentLoopTime_ms);
-    telemetry.addData("Min Loop Time (ms): ", +minLoopTime_ms);
-    telemetry.addData("Max Loop Time (ms): ", +maxLoopTime_ms);
+    telemetry.addLine("Min/Max Loop Time (ms): " + minLoopTime_ms + " / " + maxLoopTime_ms);
+//    telemetry.addData("Max Loop Time (ms): ", +maxLoopTime_ms);
     telemetry.addLine();
   }
   // endregion ** Telemetry Functions **

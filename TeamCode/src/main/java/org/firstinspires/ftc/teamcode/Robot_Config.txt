@@ -1,0 +1,402 @@
+# This is the robot config (properties) file.
+# Basic configuration options that are part of the library come first.
+# Season-specific options should be placed at the end of the file for organization.
+#
+# Last Modified:
+CONFIG_FILE_VERSION = 2025-07-24
+DEBUG_MODE = True
+USE_PEDRO = False
+ROBOT_MIN_BATTERY_VOLTAGE_FOR_WARNING = 13.5
+LOOP_TIME_THRESHOLD_FOR_LOGGING_MS = 50
+
+# Drivetrain Parameters
+DRIVETRAIN_ECO_MODE_SPEED_MULTIPLICATION_FACTOR = 0.33
+DRIVETRAIN_REGULAR_MODE_SPEED_MULTIPLICATION_FACTOR = 1.0
+DRIVETRAIN_REGULAR_MODE_SPIN_MULTIPLICATION_FACTOR = 0.9
+#ROBOT_DRIVETRAIN_ALLOW_TURBO_MODE = false
+#ROBOT_DRIVETRAIN_TURBO_MODE_SPEED_MULTIPLICATION_FACTOR = 1.0
+
+# Drivetrain Default Motion Profile Values.
+# Vmax and Amax are maximum velocity and acceleration for translation movements.
+# These are specified in mm/s and mm/s/s. Take 70-80% of the max calculated velocity as a starting point.
+# Wheel circumference * rpm / 60 = 3.14 * 96mm * 435rpm / 60 = 2185.4 * 0.7 = 1529.8
+#DRIVETRAIN_V_MAX = 1460
+#DRIVETRAIN_A_MAX = 1800
+DRIVETRAIN_V_MAX = 1300
+DRIVETRAIN_A_MAX = 1000
+
+# Omega and Alpha are angular velocity and acceleration for rotation movements (degrees/s).
+# Old values were 180 and 180; measured values are ~275 and 2000
+#DRIVETRAIN_OMEGA_MAX = 200.0
+#DRIVETRAIN_ALPHA_MAX = 200.0
+DRIVETRAIN_OMEGA_MAX = 150.0
+DRIVETRAIN_ALPHA_MAX = 150.0
+
+# Drivetrain PID Controller Values
+# For a basic drivetrain (with nothing on top) on floor, simple working values are: Ks = 0.05, Kp = 0.001, Ki = 0.0, Kd = 0.0
+# Ks is a static term that specifies a minimum power.
+# Kp is the proportional term. It is directly proportional to the error (Kp * error). Higher values will result in greater moves towards 0 error.
+# Ki is the integral term. It is directly proportional to the sum of all errors (for a finite lookback period). It addresses nonlinear effects (e.g. friction) by allowing cumulative errors to overcome a constant disturbance.
+# Kd is the derivative term. It is directly proportional to the rate of change of error. It is multiplied by the difference between the last error and the current error (also divided by time elapsed). It works to dampen changes.
+
+DRIVETRAIN_TRANSLATION_PID_Ks = 0.0
+DRIVETRAIN_TRANSLATION_PID_Kp = 0.018
+DRIVETRAIN_TRANSLATION_PID_Ki = 0.0
+DRIVETRAIN_TRANSLATION_PID_Kd = 0.0
+
+DRIVETRAIN_ROTATION_PID_Ks = 0.0
+#DRIVETRAIN_ROTATION_PID_Kp = 1.15
+DRIVETRAIN_ROTATION_PID_Kp = 1.6
+DRIVETRAIN_ROTATION_PID_Ki = 0.2
+DRIVETRAIN_ROTATION_PID_Kd = 0.0
+
+# Field Parameters
+# Tile Widths are 590 and 600 mm (Edge & Core) at Sunrise
+EDGE_TILE_WIDTH_MM = 590
+CORE_TILE_WIDTH_MM = 600
+
+STARTING_ALLIANCE_CENTRIC_HEADING_DEGREES = 0.0
+
+# Reduction factor for above Vmax, Amax, Omega_max, and Alpha_max values for approach using distance sensor movements
+# This had been hard-coded to 0.25
+#DRIVETRAIN_APPROACH_USING_DISTANCE_SENSOR_MULTIPLICATION_FACTOR = 0.35
+
+# Target tolerance in degrees
+FINE_DRIVETRAIN_ROTATION_PID_TARGET_TOLERANCE_DEGREES = 2.0
+ROUGH_DRIVETRAIN_ROTATION_PID_TARGET_TOLERANCE_DEGREES = 5.0
+
+##############################
+# ROBOT Parameters
+
+# Intake System Claw Servo - 0 degrees is closed. Servo positions increase with claw opening
+IS_CLAW_GRAB_ABSOLUTE_MINIMUM_POSITION = 0.1
+IS_CLAW_GRAB_ABSOLUTE_MAXIMUM_POSITION = 0.5
+# Closed
+IS_CLAW_GRAB_LOWER_REFERENCE_POSITION = 0.208
+IS_CLAW_GRAB_ANGLE_AT_LOWER_REFERENCE_POSITION = 0.0
+#Open 90 degrees
+IS_CLAW_GRAB_UPPER_REFERENCE_POSITION = 0.489
+IS_CLAW_GRAB_ANGLE_AT_UPPER_REFERENCE_POSITION = 90.0
+
+# Intake System Pan Servo - 0 degrees is facing left. Servo positions increase with CW rotation
+IS_CLAW_PAN_ABSOLUTE_MINIMUM_POSITION = 0.20
+IS_CLAW_PAN_ABSOLUTE_MAXIMUM_POSITION = 0.85
+IS_CLAW_PAN_LOWER_REFERENCE_POSITION = 0.225
+IS_CLAW_PAN_ANGLE_AT_LOWER_REFERENCE_POSITION = 0.0
+IS_CLAW_PAN_UPPER_REFERENCE_POSITION = 0.727
+IS_CLAW_PAN_ANGLE_AT_UPPER_REFERENCE_POSITION = 180.0
+
+# Intake System Arm Tilt Servo - 0 degrees is pointing up. Increasing angles rotate forward/out from robot
+IS_ARM_TILT_ABSOLUTE_MINIMUM_POSITION = 0.30
+IS_ARM_TILT_ABSOLUTE_MAXIMUM_POSITION = 0.77
+IS_ARM_TILT_LOWER_REFERENCE_POSITION = 0.487
+IS_ARM_TILT_ANGLE_AT_LOWER_REFERENCE_POSITION = 0.0
+IS_ARM_TILT_UPPER_REFERENCE_POSITION = 0.74
+IS_ARM_TILT_ANGLE_AT_UPPER_REFERENCE_POSITION = 90.0
+
+# Intake System Arm Swivel Servo - 0 degrees is facing left. Servo positions increase with CW rotation
+IS_ARM_SWIVEL_ABSOLUTE_MINIMUM_POSITION = 0.10
+IS_ARM_SWIVEL_ABSOLUTE_MAXIMUM_POSITION = 0.91
+IS_ARM_SWIVEL_LOWER_REFERENCE_POSITION = 0.135
+IS_ARM_SWIVEL_ANGLE_AT_LOWER_REFERENCE_POSITION = 0.0
+IS_ARM_SWIVEL_UPPER_REFERENCE_POSITION = 0.900
+IS_ARM_SWIVEL_ANGLE_AT_UPPER_REFERENCE_POSITION = 270.0
+
+
+# Scoring System Claw Servo - 0 degrees is closed. Servo positions increase with claw opening
+SS_CLAW_GRAB_ABSOLUTE_MINIMUM_POSITION = 0.1
+SS_CLAW_GRAB_ABSOLUTE_MAXIMUM_POSITION = 0.5
+# Closed
+# Decreased 0.208 -> 0.205 for tighter grab on 4/6
+SS_CLAW_GRAB_LOWER_REFERENCE_POSITION = 0.205
+SS_CLAW_GRAB_ANGLE_AT_LOWER_REFERENCE_POSITION = 0.0
+#Open 90 degrees
+SS_CLAW_GRAB_UPPER_REFERENCE_POSITION = 0.489
+SS_CLAW_GRAB_ANGLE_AT_UPPER_REFERENCE_POSITION = 90.0
+
+# Scoring System Claw Pan Servo
+SS_CLAW_PAN_ABSOLUTE_MINIMUM_POSITION = 0.08
+SS_CLAW_PAN_ABSOLUTE_MAXIMUM_POSITION = 0.7
+SS_CLAW_PAN_LOWER_REFERENCE_POSITION = 0.171
+SS_CLAW_PAN_ANGLE_AT_LOWER_REFERENCE_POSITION = 0.0
+SS_CLAW_PAN_UPPER_REFERENCE_POSITION = 0.676
+SS_CLAW_PAN_ANGLE_AT_UPPER_REFERENCE_POSITION = 180.0
+
+# Scoring System Arm Tilt Servo - 0 degrees is pointing up. Increasing angles rotate backward from robot
+SS_ARM_TILT_ABSOLUTE_MINIMUM_POSITION = 0.174
+SS_ARM_TILT_ABSOLUTE_MAXIMUM_POSITION = 0.95
+# Vertical Up
+# Changed from 0.510 -> 0.523
+SS_ARM_TILT_LOWER_REFERENCE_POSITION = 0.523
+SS_ARM_TILT_ANGLE_AT_LOWER_REFERENCE_POSITION = 0.0
+# Pointing horizontally backwards
+# Changed from 0.757 -> 0.762
+SS_ARM_TILT_UPPER_REFERENCE_POSITION = 0.762
+SS_ARM_TILT_ANGLE_AT_UPPER_REFERENCE_POSITION = 90.0
+
+# Right Ratchet Servo - Servo positions increase with CW rotation
+SS_RIGHT_RATCHET_ABSOLUTE_MINIMUM_POSITION = 0.5
+SS_RIGHT_RATCHET_ABSOLUTE_MAXIMUM_POSITION = 0.65
+SS_RIGHT_RATCHET_LOWER_REFERENCE_POSITION = 0.53
+SS_RIGHT_RATCHET_ANGLE_AT_LOWER_REFERENCE_POSITION = 90.0
+SS_RIGHT_RATCHET_UPPER_REFERENCE_POSITION = 0.94
+SS_RIGHT_RATCHET_ANGLE_AT_UPPER_REFERENCE_POSITION = 180.0
+
+##############################
+# RED LEFT AUTO Settings
+#
+# Coordinates (mm) and headings (IMU-Style Degrees) are in Field CF
+
+#-----------------
+# PRELOAD SPECIMEN
+#-----------------
+RED_PRELOAD_SPECIMEN_SUBMERSIBLE_COORD_Y = -31.5
+
+# This is the coordinate for grabbing sample 1 after coming from submersible
+# Increase X 3110 -> 3120 on 4/16 night because not far enough into net zone
+# when compared to 0+x AUTO and slide is out too far for all spike sample grabs
+# TODO: Check this
+RED_LEFT_SCORE_SUB_SAMPLE_GRAB1_TARGET_X = 3120
+# WAS 270 CHANGED TO 280 4/16 TODO: FINISH
+RED_LEFT_SCORE_SUB_SAMPLE_GRAB1_TARGET_Y = 280
+# Increased from 54 -> 60 on 4/16 night because robot keeps dropping sample off side of basket
+RED_LEFT_SCORE_SUB_SAMPLE_GRAB1_TARGET_HDG_DEGREES = 60
+
+RED_LEFT_IS_SLIDE_POSITION_FOR_SAMPLE1_WHEN_SCORING_PRELOADED_SPECIMEN = 400
+RED_LEFT_IS_SWIVEL_POSITION_DEGREES_FOR_SAMPLE1_WHEN_SCORING_PRELOADED_SPECIMEN = 80
+RED_LEFT_IS_PAN_POSITION_DEGREES_FOR_SAMPLE1_WHEN_SCORING_PRELOADED_SPECIMEN = 75
+
+#-----------------
+# PRELOAD SAMPLE
+#-----------------
+#
+# This is the fieldCF coordinate for GRABBING sample 1 after scoring a preloaded SAMPLE
+# This is what we used at Worlds with RR
+#RED_LEFT_SCORE0_GRAB1_TARGET_X = 3110
+#RED_LEFT_SCORE0_GRAB1_TARGET_Y = 270
+#RED_LEFT_SCORE0_GRAB1_TARGET_HDG_DEGREES = 62
+
+# This is the fieldCF coordinate for GRABBING sample 1 after scoring a preloaded SAMPLE
+RED_LEFT_SCORE0_GRAB1_TARGET_X = 3185
+RED_LEFT_SCORE0_GRAB1_TARGET_Y = 325
+RED_LEFT_SCORE0_GRAB1_TARGET_HDG_DEGREES = 62
+
+# SLIDE MAX is 400
+
+RED_LEFT_IS_SLIDE_POSITION_FOR_SAMPLE1_WHEN_SCORING_PRELOADED_SAMPLE = 405
+# 55 -> 65
+RED_LEFT_GRAB1_IS_SWIVEL_POSITION_DEGREES = 65.0
+RED_LEFT_GRAB1_IS_PAN_DEGREES = 100.0
+
+
+# This is the fieldCF coordinate for GRABBING sample 2
+#
+RED_LEFT_SCORE1_GRAB2_TARGET_X = 3130
+RED_LEFT_SCORE1_GRAB2_TARGET_Y = 225
+RED_LEFT_SCORE1_GRAB2_TARGET_HDG_DEGREES = 81
+
+RED_LEFT_GRAB2_IS_SLIDE_POSITION_MM = 345.0
+# 65 -> 75 5/16/25
+RED_LEFT_SAMPLE_PRELOAD_GRAB2_IS_SWIVEL_POSITION_DEGREES = 75.0
+
+# Increased 50 -> 60 because consistently a little left of sample
+RED_LEFT_SPECIMEN_PRELOAD_GRAB2_IS_SWIVEL_POSITION_DEGREES = 60.0
+RED_LEFT_GRAB2_IS_PAN_POSITION_DEGREES = 110.0
+
+# This is the fieldCF coordinate for GRABBING sample 3
+#
+# Increased 3100 -> 3105 on 4/14 because missing basket when scoring
+RED_LEFT_SCORE2_GRAB3_TARGET_X = 3115
+RED_LEFT_SCORE2_GRAB3_TARGET_Y = 180
+RED_LEFT_SCORE2_GRAB3_TARGET_HDG_DEGREES = 95
+
+RED_LEFT_GRAB3_IS_SLIDE_POSITION_MM = 400.0
+RED_LEFT_GRAB3_IS_SWIVEL_POSITION_DEGREES = 20.0
+RED_LEFT_GRAB3_IS_PAN_POSITION_DEGREES = 155.0
+
+# This is the fieldCF coordinate for SCORING sample 3
+#
+# Increased SCORE3X from 3120 -> 3130 on 4/17 to get closer to basket
+RED_LEFT_SCORE3_TARGET_X = 3170
+# Increased SCORE3Y from 270 -> 290 on 4/17 to get closer to basket
+RED_LEFT_SCORE3_TARGET_Y = 290
+RED_LEFT_SCORE3_TARGET_HDG_DEGREES = 60
+
+# These are Pedro coordinates for basket -> sub
+PEDRO_RED_LEFT_BASKET_TO_SUB_CONTROL_POINT_1_X = 82
+PEDRO_RED_LEFT_BASKET_TO_SUB_CONTROL_POINT_1_Y = 26
+PEDRO_RED_LEFT_BASKET_TO_SUB_TARGET_X = 83.0
+PEDRO_RED_LEFT_BASKET_TO_SUB_TARGET_Y = 40.0
+
+# These are alternate Pedro coordinates for basket -> sub in case of partnering with UpACreek
+# If these need to be used, uncomment these and comment out the above values
+# These have not been tested
+#PEDRO_RED_LEFT_BASKET_TO_SUB_CONTROL_POINT_1_X = 80
+#PEDRO_RED_LEFT_BASKET_TO_SUB_CONTROL_POINT_1_Y = 26
+#PEDRO_RED_LEFT_BASKET_TO_SUB_TARGET_X = 80.0
+#PEDRO_RED_LEFT_BASKET_TO_SUB_TARGET_Y = 40.0
+
+
+# Increased from 220 -> 230 on 4/14 to break out earlier
+# Decreased from 230 -> 215 bc broke out too early
+RED_LEFT_SUBMERSIBLE_SAMPLE_SCORE_DISTANCE_SENSOR_THRESHOLD_MM = 215
+
+# Decrease the control point Y to back up farther from the sub before making turn
+# Increased CP1Y from 28 -> 29 on 4/3 because robt was backing up too much making turn kind of abrupt
+PEDRO_RED_LEFT_SUB_TO_BASKET_CONTROL_POINT_1_Y = 28
+
+#PEDRO_RED_LEFT_SUB_TO_BASKET_CONTROL_POINT_2_X = 100
+# Decreased CP2 Y 37 -> 35 on 4/3 to try and make the turn to basket not so high up
+#PEDRO_RED_LEFT_SUB_TO_BASKET_CONTROL_POINT_2_Y = 35
+
+PEDRO_RED_LEFT_SUB_TO_BASKET_CP2_OFFSET_X = -32.0
+# Decrease Y offset +25 -> +20 because turning too much at end
+# Increas Y offset +20 -> +21 because angled when scoring on basket
+PEDRO_RED_LEFT_SUB_TO_BASKET_CP2_OFFSET_Y = +21.0
+
+# Increase X 128 -> 129 to get closer to basket
+PEDRO_RED_LEFT_SUB_TO_BASKET_TARGET_X = 129.0
+# Increase Y 10 -> 11 because too close to corner
+PEDRO_RED_LEFT_SUB_TO_BASKET_TARGET_Y = 10.0
+
+# Time after which robot will not attempt to drive back to basket to score
+RED_LEFT_CUTOFF_TIME_FOR_SUB_TO_BASKET_MS = 28000
+
+##############################
+# RED RIGHT AUTO Settings
+# Headings are RR CF
+
+# 25 -> 10
+RED_RIGHT_SUBSEQUENT_SUB_DISTANCE_SENSOR_THRESHOLD_MM = 10
+
+RED_RIGHT_PRELOAD_SPECIMEN_SUBMERSIBLE_COORD_X = 101
+RED_RIGHT_PRELOAD_SPECIMEN_SUBMERSIBLE_COORD_Y = 72
+
+# FieldCF Targets for Spike Samples - used with RR
+#
+# Briefly changed X to 2850 at Cyber Tigers scrimmage but their OZ may have been too narrow
+RED_RIGHT_SUB_SAMPLE_OZ_TARGET_X = 2800
+# Changed 2300 -> 2400 -> 2375 to get closer to OZ
+# Increased back to 2400 on 4/10 to try and get to spike sample 1 faster after dropping
+# Increased from 2400 to 2450 4/12 at Cyber Tigers scrimmage
+# Decreased Y 2400 -> 2375 on 4/14 to try and not hit sub post on way to park
+RED_RIGHT_SUB_SAMPLE_OZ_TARGET_Y = 2400
+RED_RIGHT_SUB_SAMPLE_OZ_TARGET_HDG_DEGREES = -40
+RED_RIGHT_SUB_SAMPLE_OZ_SWIVEL_DEGREES = 90.0
+
+# Increased X 2855 -> 2865 because consistently to left
+# Briefly at 2885 at Cyber Tigers scrimmage
+RED_RIGHT_SAMPLE1_TARGET_X = 2855
+# Increased Y 2475 -> 2490 on 4/6 with new RR
+# Briefly 2515 at Cyber Tigers scrimmage
+RED_RIGHT_SAMPLE1_TARGET_Y = 2495
+RED_RIGHT_SAMPLE1_TARGET_HDG_DEGREES = 39
+
+# Briefly 390 at CyberTigers scrimmage
+# Decreased 380 -> 370 on 4/12
+RED_RIGHT_SAMPLE1_IS_SLIDE_POSITION_MM = 370.0
+# Moved swivel CCW 85 -> 80
+RED_RIGHT_SAMPLE1_IS_SWIVEL_POSITION_DEGREES = 78.0
+
+RED_RIGHT_SAMPLE1_IS_PAN_POSITION_DEGREES = 45.0
+
+RED_RIGHT_MISSED_SUB_SAMPLE1_TARGET_X = 2855
+# Increased 2490 -> 2505 4/17
+RED_RIGHT_MISSED_SUB_SAMPLE1_TARGET_Y = 2505
+RED_RIGHT_MISSED_SUB_SAMPLE1_TARGET_HDG_DEGREES = 39
+
+# NOT USED
+# Increased 330 -> 350 on 4/6
+RED_RIGHT_MISSED_SUB_SAMPLE1_IS_SLIDE_POSITION_MM = 350.0
+RED_RIGHT_MISSED_SUB_SAMPLE1_IS_SWIVEL_POSITION_DEGREES = 50.0
+RED_RIGHT_MISSED_SUB_SAMPLE1_IS_PAN_POSITION_DEGREES = 80.0
+# END NOT USED
+
+# Decreased 2870 -> 2860 on 4/14 because trying to grab a little to right of sample
+RED_RIGHT_SAMPLE2_TARGET_X = 2860
+# Increased Y 2730 -> 2740 on 4/17 because short
+RED_RIGHT_SAMPLE2_TARGET_Y = 2740
+RED_RIGHT_SAMPLE2_TARGET_HDG_DEGREES = 37
+RED_RIGHT_SAMPLE2_IS_SLIDE_POSITION_MM = 380.0
+RED_RIGHT_SAMPLE2_IS_SWIVEL_POSITION_DEGREES = 90.0
+RED_RIGHT_SAMPLE2_IS_PAN_POSITION_DEGREES = 45.0
+
+# NOT USED YET
+RED_RIGHT_MISSED_SUB_SAMPLE2_TARGET_X = 2860
+RED_RIGHT_MISSED_SUB_SAMPLE2_TARGET_Y = 2730
+RED_RIGHT_MISSED_SUB_SAMPLE2_TARGET_HDG_DEGREES = 37
+# END NOT USED YET
+
+# Decreased 2870 -> 2860 on 4/14 because trying to grab a little to right of sample
+RED_RIGHT_SAMPLE3_TARGET_X = 2860
+# 2980 -> 2990 bc short 4/16
+RED_RIGHT_SAMPLE3_TARGET_Y = 2990
+# 34 -> 35 short bc 4/16
+RED_RIGHT_SAMPLE3_TARGET_HDG_DEGREES = 35
+RED_RIGHT_SAMPLE3_IS_SLIDE_POSITION_MM = 360.0
+RED_RIGHT_SAMPLE3_IS_SWIVEL_POSITION_DEGREES = 85.0
+RED_RIGHT_SAMPLE3_IS_PAN_POSITION_DEGREES = 45.0
+
+# Was 220.0 but clipped wall
+RED_RIGHT_SLIDE_POSITION_FOR_TURNING_AFTER_SAMPLE_3 = 190.0
+
+# Decreased X 3000 -> 2975
+RED_RIGHT_SAMPLE3_DROP_TARGET_X = 2975
+RED_RIGHT_SAMPLE3_DROP_TARGET_Y = 2800
+RED_RIGHT_SAMPLE3_DROP_TARGET_HDG_DEGREES = -45
+RED_RIGHT_SLIDE_POSITION_FOR_SAMPLE3_DROP = 340.0
+
+# Wall Specimen target for the very first one coming from the OZ
+# 3425 -> 3435
+RED_RIGHT_WALL_SPECIMEN_TARGET_X = 3435.0
+# 2700.0 -> 2720.0 4/18 bc too far to left on one match
+RED_RIGHT_WALL_SPECIMEN_TARGET_Y = 2720.0
+RED_RIGHT_WALL_SPECIMEN_TARGET_HDG_DEGREES = 92.0
+
+# Decreased X 3415 -> 3390 because hitting wall too hard
+# 3390 -> 3370 bc maybe hitting wall too hard
+# 3370 -> 3350 again too keep speed faster
+# 3350 -> 3310
+RED_RIGHT_SUBSEQUENT_WALL_SPECIMEN_TARGET_X = 3310.0
+# Increased Y 2680 -> 2690 on 4/14 to stay in OZ
+RED_RIGHT_SUBSEQUENT_WALL_SPECIMEN_TARGET_Y = 2690.0
+RED_RIGHT_SUBSEQUENT_WALL_SPECIMEN_TARGET_HDG_DEGREES = 90.0
+
+RED_RIGHT_SUBSEQUENT_HIGH_CHAMBER_TARGET_X = 2600.0
+# Decrease Y from 1900 -> 1875 bc hit sub side
+RED_RIGHT_SUBSEQUENT_HIGH_CHAMBER_TARGET_Y = 1875.0
+# 120 is too much of an angle--specimens can't score; changed to 110 on 4/10
+RED_RIGHT_SUBSEQUENT_HIGH_CHAMBER_TARGET_HDG_DEGREES = 90.0
+
+# Sub -> Wall control points
+RED_RIGHT_SUB_TO_WALL_CONTROL_POINT1_X_OFFSET = 12.0
+# Decreased Y offset from 3 -> 2 because kept getting stuck on post
+RED_RIGHT_SUB_TO_WALL_CONTROL_POINT1_Y_OFFSET = 2.0
+RED_RIGHT_SUB_TO_WALL_CONTROL_POINT2_X_OFFSET = -15.0
+RED_RIGHT_SUB_TO_WALL_CONTROL_POINT2_Y_OFFSET = -1.0
+
+RED_RIGHT_PARK_TARGET_X = 2900
+RED_RIGHT_PARK_TARGET_Y = 2400
+RED_RIGHT_PARK_TARGET_HDG_DEGREES = -35
+
+RED_RIGHT_SCORE_ARM_TILT_TARGET = 0.38
+RED_RIGHT_SCORE_LEADSCREW_TARGET = 102.0
+RED_RIGHT_SCORE_VSLIDE_TARGET = 155.0
+
+# Mounting angle in degrees, measuring from the vertical
+# Changed from 46 -> 47 on 2/7
+LIMELIGHT_MOUNTING_ANGLE_DEGREES = 45.0
+
+# Middle of objects are 20.0 mm off the floor
+# According to CAD, the LL lens height is 303.0 mm. A couple of mm are subtracted since the robot sinks into the soft tile
+# The near surface of the samples also sit 30-40mm above the ground so some amount is subtracted out
+# Increasing this value will increase the Y distance from swivel point for the located sample
+LIMELIGHT_LENS_HEIGHT_MM = 290.0
+
+# Horizontal X distance, according to CAD (was -92 but moved right 2.5mm)
+#final double swivelPivotPointToLensX_mm = -82.5
+# Horizontal Y distance, according to CAD (was -7 but moved back 8 mm)
+#final double swivelPivotPointToLensY_mm = -15.0
+# X=84.6 by CAD
+SWIVEL_PIVOT_POINT_TO_LIMELIGHT_LENS_X_MM = -80.0
+SWIVEL_PIVOT_POINT_TO_LIMELIGHT_LENS_Y_MM = -30.0

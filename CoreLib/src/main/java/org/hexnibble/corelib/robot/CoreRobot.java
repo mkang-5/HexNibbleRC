@@ -289,7 +289,7 @@ public class CoreRobot extends CoreRobotSystem {
   }
 
   public void destructor() {
-    drivetrain.onCloseJNI();
+//    drivetrain.onCloseJNI();
   }
 
   /**
@@ -304,8 +304,20 @@ public class CoreRobot extends CoreRobotSystem {
   // region ** Hub Functions **
   protected void identifyHubs(HardwareMap hwMap) {
     controlHub = hwMap.get(LynxModule.class, CONTROL_HUB_NAME);
-    expansionHub = hwMap.get(LynxModule.class, EXPANSION_HUB_NAME);
-    servoHub = hwMap.get(LynxModule.class, SERVO_HUB_NAME);
+
+    try {
+      expansionHub = hwMap.get(LynxModule.class, EXPANSION_HUB_NAME);
+    }
+    catch (IllegalArgumentException iae) {
+      Msg.log(className, "identifyHubs", EXPANSION_HUB_NAME + " not found.");
+    }
+
+    try {
+      servoHub = hwMap.get(LynxModule.class, SERVO_HUB_NAME);
+    }
+    catch (IllegalArgumentException iae) {
+      Msg.log(className, "identifyHubs", SERVO_HUB_NAME + " not found.");
+    }
   }
 
   /** Bulk read the control hub. */
@@ -316,11 +328,13 @@ public class CoreRobot extends CoreRobotSystem {
 //    Msg.log("CHub bulk read time=" + (System.currentTimeMillis() - currentCHubBulkReadTime));
   }
 
-  /** Bulk read the expansion hub. */
+  /** Bulk read the expansion hub if it exists. */
   public void bulkReadExpansionHub() {
-    previousEHubBulkReadTime = currentEHubBulkReadTime;
-    currentEHubBulkReadTime = System.currentTimeMillis();
-    expansionHub.clearBulkCache();
+    if (expansionHub != null) {
+      previousEHubBulkReadTime = currentEHubBulkReadTime;
+      currentEHubBulkReadTime = System.currentTimeMillis();
+      expansionHub.clearBulkCache();
+    }
   }
 
   public LynxModule.BulkCachingMode getHubBulkCachingMode(CoreRobot.HUB_TYPE hubType) {

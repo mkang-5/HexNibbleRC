@@ -2,6 +2,7 @@ package org.hexnibble.corelib.wrappers.OctoQuad;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 //import org.hexnibble.corelib.wrappers.sensor.IMUIface;
 
@@ -79,8 +80,13 @@ public class OctoQuadWrapper {
      * Read only localizer data (pose, including IMU).
      */
     public void readLocalizerData() {
-        oq.readLocalizerData(localizerData);
-        currentIMUHeadingDegrees = Math.toDegrees(localizerData.heading_rad);
+        OctoQuadFWv3.LocalizerDataBlock tempLocalizerData = new OctoQuadFWv3.LocalizerDataBlock();
+        oq.readLocalizerData(tempLocalizerData);
+
+        if (tempLocalizerData.crcOk) {
+            localizerData = tempLocalizerData;
+            currentIMUHeadingDegrees = Math.toDegrees(localizerData.heading_rad);
+        }
     }
 
     public boolean isLocalizerDataCrcOk() {
@@ -99,7 +105,12 @@ public class OctoQuadWrapper {
      * This function should be called each OpMode loop to read pose info from the OctoQuad
      */
     public void readEncoderData() {
-        oq.readAllEncoderData(encoderData);
+        OctoQuadFWv3.EncoderDataBlock tempEncoderData = new OctoQuadFWv3.EncoderDataBlock();
+        oq.readAllEncoderData(tempEncoderData);
+
+        if (tempEncoderData.crcOk) {
+            encoderData = tempEncoderData;
+        }
     }
 
     public boolean isEncoderDataCrcOk() {
@@ -110,8 +121,17 @@ public class OctoQuadWrapper {
      * Read both localizer (pose, including IMU) and encoder data.
      */
     public void readLocalizerAndEncoderData() {
-        oq.readLocalizerDataAndAllEncoderData(localizerData, encoderData);
-        currentIMUHeadingDegrees = Math.toDegrees(localizerData.heading_rad);
+        OctoQuadFWv3.LocalizerDataBlock tempLocalizerData = new OctoQuadFWv3.LocalizerDataBlock();
+        OctoQuadFWv3.EncoderDataBlock tempEncoderData = new OctoQuadFWv3.EncoderDataBlock();
+
+        oq.readLocalizerDataAndAllEncoderData(tempLocalizerData, tempEncoderData);
+        if (tempLocalizerData.crcOk) {
+            localizerData = tempLocalizerData;
+            currentIMUHeadingDegrees = Math.toDegrees(localizerData.heading_rad);
+        }
+        if (tempEncoderData.crcOk) {
+            encoderData = tempEncoderData;
+        }
     }
 
 

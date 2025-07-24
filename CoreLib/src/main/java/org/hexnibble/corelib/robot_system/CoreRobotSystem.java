@@ -39,6 +39,7 @@ public class CoreRobotSystem {
   protected final Map<String, LinearMechanism> mechanismList;
 
   public CoreRobotSystem(@NonNull HardwareMap hwMap, String systemName) {
+    Msg.log("CoreRobotSystem", "Constructor", "Starting");
     this.hwMap = hwMap;
     this.systemName = systemName;
     manualMovementRequested = false;
@@ -48,6 +49,7 @@ public class CoreRobotSystem {
     servoList = new HashMap<>();
     sensorList = new HashMap<>();
     mechanismList = new HashMap<>();
+    Msg.log("CoreRobotSystem", "Constructor", "Ending");
   }
 
   /** This should be called during robot setup to initialize any hardware that needs it. */

@@ -36,7 +36,5 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
         telemetry.addData("Robot Pose: Alliance CF y (mm)=", "%.2f", pose.y);
         telemetry.addData(
                 "Robot Pose: Alliance CF hdg (deg)=", "%.2f", Math.toDegrees(pose.heading));
-
-        addLoopTimeInfoToTelemetry(processLoopTime());
     }
 }

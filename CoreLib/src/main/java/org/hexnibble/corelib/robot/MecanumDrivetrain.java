@@ -18,6 +18,7 @@ import org.hexnibble.corelib.wrappers.motor.WheelMotor;
 
 public class MecanumDrivetrain extends CoreRobotSystem
 {
+/*
   public native void onLoadJNI(BaseMotorWrapper LFMotor, BaseMotorWrapper RFMotor,
                                BaseMotorWrapper LBMotor, BaseMotorWrapper RBMotor);
   public native void onCloseJNI();
@@ -28,7 +29,7 @@ public class MecanumDrivetrain extends CoreRobotSystem
   static {
     System.loadLibrary("CoreLib");
   }
-
+*/
 //  protected DriveController dtController;
 
   protected double dtManual_X; // X Joystick movement, range -1.0 (left) to +1.0 (right)
@@ -116,6 +117,8 @@ public class MecanumDrivetrain extends CoreRobotSystem
 
     super(hwMap, "Drivetrain");
 
+    Msg.log("MecanumDrivetrain", "Constructor", "Starting");
+
     motorLeftFront =
         new WheelMotor(hwMap, LFMotorName, motorModel, LFMotorRunDirection, runMode,
             LFEncoderType, LFEncoderDirection, extGearReduction, wheelDiameterMM,
@@ -135,7 +138,8 @@ public class MecanumDrivetrain extends CoreRobotSystem
 
 //    dtController = new DriveController();
 
-    onLoadJNI(motorLeftFront, motorRightFront, motorLeftBack, motorRightBack);
+//    onLoadJNI(motorLeftFront, motorRightFront, motorLeftBack, motorRightBack);
+    Msg.log("MecanumDrivetrain", "Constructor", "Ending");
   }
 
   /** Call this function to reinitialize motors to our set values when restarting an OpMode. */
@@ -251,10 +255,12 @@ public class MecanumDrivetrain extends CoreRobotSystem
     if (useCPP) {
       // CPP version
       // This does all the calculations and sends the motor commands
+/*
       long startTime = System.nanoTime();
       driveMecanumByCartesianENUCPP(X, Y, spin, offsetToConvertToFieldCentricHeadingDegrees);
       Msg.log("MecanumDrivetrain", "driveMecanumByRobotPolarHeading", "Time for CPP version= "
               + (System.nanoTime() - startTime)/1000 + " us\n");
+*/
     }
     else {
       // Java version

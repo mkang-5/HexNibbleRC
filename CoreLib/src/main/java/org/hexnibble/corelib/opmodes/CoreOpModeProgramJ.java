@@ -1,7 +1,5 @@
 package org.hexnibble.corelib.opmodes;
 
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
 import org.hexnibble.corelib.commands.rc.RC;
 import org.hexnibble.corelib.commands.rc.RCController;
 
@@ -11,14 +9,14 @@ public class CoreOpModeProgramJ {
 
   // Pedro
   protected RCController rcController;
-  protected Follower pedroFollower;
-  protected final Pose startingPedroPose;
+//  protected Follower pedroFollower;
+//  protected final Pose startingPedroPose;
 
   public CoreOpModeProgramJ(
-      RCController rcController, Follower pedroFollower, Pose startingPedroPose) {
+      RCController rcController) { //, Follower pedroFollower, Pose startingPedroPose) {
     this.rcController = rcController;
-    this.pedroFollower = pedroFollower;
-    this.startingPedroPose = startingPedroPose;
+//    this.pedroFollower = pedroFollower;
+//    this.startingPedroPose = startingPedroPose;
     this.programComplete = false;
 
     createPaths();

@@ -1,6 +1,5 @@
 package org.hexnibble.corelib.misc;
 
-import com.pedropathing.localization.Pose;
 
 public final class Field {
   public static final double DEG_090_IN_RADS = Math.toRadians(90.0); // pi/2 Radians
@@ -351,13 +350,13 @@ public final class Field {
    *     side.
    * @return Pedro Pose using inches for x and y, radians for heading
    */
-  public static Pose convertFieldPoseToPedroPose(
-      double fieldCFX_mm, double fieldCFY_mm, double fieldCFHeadingRadians) {
-    return new Pose(
-        fieldCFX_mm / 25.4,
-        fieldCFY_mm / 25.4,
-        Field.enforceHeadingRangeTauRadians(fieldCFHeadingRadians + Math.toRadians(90.0)));
-  }
+//  public static Pose convertFieldPoseToPedroPose(
+//      double fieldCFX_mm, double fieldCFY_mm, double fieldCFHeadingRadians) {
+//    return new Pose(
+//        fieldCFX_mm / 25.4,
+//        fieldCFY_mm / 25.4,
+//        Field.enforceHeadingRangeTauRadians(fieldCFHeadingRadians + Math.toRadians(90.0)));
+//  }
 
   /**
    * Convert Field CF to Pedro CF. Pedro has the same origin (audience-side left corner) as well as
@@ -368,17 +367,17 @@ public final class Field {
    *     axis going away from audience side.
    * @return Pedro Pose using inches for x and y, radians for heading
    */
-  public static Pose convertFieldPoseToPedroPose(Pose2D fieldCFPose) {
-    return new Pose(
-        fieldCFPose.x / 25.4,
-        fieldCFPose.y / 25.4,
-        Field.enforceHeadingRangeTauRadians(fieldCFPose.heading + Math.toRadians(90.0)));
-  }
-
-  public static Pose2D convertPedroPoseToFieldPose(Pose pedroPose) {
-    return new Pose2D(
-        pedroPose.getX() * 25.4,
-        pedroPose.getY() * 25.4,
-        Field.enforceHeadingRangeTauRadians(pedroPose.getHeading() - Math.toRadians(90.0)));
-  }
+//  public static Pose convertFieldPoseToPedroPose(Pose2D fieldCFPose) {
+//    return new Pose(
+//        fieldCFPose.x / 25.4,
+//        fieldCFPose.y / 25.4,
+//        Field.enforceHeadingRangeTauRadians(fieldCFPose.heading + Math.toRadians(90.0)));
+//  }
+//
+//  public static Pose2D convertPedroPoseToFieldPose(Pose pedroPose) {
+//    return new Pose2D(
+//        pedroPose.getX() * 25.4,
+//        pedroPose.getY() * 25.4,
+//        Field.enforceHeadingRangeTauRadians(pedroPose.getHeading() - Math.toRadians(90.0)));
+//  }
 }
