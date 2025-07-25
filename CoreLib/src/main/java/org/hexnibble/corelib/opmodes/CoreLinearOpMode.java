@@ -59,6 +59,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   protected long minLoopTime_ms = 1000L;
   protected long maxLoopTime_ms = 0L;
   protected float averageLoopTime_ms = 0.0f;
+  private long currentLoopTime_ms = 0L;
   protected long prevElapsedTime_ms = 0L;
   public static Timer OpModeRunTimer = new Timer();
 
@@ -482,7 +483,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   private boolean processLoopTime() {
     final long currentElapsedTime_ms = OpModeRunTimer.getElapsedTime(Timer.TimerUnit.ms);
 
-    long currentLoopTime_ms = (currentElapsedTime_ms - prevElapsedTime_ms);
+    currentLoopTime_ms = (currentElapsedTime_ms - prevElapsedTime_ms);
 
     if (currentLoopTime_ms > Constants.MINIMUM_OP_MODE_LOOP_TIME_MS) {
       if (currentLoopTime_ms > ConfigFile.LOOP_TIME_THRESHOLD_FOR_LOGGING_MS) {
@@ -513,7 +514,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   protected void createTelemetryMessageForEachLoop() {
     addTelemetryHeader();
     addTelemetryBody();
-    addLoopTimeInfoToTelemetry(prevElapsedTime_ms);
+    addLoopTimeInfoToTelemetry(currentLoopTime_ms);
     telemetry.update();
   }
 
