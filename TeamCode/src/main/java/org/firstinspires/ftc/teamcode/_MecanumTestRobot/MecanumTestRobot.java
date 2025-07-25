@@ -12,6 +12,8 @@ import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadWrapper;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
 
+import kotlin._Assertions;
+
 public class MecanumTestRobot extends CoreRobot {
     private OctoQuadWrapper oq;
     public MecanumTestRobot(HardwareMap hwMap) {
@@ -44,6 +46,10 @@ public class MecanumTestRobot extends CoreRobot {
 
     public Pose2D getCurrentPose() {
         return oq.getCurrentPose();
+    }
+
+    public Pose2D getCurrentPoseVelocity() {
+        return oq.getCurrentPoseVelocity();
     }
 
     // region ** IMU Functions **

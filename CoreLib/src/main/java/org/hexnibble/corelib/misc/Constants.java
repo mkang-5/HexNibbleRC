@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class Constants {
   public static final String TAG = "HexNibble";
+
+  public static int MINIMUM_OP_MODE_LOOP_TIME_MS = 19;
+
   // region ** IMU Parameters **
   //    public static String IMU_NAME = "imu";
   //    // Control Hub Logo/USB Facing Direction Options are: UP, DOWN, LEFT, RIGHT, FORWARD,

@@ -27,10 +27,7 @@ import java.util.List;
 
 /** This is an abstract base class for Autonomous and Driver-controlled OpModes. */
 public abstract class CoreLinearOpMode extends LinearOpMode {
-  public enum OP_MODE_TYPE {
-    AUTO,
-    TELE_OP
-  }
+  public enum OP_MODE_TYPE { AUTO, TELE_OP }
   protected OP_MODE_TYPE opModeType;
 
   protected RCController rcController;
@@ -108,12 +105,20 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     telemetry.update();
 
     waitForStart();
+
     // Play pressed
     if (opModeIsActive()) {
       // Stuff to run before OpMode Loop
       onPressPlay();
+
       while (opModeIsActive()) {
-        processCommands();
+
+        if (processLoopTime()) {
+          rcController.processCommands();
+
+          createTelemetryMessageForEachLoop();
+//        processCommands();
+        }
       }
     }
     onStopOpMode();
@@ -194,11 +199,11 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     Msg.log(getClass().getSimpleName(), "onStartOpMode", "OpMode Started");
   }
 
-  protected void processCommands() {
-    rcController.processCommands();
-
-    createTelemetryMessageForEachLoop();
-  }
+//  protected void processCommands() {
+//    rcController.processCommands();
+//
+//    createTelemetryMessageForEachLoop();
+//  }
 
   protected void onStopOpMode() {
     rcController = null;
@@ -375,6 +380,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
             + Math.toDegrees(startingFieldPose.heading));
   }
   // endregion ** Utility Functions **
+
   // region ** Queue robot command functions **
   /**
    * Queue a robot drivetrain movement to a field location.
@@ -458,6 +464,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
       }
   */
   // endregion ** Queue robot command functions **
+
   // region ** Loop Timer Functions **
   /**
    * Call this function immediately prior to the first OpMode loop to initialize variables needed
@@ -472,34 +479,35 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
    * Calculate the time taken for the current loop (since the last time this function was called).
    * Call this function towards the end of each loop.
    *
-   * @return Last loop time (ms)
+   * @return True/False whether the loop time has met the threshold minimum loop time
    */
-  private long processLoopTime() {
+  private boolean processLoopTime() {
     final long currentElapsedTime_ms = OpModeRunTimer.getElapsedTime(Timer.TimerUnit.ms);
 
     long currentLoopTime_ms = (currentElapsedTime_ms - prevElapsedTime_ms);
-    if (currentLoopTime_ms > ConfigFile.LOOP_TIME_THRESHOLD_FOR_LOGGING_MS) {
-      Msg.log(
-          className,
-          "addTelemetryLoopTimes",
-          "Loop time = "
-              + currentLoopTime_ms
-              + " ms, which exceeds logging threshold ("
-              + ConfigFile.LOOP_TIME_THRESHOLD_FOR_LOGGING_MS
-              + " ms)");
+
+    if (currentLoopTime_ms > Constants.MINIMUM_OP_MODE_LOOP_TIME_MS) {
+      if (currentLoopTime_ms > ConfigFile.LOOP_TIME_THRESHOLD_FOR_LOGGING_MS) {
+        Msg.log(
+          className, "addTelemetryLoopTimes", "Loop time = "
+            + currentLoopTime_ms + " ms, which exceeds logging threshold ("
+            + ConfigFile.LOOP_TIME_THRESHOLD_FOR_LOGGING_MS + " ms)");
+      }
+
+      if (currentLoopTime_ms > maxLoopTime_ms) {
+        maxLoopTime_ms = currentLoopTime_ms;
+      }
+      else if (currentLoopTime_ms < minLoopTime_ms) {
+        minLoopTime_ms = currentLoopTime_ms;
+      }
+
+      averageLoopTime_ms = (float) currentElapsedTime_ms / loopCounter;
+
+      loopCounter += 1;
+      prevElapsedTime_ms = currentElapsedTime_ms;
+      return true;
     }
-
-    if (currentLoopTime_ms > maxLoopTime_ms) {
-      maxLoopTime_ms = currentLoopTime_ms;
-    } else if (currentLoopTime_ms < minLoopTime_ms) {
-      minLoopTime_ms = currentLoopTime_ms;
-    }
-
-    averageLoopTime_ms = (float) currentElapsedTime_ms / loopCounter;
-
-    loopCounter += 1;
-    prevElapsedTime_ms = currentElapsedTime_ms;
-    return currentLoopTime_ms;
+    else return false;
   }
 
   // endregion ** Loop Timer Functions **
@@ -507,7 +515,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   protected void createTelemetryMessageForEachLoop() {
     addTelemetryHeader();
     addTelemetryBody();
-    addLoopTimeInfoToTelemetry(processLoopTime());
+    addLoopTimeInfoToTelemetry(prevElapsedTime_ms);
     telemetry.update();
   }
 

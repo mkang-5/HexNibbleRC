@@ -101,6 +101,10 @@ public class OctoQuadWrapper {
         return new Pose2D(-localizerData.posY_mm, localizerData.posX_mm, localizerData.heading_rad);
     }
 
+    public Pose2D getCurrentPoseVelocity() {
+        return new Pose2D(-localizerData.velY_mmS, localizerData.velX_mmS, localizerData.velHeading_radS);
+    }
+
     /**
      * This function should be called each OpMode loop to read pose info from the OctoQuad
      */

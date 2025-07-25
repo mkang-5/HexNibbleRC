@@ -39,7 +39,7 @@ public class MecanumDrivetrain extends CoreRobotSystem
   protected double dtManual_Spin; // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
   protected double previousDTManual_Spin;
   private boolean dtManualMovementUpdated;
-  private double initialHeadingOnManualTranslationDegrees;
+//  private double initialHeadingOnManualTranslationDegrees;
   private double currentIMUHeading;
 
   // Variables to hold motor objects.
@@ -151,7 +151,7 @@ public class MecanumDrivetrain extends CoreRobotSystem
     motorRightBack.reset();
     targetMotorPowerSettings.reset();
     dtManualMovementUpdated = false;
-    initialHeadingOnManualTranslationDegrees = 0.0;
+//    initialHeadingOnManualTranslationDegrees = 0.0;
     previousDTManual_X = 0.0;
     previousDTManual_Y = 0.0;
     previousDTManual_Spin = 0.0;
@@ -280,8 +280,8 @@ public class MecanumDrivetrain extends CoreRobotSystem
 
       calculateMotorPowers(coords.r, coords.theta, spin, targetMotorPowerSettings);
 //      setMotorPowers(targetMotorPowerSettings);
-      Msg.log("MecanumDrivetrain", "driveMecanumByRobotPolarHeading", "Time for Java version= "
-              + (System.nanoTime() - startTime)/1000 + " us");
+//      Msg.log("MecanumDrivetrain", "driveMecanumByRobotPolarHeading", "Time for Java version= "
+//              + (System.nanoTime() - startTime)/1000 + " us");
     }
   }
 
@@ -424,6 +424,7 @@ public class MecanumDrivetrain extends CoreRobotSystem
     if (dtManualMovementUpdated) {
       clearSystemRCList();
 
+/*
       // If a new translation movement is starting OR a manual spin is ending, save the heading
       if (((previousDTManual_X == 0.0) && (dtManual_X != 0.0))
           || ((previousDTManual_Y == 0.0) && (dtManual_Y != 0.0))
@@ -447,6 +448,7 @@ public class MecanumDrivetrain extends CoreRobotSystem
         Msg.log("MecanumDrivetrain", "processCommands", "error=" + Math.toDegrees(errorHdgRadians)
                 + " spin=" + spinValue);
       }
+*/
 
       driveMecanumByCartesianENU(dtManual_X, dtManual_Y, spinValue, currentIMUHeading);
       setMotorPowers(targetMotorPowerSettings);

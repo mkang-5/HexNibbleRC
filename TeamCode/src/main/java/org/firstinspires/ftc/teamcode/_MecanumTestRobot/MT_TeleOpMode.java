@@ -32,9 +32,12 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
     @Override
     protected void addTelemetryBody() {
         Pose2D pose = r.getCurrentPose();
+        Pose2D poseVel = r.getCurrentPoseVelocity();
         telemetry.addData("Robot Pose: Alliance CF x (mm)=", "%.2f", pose.x);
         telemetry.addData("Robot Pose: Alliance CF y (mm)=", "%.2f", pose.y);
         telemetry.addData(
-                "Robot Pose: Alliance CF hdg (deg)=", "%.2f", Math.toDegrees(pose.heading));
+        "Robot Pose: Alliance CF hdg (deg)=", "%.2f", Math.toDegrees(pose.heading));
+        telemetry.addData(
+        "Robot Pose: Alliance CF hdg vel (deg/s)=", "%.2f", Math.toDegrees(poseVel.heading));
     }
 }
