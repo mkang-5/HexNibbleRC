@@ -419,7 +419,6 @@ public class MecanumDrivetrain extends CoreRobotSystem
   @Override
   public void processCommands() {
 //    dtController.processPath();
-    double spinValue = dtManual_Spin;
 
     if (dtManualMovementUpdated) {
       clearSystemRCList();
@@ -450,7 +449,7 @@ public class MecanumDrivetrain extends CoreRobotSystem
       }
 */
 
-      driveMecanumByCartesianENU(dtManual_X, dtManual_Y, spinValue, currentIMUHeading);
+      driveMecanumByCartesianENU(dtManual_X, dtManual_Y, dtManual_Spin, currentIMUHeading);
       setMotorPowers(targetMotorPowerSettings);
       dtManualMovementUpdated = false;
     }

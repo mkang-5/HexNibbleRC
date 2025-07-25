@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import java.util.ArrayList;
 import java.util.EnumMap;
+
+import org.hexnibble.corelib.misc.Constants;
 import org.hexnibble.corelib.misc.Msg;
 
 public class ControllerWrapper {
@@ -46,11 +48,6 @@ public class ControllerWrapper {
   private final EnumMap<BUTTON_NAME, ButtonWrapper> buttonEnumMap =
       new EnumMap<>(BUTTON_NAME.class);
   private final ArrayList<ButtonToFunction[]> activeButtonGroups = new ArrayList<>();
-
-  static final float CONTROLLER_STICK_DEAD_ZONE_X = 0.05f;
-  static final float CONTROLLER_STICK_DEAD_ZONE_Y = 0.05f;
-  static final float CONTROLLER_LEFT_TRIGGER_DEAD_ZONE = 0.05f;
-  static final float CONTROLLER_RIGHT_TRIGGER_DEAD_ZONE = 0.05f;
 
   // Shift Buttons
   private boolean optionShiftPressed;
@@ -165,7 +162,7 @@ public class ControllerWrapper {
    */
   public float getLeftTrigger() {
     return applySingleAxisStickDeadZone(
-        gamepadCopy.left_trigger, CONTROLLER_LEFT_TRIGGER_DEAD_ZONE);
+        gamepadCopy.left_trigger, Constants.CONTROLLER_LEFT_TRIGGER_DEAD_ZONE);
   }
 
   /**
@@ -176,23 +173,23 @@ public class ControllerWrapper {
    */
   public float getRightTrigger() {
     return applySingleAxisStickDeadZone(
-        gamepadCopy.right_trigger, CONTROLLER_RIGHT_TRIGGER_DEAD_ZONE);
+        gamepadCopy.right_trigger, Constants.CONTROLLER_RIGHT_TRIGGER_DEAD_ZONE);
   }
 
   public float getLeftStickX() {
-    return applySingleAxisStickDeadZone(gamepadCopy.left_stick_x, CONTROLLER_STICK_DEAD_ZONE_X);
+    return applySingleAxisStickDeadZone(gamepadCopy.left_stick_x, Constants.CONTROLLER_STICK_DEAD_ZONE_X);
   }
 
   public float getLeftStickY() {
-    return applySingleAxisStickDeadZone(gamepadCopy.left_stick_y, CONTROLLER_STICK_DEAD_ZONE_Y);
+    return applySingleAxisStickDeadZone(gamepadCopy.left_stick_y, Constants.CONTROLLER_STICK_DEAD_ZONE_Y);
   }
 
   public float getRightStickX() {
-    return applySingleAxisStickDeadZone(gamepadCopy.right_stick_x, CONTROLLER_STICK_DEAD_ZONE_X);
+    return applySingleAxisStickDeadZone(gamepadCopy.right_stick_x, Constants.CONTROLLER_STICK_DEAD_ZONE_X);
   }
 
   public float getRightStickY() {
-    return applySingleAxisStickDeadZone(gamepadCopy.right_stick_y, CONTROLLER_STICK_DEAD_ZONE_Y);
+    return applySingleAxisStickDeadZone(gamepadCopy.right_stick_y, Constants.CONTROLLER_STICK_DEAD_ZONE_Y);
   }
 
   public float getRawStickValue(ANALOG_STICK analogStick) {
@@ -220,8 +217,8 @@ public class ControllerWrapper {
       case dpad_right -> gamepadCopy.dpad_right;
       case left_bumper -> gamepadCopy.left_bumper;
       case right_bumper -> gamepadCopy.right_bumper;
-      case left_trigger -> (gamepadCopy.left_trigger > CONTROLLER_LEFT_TRIGGER_DEAD_ZONE);
-      case right_trigger -> (gamepadCopy.right_trigger > CONTROLLER_RIGHT_TRIGGER_DEAD_ZONE);
+      case left_trigger -> (gamepadCopy.left_trigger > Constants.CONTROLLER_LEFT_TRIGGER_DEAD_ZONE);
+      case right_trigger -> (gamepadCopy.right_trigger > Constants.CONTROLLER_RIGHT_TRIGGER_DEAD_ZONE);
       case PS -> gamepadCopy.ps;
       case touchpad -> gamepadCopy.touchpad;
       case left_stick_button -> gamepadCopy.left_stick_button;

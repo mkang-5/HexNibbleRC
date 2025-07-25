@@ -52,9 +52,10 @@ public class Constants {
   // endregion
 
   // region ** Controller Dead Zones **
+  public static float CONTROLLER_STICK_MOVEMENT_THRESHOLD = 0.02f;
+
   public static float CONTROLLER_STICK_DEAD_ZONE_X = 0.05f;
   public static float CONTROLLER_STICK_DEAD_ZONE_Y = 0.05f;
-  public static float CONTROLLER_STICK_MOVEMENT_THRESHOLD = 0.01f;
   public static float CONTROLLER_LEFT_TRIGGER_DEAD_ZONE = 0.05f;
   public static float CONTROLLER_RIGHT_TRIGGER_DEAD_ZONE = 0.05f;
   // endregion ** Controller Dead Zones **
