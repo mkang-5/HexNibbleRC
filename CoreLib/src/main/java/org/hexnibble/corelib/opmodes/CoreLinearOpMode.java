@@ -62,10 +62,8 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   protected long prevElapsedTime_ms = 0L;
   public static Timer OpModeRunTimer = new Timer();
 
-  public static final String TAG = "MyOpMode";
   protected String className = this.getClass().getSimpleName();
 
-  @Deprecated(forRemoval = true)
   public CoreLinearOpMode(OP_MODE_TYPE opModeType) {
     Msg.log("\n\n" + className, "CoreLinearOpMode", "***** Starting new OpMode *****");
     this.opModeType = opModeType;

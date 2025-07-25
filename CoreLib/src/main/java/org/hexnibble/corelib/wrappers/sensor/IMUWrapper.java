@@ -19,14 +19,9 @@ public class IMUWrapper extends CoreSensorWrapper<IMU> {
     super(hwMap, IMU.class, sensorName);
 
     Msg.log(
-        getClass().getSimpleName(),
-        "IMUWrapper",
-        "Creating IMU "
-            + sensorName
-            + " with Hub Logo Direction = "
-            + logoFacingDirection
-            + ", Hub USB Direction = "
-            + usbFacingDirection);
+        getClass().getSimpleName(), "IMUWrapper", "Creating IMU " + sensorName
+            + " with Hub Logo Direction = " + logoFacingDirection
+            + ", Hub USB Direction = " + usbFacingDirection);
 
     if (!sensor.initialize(
         new IMU.Parameters(
