@@ -19,7 +19,6 @@ public class ConfigFile {
   public static String CONFIG_FILE_VERSION;
 
   public static boolean DEBUG_MODE;
-  public static int LOOP_TIME_THRESHOLD_FOR_LOGGING_MS;
 
   public static float ROBOT_MIN_BATTERY_VOLTAGE_FOR_WARNING;
 
@@ -214,7 +213,6 @@ public class ConfigFile {
 
     ROBOT_MIN_BATTERY_VOLTAGE_FOR_WARNING =
         getValueAsFloat("ROBOT_MIN_BATTERY_VOLTAGE_FOR_WARNING");
-    LOOP_TIME_THRESHOLD_FOR_LOGGING_MS = getValueAsInt("LOOP_TIME_THRESHOLD_FOR_LOGGING_MS");
 
     // Drivetrain parameters
     Log.i(Constants.TAG, "   Reading drivetrain parameters.");

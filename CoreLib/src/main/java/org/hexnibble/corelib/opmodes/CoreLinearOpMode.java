@@ -115,7 +115,9 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
         if (processLoopTime()) {
           rcController.processCommands();
 
-          createTelemetryMessageForEachLoop();
+          if (!isStopRequested()) {
+            createTelemetryMessageForEachLoop();
+          }
 //        processCommands();
         }
       }
@@ -486,11 +488,11 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     currentLoopTime_ms = (currentElapsedTime_ms - prevElapsedTime_ms);
 
     if (currentLoopTime_ms > Constants.MINIMUM_OP_MODE_LOOP_TIME_MS) {
-      if (currentLoopTime_ms > ConfigFile.LOOP_TIME_THRESHOLD_FOR_LOGGING_MS) {
+      if (currentLoopTime_ms > Constants.LOOP_TIME_THRESHOLD_FOR_LOGGING_MS) {
         Msg.log(
           className, "addTelemetryLoopTimes", "Loop time = "
             + currentLoopTime_ms + " ms, which exceeds logging threshold ("
-            + ConfigFile.LOOP_TIME_THRESHOLD_FOR_LOGGING_MS + " ms)");
+            + Constants.LOOP_TIME_THRESHOLD_FOR_LOGGING_MS + " ms)");
       }
 
       if (currentLoopTime_ms > maxLoopTime_ms) {

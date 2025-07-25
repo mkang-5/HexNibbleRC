@@ -7,6 +7,7 @@ public class Constants {
   public static final String TAG = "HexNibble";
 
   public static int MINIMUM_OP_MODE_LOOP_TIME_MS = 19;
+  public static int LOOP_TIME_THRESHOLD_FOR_LOGGING_MS = 40;
 
   // region ** IMU Parameters **
   //    public static String IMU_NAME = "imu";
@@ -59,6 +60,11 @@ public class Constants {
   public static float CONTROLLER_LEFT_TRIGGER_DEAD_ZONE = 0.05f;
   public static float CONTROLLER_RIGHT_TRIGGER_DEAD_ZONE = 0.05f;
   // endregion ** Controller Dead Zones **
+
+  // Minimum threshold for motor power to exceed to send a new motor command (compared to the
+  // previously sent value)
+  public static double MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND = 0.01;
+
 
   public static boolean USE_ROAD_RUNNER = false;
 
