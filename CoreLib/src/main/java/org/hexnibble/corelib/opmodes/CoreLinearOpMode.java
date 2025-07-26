@@ -241,10 +241,17 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     controller1.addActiveStickGroup(
         new AnalogStickToFunction(left_stickY, (y) -> d.setDrivetrainManualMovement_Y(-y)));
     controller1.addActiveStickGroup(
-        new AnalogStickToFunction(ControllerWrapper.ANALOG_STICK.left_trigger,
-                (spin) -> d.setDrivetrainManualMovement_Spin(spin)),
-        new AnalogStickToFunction(ControllerWrapper.ANALOG_STICK.right_trigger,
-                (spin) -> d.setDrivetrainManualMovement_Spin(-spin)));
+          new AnalogStickToFunction(ControllerWrapper.ANALOG_STICK.left_trigger,
+                (spin) -> d.setDrivetrainManualMovement_cwSpin(spin)));
+    controller1.addActiveStickGroup(
+          new AnalogStickToFunction(ControllerWrapper.ANALOG_STICK.right_trigger,
+                (spin) -> d.setDrivetrainManualMovement_ccwSpin(spin)));
+
+//    controller1.addActiveStickGroup(
+//        new AnalogStickToFunction(ControllerWrapper.ANALOG_STICK.left_trigger,
+//                (spin) -> d.setDrivetrainManualMovement_Spin(spin)),
+//        new AnalogStickToFunction(ControllerWrapper.ANALOG_STICK.right_trigger,
+//                (spin) -> d.setDrivetrainManualMovement_Spin(-spin)));
 
     // Reset IMU heading
     controller1.addActiveButtonGroup(
@@ -562,7 +569,6 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     telemetry.addData("\nAvg Time per Loop (ms):", "%.4f", averageLoopTime_ms);
     telemetry.addLine("Last loop time (ms): " + currentLoopTime_ms);
     telemetry.addLine("Min/Max Loop Time (ms): " + minLoopTime_ms + " / " + maxLoopTime_ms);
-//    telemetry.addData("Max Loop Time (ms): ", +maxLoopTime_ms);
     telemetry.addLine();
   }
   // endregion ** Telemetry Functions **
