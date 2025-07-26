@@ -7,6 +7,8 @@ import org.hexnibble.corelib.misc.ConfigFile;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.opmodes.CoreLinearOpMode;
 import org.hexnibble.corelib.robot.CoreRobot;
+import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
+import org.hexnibble.corelib.wrappers.controller.ButtonToFunction;
 
 @TeleOp(name = "MecanumTest TeleOp", group = "Linear OpMode")
 public class MT_TeleOpMode extends CoreLinearOpMode {
@@ -30,6 +32,19 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
     }
 
     @Override
+    protected void createControllersForTeleOp() {
+        super.createControllersForTeleOp();
+
+        // region ** Controller 1 **
+        // Check motor powers
+//        controller1.addActiveButtonGroup(
+//              new ButtonToFunction(cross,
+//                    () -> r.logMotorPowers()
+//              )
+//        );
+    }
+
+    @Override
     protected void addTelemetryBody() {
         Pose2D pose = r.getCurrentPose();
         Pose2D poseVel = r.getCurrentPoseVelocity();
@@ -39,5 +54,11 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
         "Robot Pose: Alliance CF hdg (deg)=", "%.2f", Math.toDegrees(pose.heading));
         telemetry.addData(
         "Robot Pose: Alliance CF hdg vel (deg/s)=", "%.2f", Math.toDegrees(poseVel.heading));
+
+        OctoQuadFWv3.LocalizerStatus status = r.getOQStatus();
+        telemetry.addLine("OQ Status=" + status);
+        if (status != OctoQuadFWv3.LocalizerStatus.RUNNING) {
+            android.util.Log.i("oq", "OQ Status=" + status);
+        }
     }
 }
