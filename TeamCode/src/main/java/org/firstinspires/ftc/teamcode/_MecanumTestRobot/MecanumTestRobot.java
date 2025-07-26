@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode._MecanumTestRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.robot.CoreRobot;
 import org.hexnibble.corelib.robot.MecanumDrivetrain;
@@ -11,8 +10,6 @@ import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadWrapper;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
-
-import kotlin._Assertions;
 
 public class MecanumTestRobot extends CoreRobot {
     private OctoQuadWrapper oq;
@@ -50,6 +47,10 @@ public class MecanumTestRobot extends CoreRobot {
 
     public Pose2D getCurrentPoseVelocity() {
         return oq.getCurrentPoseVelocity();
+    }
+
+    public OctoQuadFWv3.LocalizerStatus getOQStatus() {
+        return oq.getLocalizerStatus();
     }
 
     // region ** IMU Functions **
