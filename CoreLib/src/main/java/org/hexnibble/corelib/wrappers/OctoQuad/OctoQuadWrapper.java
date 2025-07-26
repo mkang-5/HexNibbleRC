@@ -158,6 +158,10 @@ public class OctoQuadWrapper {
     public double getStoredIMUHeadingDegrees() {
         return currentIMUHeadingDegrees;
     }
+
+    public OctoQuadFWv3.LocalizerStatus getLocalizerStatus() {
+        return oq.getLocalizerStatus();
+    }
 }
 
 
