@@ -9,9 +9,11 @@ import org.hexnibble.corelib.misc.ConfigFile;
 import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.PolarCoords;
+import org.hexnibble.corelib.misc.Timer;
 import org.hexnibble.corelib.motion.MotorPowerSettings;
 import org.hexnibble.corelib.motion.pid.PIDSettings;
 import org.hexnibble.corelib.motion.pid.dtRotationPIDController;
+import org.hexnibble.corelib.opmodes.CoreLinearOpMode;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
 import org.hexnibble.corelib.wrappers.motor.WheelMotor;
@@ -36,8 +38,12 @@ public class MecanumDrivetrain extends CoreRobotSystem
   protected double previousDTManual_X;
   protected double dtManual_Y; // Y Joystick movement, range -1.0 (backward) to +1.0 (forward)
   protected double previousDTManual_Y;
-  protected double dtManual_Spin; // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
-  protected double previousDTManual_Spin;
+//  protected double dtManual_Spin; // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
+//  protected double previousDTManual_Spin;
+  protected double dtManual_cwSpin; // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
+  protected double previousDTManual_cwSpin;
+  protected double dtManual_ccwSpin; // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
+  protected double previousDTManual_ccwSpin;
   private boolean dtManualMovementUpdated;
 //  private double initialHeadingOnManualTranslationDegrees;
   private double currentIMUHeading;
@@ -154,7 +160,9 @@ public class MecanumDrivetrain extends CoreRobotSystem
 //    initialHeadingOnManualTranslationDegrees = 0.0;
     previousDTManual_X = 0.0;
     previousDTManual_Y = 0.0;
-    previousDTManual_Spin = 0.0;
+//    previousDTManual_Spin = 0.0;
+    previousDTManual_cwSpin = 0.0;
+    previousDTManual_ccwSpin = 0.0;
     currentIMUHeading = 0.0;
   }
 
@@ -186,11 +194,28 @@ public class MecanumDrivetrain extends CoreRobotSystem
    *
    * @param spin Spin speed, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
    */
-  public void setDrivetrainManualMovement_Spin(double spin) {
-    previousDTManual_Spin = dtManual_Spin;
-    dtManual_Spin = spin;
+//  public void setDrivetrainManualMovement_Spin(double spin) {
+////    previousDTManual_Spin = dtManual_Spin;
+//    dtManual_Spin = spin;
+//    dtManualMovementUpdated = true;
+//  }
+
+  public void setDrivetrainManualMovement_cwSpin(double spin) {
+    previousDTManual_cwSpin = dtManual_cwSpin;
+    dtManual_cwSpin = spin;
     dtManualMovementUpdated = true;
   }
+
+  /**
+   *
+   * @param spin CCW as a positive number from 0 - 1.0
+   */
+  public void setDrivetrainManualMovement_ccwSpin(double spin) {
+    previousDTManual_ccwSpin = dtManual_ccwSpin;
+    dtManual_ccwSpin = spin;
+    dtManualMovementUpdated = true;
+  }
+
 
   public WheelMotor getWheelMotorObject(WHEEL_MOTOR_NAME wheelMotorName) {
     return switch (wheelMotorName) {
@@ -449,10 +474,14 @@ public class MecanumDrivetrain extends CoreRobotSystem
       }
 */
 
-      driveMecanumByCartesianENU(dtManual_X, dtManual_Y, dtManual_Spin, currentIMUHeading);
+//      driveMecanumByCartesianENU(dtManual_X, dtManual_Y, dtManual_Spin, currentIMUHeading);
+      driveMecanumByCartesianENU(dtManual_X, dtManual_Y, dtManual_cwSpin - dtManual_ccwSpin, currentIMUHeading);
       setMotorPowers(targetMotorPowerSettings);
       dtManualMovementUpdated = false;
     }
+
+
+
 //    else if (!isSystemRCListEmpty()) {
 ////      Msg.log("MecanumDrivetrain", "processCommands", "here3");
 //      if (systemRCList.get(0).processRC()) {
