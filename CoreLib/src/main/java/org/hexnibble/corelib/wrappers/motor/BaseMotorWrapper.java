@@ -1,13 +1,11 @@
 package org.hexnibble.corelib.wrappers.motor;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorImplEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.hexnibble.corelib.misc.Constants;
-import org.hexnibble.corelib.misc.Msg;
 
 public class BaseMotorWrapper {
   public enum MOTOR_MODEL {
@@ -280,19 +278,12 @@ public class BaseMotorWrapper {
       power = -1.0;
     }
 
-//    if (((power == 0.0) && (this.power != 0.0))
-    if ((power == 0.0)
-        || (Math.abs(power - this.power) > Constants.MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND)) {
-
-      this.power = power;
-      motor.setPower(this.power);
-    }
+    setPowerNoClamping(power);
   }
 
   public void setPowerNoClamping(double power) {
-//    if (((power == 0.0) && (this.power != 0.0))
-    if ((power == 0.0)
-            || (Math.abs(power - this.power) > Constants.MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND)) {
+    if (((power == 0.0) && (this.power != 0.0))
+          || (Math.abs(power - this.power) > Constants.MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND)) {
 
       this.power = power;
       motor.setPower(this.power);
