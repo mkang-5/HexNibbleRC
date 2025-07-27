@@ -117,10 +117,10 @@ public class ControllerWrapper {
     for (AnalogStickToFunction stickToFunction : stickGroup) {
       AnalogStickWrapper stickWrapper = analogStickEnumMap.get(stickToFunction.analogStickName());
       if (stickWrapper != null) {
-        if (stickWrapper.didStickValueChange()) {
+//        if (stickWrapper.didStickValueChange()) {
           stickToFunction.functionToRun().accept(stickWrapper.getCurrentFilteredStickValue());
-          return; // Since an active stick was found in this group, no need to process any further
-        }
+//          return; // Since an active stick was found in this group, no need to process any further
+//        }
       } else
         Msg.log(
             getClass().getSimpleName(),

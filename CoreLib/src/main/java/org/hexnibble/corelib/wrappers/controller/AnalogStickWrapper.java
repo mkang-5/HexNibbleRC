@@ -8,8 +8,8 @@ import static org.hexnibble.corelib.misc.Constants.CONTROLLER_STICK_MOVEMENT_THR
  */
 public class AnalogStickWrapper {
   private float currentStickValue = 0.0f;
-  private float previousStickValue = 0.0f;
-  private boolean didStickValueChange = false;
+//  private float previousStickValue = 0.0f;
+//  private boolean didStickValueChange = false;
 
   /**
    * Apply a dead zone around the 0 point of the joystick. This was help minimize small amounts of
@@ -26,10 +26,16 @@ public class AnalogStickWrapper {
     float filteredRawStickValue =
         applySingleAxisStickDeadZone(rawStickValue, CONTROLLER_LEFT_TRIGGER_DEAD_ZONE);
 
-    didStickValueChange = false;
+//    didStickValueChange = false;
+//
+//    previousStickValue = currentStickValue;
+    currentStickValue = filteredRawStickValue;
+//    didStickValueChange = true;
 
+/*
     // Only process stick values that have changed above the threshold amount or that have
     // changed to 0.
+
     if (filteredRawStickValue != previousStickValue) {
       if ((filteredRawStickValue == 0.0f)
               || (Math.abs(filteredRawStickValue - previousStickValue) > CONTROLLER_STICK_MOVEMENT_THRESHOLD))
@@ -39,17 +45,18 @@ public class AnalogStickWrapper {
         didStickValueChange = true;
       }
     }
+ */
   }
 
-  public boolean didStickValueChange() {
-    return didStickValueChange;
-  }
+//  public boolean didStickValueChange() {
+//    return didStickValueChange;
+//  }
 
   public float getCurrentFilteredStickValue() {
     return currentStickValue;
   }
 
-  public float getPreviousFilteredStickValue() {
-    return previousStickValue;
-  }
+//  public float getPreviousFilteredStickValue() {
+//    return previousStickValue;
+//  }
 }
