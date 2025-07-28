@@ -97,8 +97,8 @@ public class CRServo extends BaseServoWrapper {
   }
 
   /**
-   * Set the servo to the specified speed (-1.0 to +1.0). The underlying servo implementation
-   * automatically scales this so
+   * Set a CR servo to the specified speed (-1.0 to +1.0). The underlying servo implementation
+   * automatically scales this so be sure to provide the correct range.
    *
    * @param speed Specified speed (-1.0 to +1.0). Stop is 0.0
    */

@@ -202,7 +202,7 @@ public class RegularServo extends BaseServoWrapper {
   //    }
 
   /**
-   * Set the servo to the specified position. This is for regular servos only.
+   * Set a regular servo to the specified position. This is for regular servos only.
    *
    * @param position Specified position (0.0 - 1.0).
    */
