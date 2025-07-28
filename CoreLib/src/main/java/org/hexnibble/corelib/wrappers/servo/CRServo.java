@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 
+import org.hexnibble.corelib.misc.Msg;
+
 public class CRServo extends BaseServoWrapper {
   private final CRServoImplEx servo;
 
@@ -18,11 +20,9 @@ public class CRServo extends BaseServoWrapper {
    * @param maxSpeed Maximum servo position: -1 to 1 for continuous rotation servo
    */
   public CRServo(
-      HardwareMap hwMap,
-      String servoName,
-      SERVO_MODEL servoModel,
-      double minSpeed,
-      double maxSpeed) {
+      HardwareMap hwMap, String servoName, SERVO_MODEL servoModel,
+      double minSpeed, double maxSpeed) {
+
     super(servoName, servoModel, minSpeed, maxSpeed);
     assert (minSpeed >= -1.0);
     assert (maxSpeed <= 1.0);
@@ -93,10 +93,12 @@ public class CRServo extends BaseServoWrapper {
   @Override
   public void setServoPosition(double position) {
     // This function should not be used for a CRServo
+    Msg.log(getClass().getSimpleName(), "setServoPosition", "setServoPosition should not be called on a CRServo.");
   }
 
   /**
-   * Set the servo to the specified speed.
+   * Set the servo to the specified speed (-1.0 to +1.0). The underlying servo implementation
+   * automatically scales this so
    *
    * @param speed Specified speed (-1.0 to +1.0). Stop is 0.0
    */

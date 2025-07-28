@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
+
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.wrappers.AnalogInputWrapper;
 
 public class RegularServo extends BaseServoWrapper {
@@ -109,11 +111,11 @@ public class RegularServo extends BaseServoWrapper {
     servoPositionPerDegree = 0.0;
   }
 
-  @Override
   /**
    * Call this function to initialize the servo. Usually, the command to set the starting position
    * can be placed in here.
    */
+  @Override
   public void initialize() {
     //        Log.i(TAG, "RegularServo.j: initialize " + servoName);
     super.initialize();
@@ -200,7 +202,7 @@ public class RegularServo extends BaseServoWrapper {
   //    }
 
   /**
-   * Set the servo to the specified position (or speed if CR).
+   * Set the servo to the specified position. This is for regular servos only.
    *
    * @param position Specified position (0.0 - 1.0).
    */
@@ -232,6 +234,7 @@ public class RegularServo extends BaseServoWrapper {
   @Override
   public void setServoSpeed(double speed) {
     // This function should not be used for a regular servo.
+    Msg.log(getClass().getSimpleName(), "setServoSpeed", "setServoSpeed should not be called on a RegularServo.");
   }
 
   /**

@@ -137,14 +137,14 @@ public abstract class BaseServoWrapper {
   }
 
   /**
-   * Set the servo to the specified position. This can be used for regular servos.
+   * Set the servo to the specified position. This is for regular servos only.
    *
    * @param position Specified position (0.0 - 1.0).
    */
   public abstract void setServoPosition(double position);
 
   /**
-   * Set the servo to the specified speed. This can be used for CR servos.
+   * Set the servo to the specified speed. This is for CR servos.
    *
    * @param speed Specified speed (-1.0 to +1.0). Stop is 0.0
    */
