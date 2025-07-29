@@ -5,9 +5,9 @@ package org.hexnibble.corelib.commands.rc
  * @param waitDuration The duration to wait in milliseconds.
  * @param commandID The ID of the command..
  */
-class WaitRC @JvmOverloads constructor(
+class WaitRCk @JvmOverloads constructor(
   waitDuration: Int,
   commandID: String = "WaitRC"
-) : RC(commandID, waitDuration) {
+) : RCk(commandID, waitDuration) {
   override fun processCommand() {}
 }

@@ -5,17 +5,17 @@ package org.hexnibble.corelib.commands.rc
  * @param commandList The list of RCs to run.
  * @param commandID The ID of the command
  */
-class SequentialRC @JvmOverloads constructor(
-  private var commandList: MutableList<RC>,
-  commandID: String = "SequentialRC"
-) : RC(commandID) {
+class SequentialRCk @JvmOverloads constructor(
+    private var commandList: MutableList<RCk>,
+    commandID: String = "SequentialRC"
+) : RCk(commandID) {
   /**
    * Run multiple commands in sequence, ending when the last command completes.
    * @param commandList The RCs to run
    * @param commandID The ID of the command
    */
   @JvmOverloads
-  constructor(vararg commandList: RC, commandID: String = "SequentialRC") : this(
+  constructor(vararg commandList: RCk, commandID: String = "SequentialRC") : this(
     mutableListOf(*commandList),
     commandID
   )

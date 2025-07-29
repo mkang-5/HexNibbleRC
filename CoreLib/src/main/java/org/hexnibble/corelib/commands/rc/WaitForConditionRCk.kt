@@ -10,12 +10,12 @@ import java.util.function.BooleanSupplier
  * @param rc The robot command to run if the condition is met.
  * @param commandID The ID of the command.
  */
-class WaitForConditionRC @JvmOverloads constructor(
+class WaitForConditionRCk @JvmOverloads constructor(
   private val condition: BooleanSupplier,
   private var timeout: Int = -1,
-  private var rc: RC = NullRC(),
+  private var rc: RCk = NullRCk(),
   commandID: String = "WaitForConditionRC"
-) : RC(commandID) {
+) : RCk(commandID) {
   private var conditionTriggered = false
   private lateinit var timer: Timer
 

@@ -8,17 +8,17 @@ import java.util.function.Supplier;
  * @deprecated Use JITConditionalRC instead
  */
 @Deprecated(since = "5/22/25", forRemoval = true)
-public class JITConditionalRCJ extends RC {
+public class JITConditionalRCJ extends RCk {
   private final BooleanSupplier condition;
-  private final Supplier<RC> trueConditionRC, falseConditionRC;
+  private final Supplier<RCk> trueConditionRC, falseConditionRC;
   private boolean conditionResult;
   private boolean RCObtained;
-  private RC RCtoRun;
+  private RCk RCtoRun;
 
   public JITConditionalRCJ(
       @NonNull BooleanSupplier condition,
-      Supplier<RC> trueConditionRC,
-      Supplier<RC> falseConditionRC) {
+      Supplier<RCk> trueConditionRC,
+      Supplier<RCk> falseConditionRC) {
     super("JITConditionalRC");
     this.condition = condition;
     this.trueConditionRC = trueConditionRC;

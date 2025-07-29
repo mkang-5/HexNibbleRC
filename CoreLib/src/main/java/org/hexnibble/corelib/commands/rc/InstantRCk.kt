@@ -5,10 +5,10 @@ package org.hexnibble.corelib.commands.rc
  * @param function The Runnable to run.
  * @param commandID The ID of the command.
  */
-class InstantRC @JvmOverloads constructor(
+class InstantRCk @JvmOverloads constructor(
   private val function: Runnable,
   commandID: String = "InstantRC"
-) : RC(commandID) {
+) : RCk(commandID) {
   override fun processCommand() {
     function.run()
     commandStatus = COMMAND_STATUSES.COMMAND_SUCCESSFULLY_COMPLETED

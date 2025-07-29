@@ -1,12 +1,12 @@
 package org.hexnibble.corelib.commands.rc.mechanisms;
 
-import org.hexnibble.corelib.commands.rc.RC;
+import org.hexnibble.corelib.commands.rc.RCk;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Timer;
 import org.hexnibble.corelib.robot_system.LinearMechanism;
 
 @Deprecated(since = "5/25/25", forRemoval = true)
-public class MoveLinearMechanismToPositionRCJ extends RC {
+public class MoveLinearMechanismToPositionRCJ extends RCk {
   LinearMechanism linearMechanism;
   double targetPosition_mm;
   //    boolean setPowerToZeroWhenRetracted;

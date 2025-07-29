@@ -1,6 +1,6 @@
 package org.hexnibble.corelib.commands.rc.mechanisms
 
-import org.hexnibble.corelib.commands.rc.RC
+import org.hexnibble.corelib.commands.rc.RCk
 import org.hexnibble.corelib.misc.Msg
 import org.hexnibble.corelib.misc.Timer
 import org.hexnibble.corelib.robot_system.LinearMechanism
@@ -12,12 +12,12 @@ import kotlin.math.abs
  * @param maxCommandDuration The maximum amount of time before the command times out. Defaults to -1 (never timeout)
  * @param commandID The ID of the command.
  */
-class MoveLinearMechanismToPositionRC @JvmOverloads constructor(
+class MoveLinearMechanismToPositionRCk @JvmOverloads constructor(
   private val mechanism: LinearMechanism,
   private var targetPositionMm: Double,
   maxCommandDuration: Int = -1,
   commandID: String = "MoveLinearMechanismToPositionRC"
-) : RC(commandID, maxCommandDuration) {
+) : RCk(commandID, maxCommandDuration) {
   //    boolean setPowerToZeroWhenRetracted;
   // Use to track whether the encoder offset was reset. We don't need to do this more than once for
   // the duration of this particular command

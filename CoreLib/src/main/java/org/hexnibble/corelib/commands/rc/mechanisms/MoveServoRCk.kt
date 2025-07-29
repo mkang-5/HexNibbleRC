@@ -1,6 +1,6 @@
 package org.hexnibble.corelib.commands.rc.mechanisms
 
-import org.hexnibble.corelib.commands.rc.RC
+import org.hexnibble.corelib.commands.rc.RCk
 import org.hexnibble.corelib.wrappers.servo.RegularServo
 
 /**
@@ -11,13 +11,13 @@ import org.hexnibble.corelib.wrappers.servo.RegularServo
  * @param delayAfterMovementMs Delay to use after moving servo. Defaults to 200ms.
  * @param commandID The ID of the command.
  */
-class MoveServoRC @JvmOverloads constructor(
+class MoveServoRCk @JvmOverloads constructor(
   private var servo: RegularServo,
   private val targetServoLocation: Double,
   private val servoUnit: ServoUnit = ServoUnit.DEGREES,
   delayAfterMovementMs: Int = 200,
   commandID: String = "MoveServoRC"
-) : RC(commandID, delayAfterMovementMs) {
+) : RCk(commandID, delayAfterMovementMs) {
   enum class ServoUnit {
     POSITION,
     DEGREES

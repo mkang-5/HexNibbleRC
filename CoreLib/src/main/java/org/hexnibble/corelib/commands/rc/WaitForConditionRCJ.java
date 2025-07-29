@@ -4,9 +4,9 @@ import androidx.annotation.NonNull;
 import java.util.function.BooleanSupplier;
 
 @Deprecated(since = "5/21/25", forRemoval = true)
-public class WaitForConditionRCJ extends RC {
+public class WaitForConditionRCJ extends RCk {
   private final BooleanSupplier condition;
-  private final RC rc;
+  private final RCk rc;
   private boolean conditionTriggered = false;
 
   /**
@@ -14,13 +14,13 @@ public class WaitForConditionRCJ extends RC {
    * condition occurs, the specified RC is run. If the condition does not occur within the time
    * limit, nothing happens.
    */
-  public WaitForConditionRCJ(@NonNull BooleanSupplier condition, int timeout_ms, RC rc) {
+  public WaitForConditionRCJ(@NonNull BooleanSupplier condition, int timeout_ms, RCk rc) {
     super("WaitForConditionCallbackRC", timeout_ms);
     this.condition = condition;
     this.rc = rc;
   }
 
-  public WaitForConditionRCJ(@NonNull BooleanSupplier condition, RC rc) {
+  public WaitForConditionRCJ(@NonNull BooleanSupplier condition, RCk rc) {
     this(condition, -1, rc);
   }
 
@@ -36,19 +36,19 @@ public class WaitForConditionRCJ extends RC {
    */
   public WaitForConditionRCJ(
       @NonNull BooleanSupplier condition, int timeout_ms, Runnable runnableIfConditionMet) {
-    this(condition, timeout_ms, new InstantRC(runnableIfConditionMet));
+    this(condition, timeout_ms, new InstantRCk(runnableIfConditionMet));
   }
 
   public WaitForConditionRCJ(@NonNull BooleanSupplier condition, Runnable runnableIfConditionMet) {
-    this(condition, -1, new InstantRC(runnableIfConditionMet));
+    this(condition, -1, new InstantRCk(runnableIfConditionMet));
   }
 
   public WaitForConditionRCJ(@NonNull BooleanSupplier condition, int timeout_ms) {
-    this(condition, timeout_ms, new NullRC());
+    this(condition, timeout_ms, new NullRCk());
   }
 
   public WaitForConditionRCJ(@NonNull BooleanSupplier condition) {
-    this(condition, -1, new NullRC());
+    this(condition, -1, new NullRCk());
   }
 
   @Override

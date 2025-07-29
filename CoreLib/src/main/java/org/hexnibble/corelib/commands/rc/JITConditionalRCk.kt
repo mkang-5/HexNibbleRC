@@ -9,17 +9,17 @@ import java.util.function.Supplier
  * @param trueConditionRC The RC to run if the condition is true.
  * @param falseConditionRC The RC to run if the condition is false.
  * @param commandID The ID of the command.
- * @see ConditionalRC
+ * @see ConditionalRCk
  */
-class JITConditionalRC @JvmOverloads constructor(
-  private var condition: BooleanSupplier,
-  private var trueConditionRC: Supplier<RC>,
-  private var falseConditionRC: Supplier<RC>,
-  commandID: String = "JITConditionalRC"
-) : RC(commandID) {
+class JITConditionalRCk @JvmOverloads constructor(
+    private var condition: BooleanSupplier,
+    private var trueConditionRC: Supplier<RCk>,
+    private var falseConditionRC: Supplier<RCk>,
+    commandID: String = "JITConditionalRC"
+) : RCk(commandID) {
   private var conditionResult = false
   private var rcObtained = false
-  private lateinit var rctoRun: RC
+  private lateinit var rctoRun: RCk
 
   override fun onStartCommand() {
     // Check the state of the condition and set conditionResult

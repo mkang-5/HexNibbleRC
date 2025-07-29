@@ -1,6 +1,6 @@
 package org.hexnibble.corelib.commands.rc.mechanisms
 
-import org.hexnibble.corelib.commands.rc.RC
+import org.hexnibble.corelib.commands.rc.RCk
 import org.hexnibble.corelib.motion.pid.PIDController
 import org.hexnibble.corelib.motion.pid.PIDSettings
 import org.hexnibble.corelib.wrappers.motor.WheelMotor
@@ -15,14 +15,14 @@ import java.util.function.Supplier
  * @param targetRPM The target RPM to send the flywheel to
  * @param commandID The ID of the command.
  */
-class FlywheelRC(
+class FlywheelRCk(
   private val motor: WheelMotor,
   private val rotationDirection: ROTATION_DIRECTION,
   PIDSettings: PIDSettings,
   private val deltaTimeSupplier: Supplier<Int>,
   private val targetRPM: Int,
   commandID: String = "FlywheelRC"
-) : RC(commandID) {
+) : RCk(commandID) {
   enum class ROTATION_DIRECTION {
     CLOCKWISE,
     COUNTERCLOCKWISE

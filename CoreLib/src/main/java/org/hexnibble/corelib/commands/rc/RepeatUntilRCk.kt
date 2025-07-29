@@ -10,12 +10,12 @@ import java.util.function.Supplier
  * @param condition The condition to check.
  * @param commandID The ID of the command.
  */
-class RepeatUntilRC @JvmOverloads constructor(
-  private val rcSupplier: Supplier<RC>,
-  private val condition: BooleanSupplier,
-  commandID: String = "RepeatUntilRC"
-) : RC(commandID) {
-  private lateinit var command: RC
+class RepeatUntilRCk @JvmOverloads constructor(
+    private val rcSupplier: Supplier<RCk>,
+    private val condition: BooleanSupplier,
+    commandID: String = "RepeatUntilRC"
+) : RCk(commandID) {
+  private lateinit var command: RCk
 
   override fun onStartCommand() {
     Msg.log("RepeatUntilRC", "onStartCommand", "Running supplier")

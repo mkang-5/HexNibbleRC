@@ -6,20 +6,20 @@ import java.util.function.Consumer
  * Run multiple commands in parallel, ending as soon as a single command completes.
  * @param commandList The list of RCs to run.
  * @param commandID The ID of the command.
- * @see ParallelRC
+ * @see ParallelRCk
  */
-class ParallelRaceRC @JvmOverloads constructor(
-  private var commandList: MutableList<RC>,
-  commandID: String = "ParallelRaceRC"
-) : RC(commandID) {
+class ParallelRaceRCk @JvmOverloads constructor(
+    private var commandList: MutableList<RCk>,
+    commandID: String = "ParallelRaceRC"
+) : RCk(commandID) {
   /**
    * Run multiple commands in parallel, ending as soon as a single command completes.
    * @param commandList The RCs to run
    * @param commandID The ID of the command
-   * @see ParallelRC
+   * @see ParallelRCk
    */
   @JvmOverloads
-  constructor(vararg commandList: RC, commandID: String = "ParallelRaceRC") : this(
+  constructor(vararg commandList: RCk, commandID: String = "ParallelRaceRC") : this(
     mutableListOf(*commandList),
     commandID
   )
@@ -27,7 +27,7 @@ class ParallelRaceRC @JvmOverloads constructor(
   override fun processCommand() {
     // Use removeIf to check each command in the list and remove it if it is complete
     commandList.forEach(
-      Consumer { rc: RC ->
+      Consumer { rc: RCk ->
         if (rc.processRC()) commandStatus = COMMAND_STATUSES.COMMAND_SUCCESSFULLY_COMPLETED
       })
   }

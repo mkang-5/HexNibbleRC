@@ -4,7 +4,7 @@ import org.hexnibble.corelib.misc.Msg
 import org.hexnibble.corelib.misc.Timer
 import org.hexnibble.corelib.misc.Timer.TimerUnit
 
-abstract class RC @JvmOverloads constructor(
+abstract class RCk @JvmOverloads constructor(
   protected val commandID: String = "",
   private var maxCommandDurationMs: Int = -1,
   private var onStartCallbackFunction: Runnable? = null,
