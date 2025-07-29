@@ -8,8 +8,11 @@ import org.hexnibble.corelib.motion.path.CorePath;
 import org.hexnibble.corelib.motion.path.PathChain;
 import org.hexnibble.corelib.motion.pid.PIDController;
 import org.hexnibble.corelib.motion.pid.PIDSettings;
+import org.hexnibble.corelib.robot.drivetrain.BaseDrivetrain;
 
+// This is similar to the Pedro Follower
 public class DriveController {
+  private BaseDrivetrain dt;
   private PathChain pathChain;
   private int pathChainIndex;
   private CorePath currentPath;
@@ -37,6 +40,10 @@ public class DriveController {
   //    protected dtRotationPIDController rotationPIDController = new dtRotationPIDController(
   //            rotationPIDSettings, Math.toRadians(2), this.rotationDirection); // Kp = 0.01
 
+  public DriveController(BaseDrivetrain dt) {
+    this.dt = dt;
+  }
+
   /**
    * This function is called to start a trajectory.
    * @param pathChain
@@ -63,14 +70,15 @@ public class DriveController {
   /**
    * This function should be called each loop to calculate the PID outputs to run the path.
    * @param currentIMUHeading
-   * @param targetMotorPowerSettings
    */
-  public void processPath(double currentIMUHeading, MotorPowerSettings targetMotorPowerSettings) {
-
-
-
-    double targetHdgRadians = 0.0;
-    double errorHdgRadians = Field.addRadiansToIMUHeading(targetHdgRadians, -currentIMUHeading);
+  public void processPath(double currentIMUHeading) {
+//    double targetHdgRadians = 0.0;
+//    double errorHdgRadians = Field.addRadiansToIMUHeading(targetHdgRadians, -currentIMUHeading);
     //        double spinValue = rotationPIDController.calculateNewControlValue(errorHdgRadians);
+
+    if (dt.isMovementUpdated()) {
+      dt.driveByRobotCartesianENU(dt.getDtMovementX(), dt.getDtMovementY(), dt.getDtMovementSpin(),
+            currentIMUHeading);
+    }
   }
 }

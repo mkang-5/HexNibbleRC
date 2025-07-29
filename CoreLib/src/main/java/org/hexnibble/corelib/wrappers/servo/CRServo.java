@@ -1,6 +1,7 @@
 package org.hexnibble.corelib.wrappers.servo;
 
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 
@@ -21,22 +22,19 @@ public class CRServo extends BaseServoWrapper {
    */
   public CRServo(
       HardwareMap hwMap, String servoName, SERVO_MODEL servoModel,
-      double minSpeed, double maxSpeed) {
+      double minSpeed, double maxSpeed,
+      String encoderName, DcMotorSimple.Direction encoderDirection) {
 
-    super(servoName, servoModel, minSpeed, maxSpeed);
+    super(hwMap, servoName, servoModel, minSpeed, maxSpeed, encoderName, encoderDirection);
     assert (minSpeed >= -1.0);
     assert (maxSpeed <= 1.0);
-
-    if (hwMap == null) {
-      throw new NullPointerException();
-    }
 
     this.servo = hwMap.get(CRServoImplEx.class, servoName);
   }
 
   /**
-   * Easy constructor for CRServo with default min/max as -1/+1 and servo off to start. Toggle
-   * positions can also be specified.
+   * Easy constructor for CRServo with default min/max as -1/+1, servo off to start, and no encoder.
+   * Toggle positions can also be specified.
    *
    * @param hwMap Hardware map
    * @param servoName Servo name
@@ -45,9 +43,8 @@ public class CRServo extends BaseServoWrapper {
   public CRServo(
       HardwareMap hwMap,
       String servoName,
-      SERVO_MODEL servoModel,
-      RUN_DIRECTION servoRunDirection) {
-    this(hwMap, servoName, servoModel, -1.0, 1.0);
+      SERVO_MODEL servoModel) {
+    this(hwMap, servoName, servoModel, -1.0, 1.0, null, null);
   }
 
   @Override
@@ -106,7 +103,9 @@ public class CRServo extends BaseServoWrapper {
   public void setServoSpeed(double speed) {
     double checkedPosition = rangeCheckPosition(speed);
 
-    servo.setPower(checkedPosition);
-    targetPosition = checkedPosition;
+    if (checkedPosition != targetPosition) {
+      servo.setPower(checkedPosition);
+      targetPosition = checkedPosition;
+    }
   }
 }

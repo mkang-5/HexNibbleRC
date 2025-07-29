@@ -11,10 +11,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.hexnibble.corelib.commands.rc.LogRC;
+import org.hexnibble.corelib.commands.rc.LogRCk;
 import org.hexnibble.corelib.commands.rc.RC;
-import org.hexnibble.corelib.commands.rc.mechanisms.MoveLinearMechanismToPositionRC;
-import org.hexnibble.corelib.commands.rc.mechanisms.MoveServoRC;
+import org.hexnibble.corelib.commands.rc.RCk;
+import org.hexnibble.corelib.commands.rc.mechanisms.MoveLinearMechanismToPositionRCk;
+import org.hexnibble.corelib.commands.rc.mechanisms.MoveServoRCk;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.wrappers.sensor.ColorSensorWrapper;
 import org.hexnibble.corelib.wrappers.sensor.CoreSensorWrapper;
@@ -23,7 +24,6 @@ import org.hexnibble.corelib.wrappers.sensor.TouchSensorWrapper;
 import org.hexnibble.corelib.wrappers.servo.BaseServoWrapper;
 import org.hexnibble.corelib.wrappers.servo.CRServo;
 import org.hexnibble.corelib.wrappers.servo.RegularServo;
-import org.hexnibble.corelib.wrappers.servo.RegularToggleServo;
 
 public class CoreRobotSystem {
   protected final HardwareMap hwMap;
@@ -108,37 +108,37 @@ public class CoreRobotSystem {
     servoList.put(servoName, servo);
     return servo;
   }
-
-  @Deprecated
-  protected RegularToggleServo addRegularToggleServo(
-      String servoName,
-      BaseServoWrapper.SERVO_MODEL servoModel,
-      String servoEncoderName,
-      DcMotorSimple.Direction encoderDirection,
-      double minPosition,
-      double maxPosition,
-      double minTogglePosition,
-      double maxTogglePosition) {
-    RegularToggleServo servo =
-        new RegularToggleServo(
-            hwMap,
-            servoName,
-            servoModel,
-            servoEncoderName,
-            encoderDirection,
-            minPosition,
-            maxPosition,
-            minTogglePosition,
-            maxTogglePosition);
-    servoList.put(servoName, servo);
-    return servo;
-  }
+//
+//  @Deprecated
+//  protected RegularToggleServo addRegularToggleServo(
+//      String servoName,
+//      BaseServoWrapper.SERVO_MODEL servoModel,
+//      String servoEncoderName,
+//      DcMotorSimple.Direction encoderDirection,
+//      double minPosition,
+//      double maxPosition,
+//      double minTogglePosition,
+//      double maxTogglePosition) {
+//    RegularToggleServo servo =
+//        new RegularToggleServo(
+//            hwMap,
+//            servoName,
+//            servoModel,
+//            servoEncoderName,
+//            encoderDirection,
+//            minPosition,
+//            maxPosition,
+//            minTogglePosition,
+//            maxTogglePosition);
+//    servoList.put(servoName, servo);
+//    return servo;
+//  }
 
   protected CRServo addCRServo(
       String servoName, BaseServoWrapper.SERVO_MODEL servoModel,
-      double minPosition, double maxPosition)
+      double minSpeed, double maxSpeed)
   {
-    CRServo servo = new CRServo(hwMap, servoName, servoModel, minPosition, maxPosition);
+    CRServo servo = new CRServo(hwMap, servoName, servoModel);
     servoList.put(servoName, servo);
     return servo;
   }
@@ -209,27 +209,27 @@ public class CoreRobotSystem {
    * @param delayAfterMovement_ms Time to delay
    * @return
    */
-  public RC setServoPositionDegreesAsRC(
+  public RCk setServoPositionDegreesAsRC(
       String servoName, double targetPositionDegrees, int delayAfterMovement_ms)
   {
     RegularServo servo = (RegularServo) servoList.get(servoName);
     if (servo != null)
-      return new MoveServoRC(servo, targetPositionDegrees, MoveServoRC.ServoUnit.DEGREES,
+      return new MoveServoRCk(servo, targetPositionDegrees, MoveServoRCk.ServoUnit.DEGREES,
           delayAfterMovement_ms, servoName);
     else
-      return new LogRC(
+      return new LogRCk(
           "CoreRobotSystem.setServoPositionDegreesAsRC unable to find servo " + servoName);
   }
 
-  public RC setServoPositionAsRC(
+  public RCk setServoPositionAsRC(
       String servoName, double targetPosition, int delayAfterMovement_ms)
   {
     RegularServo servo = (RegularServo) servoList.get(servoName);
     if (servo != null)
-      return new MoveServoRC(
-          servo, targetPosition, MoveServoRC.ServoUnit.POSITION, delayAfterMovement_ms, servoName);
+      return new MoveServoRCk(
+          servo, targetPosition, MoveServoRCk.ServoUnit.POSITION, delayAfterMovement_ms, servoName);
     else
-      return new LogRC(
+      return new LogRCk(
           "CoreRobotSystem.setServoPositionDegreesAsRC unable to find servo " + servoName);
   }
 
@@ -249,10 +249,10 @@ public class CoreRobotSystem {
       servo.setServoToMinPosition();
   }
 
-  @Deprecated
-  public void setServoToMinTogglePosition(String servoName) {
-    ((RegularToggleServo) servoList.get(servoName)).setServoToMinTogglePosition();
-  }
+//  @Deprecated
+//  public void setServoToMinTogglePosition(String servoName) {
+//    ((RegularToggleServo) servoList.get(servoName)).setServoToMinTogglePosition();
+//  }
 
   /**
    * Set the servo to the maximum position (or speed if CR).
@@ -264,10 +264,10 @@ public class CoreRobotSystem {
     if (servo != null) servo.setServoToMaxPosition();
   }
 
-  @Deprecated
-  public void setServoToMaxTogglePosition(@NonNull String servoName) {
-    ((RegularToggleServo) servoList.get(servoName)).setServoToMaxTogglePosition();
-  }
+//  @Deprecated
+//  public void setServoToMaxTogglePosition(@NonNull String servoName) {
+//    ((RegularToggleServo) servoList.get(servoName)).setServoToMaxTogglePosition();
+//  }
 
   /**
    * Increment the servo position (or speed if CR) up.
@@ -425,12 +425,12 @@ public class CoreRobotSystem {
         .moveToPosition_mm(position_mm, motorPower, true);
   }
 
-  public RC moveLinearMechanismToPositionAsRC(String linearMechanismName, double position_mm) {
+  public RCk moveLinearMechanismToPositionAsRC(String linearMechanismName, double position_mm) {
     LinearMechanism mechanism = mechanismList.get(linearMechanismName);
     if (mechanism != null)
-      return new MoveLinearMechanismToPositionRC(mechanism, position_mm, 5000, linearMechanismName);
+      return new MoveLinearMechanismToPositionRCk(mechanism, position_mm, 5000, linearMechanismName);
     else
-      return new LogRC(
+      return new LogRCk(
           "CoreRobotSystem.moveLinearMechanismToPositionAsRC unable to find mechanism "
               + linearMechanismName);
   }

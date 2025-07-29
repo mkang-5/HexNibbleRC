@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.robot.CoreRobot;
-import org.hexnibble.corelib.robot.MecanumDrivetrain;
+import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadWrapper;
@@ -60,7 +60,7 @@ public class MecanumTestRobot extends CoreRobot {
         oq.resetIMUHeading();
     }
     @Override
-    public double readIMUHeading() {
+    public double refreshIMUHeading() {
         return oq.readIMUHeading();
     }
 

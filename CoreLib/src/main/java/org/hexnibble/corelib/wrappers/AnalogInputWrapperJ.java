@@ -3,7 +3,6 @@ package org.hexnibble.corelib.wrappers;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-@Deprecated(since = "5/25/25", forRemoval = true)
 public class AnalogInputWrapperJ {
   AnalogInput analogSensor;
 

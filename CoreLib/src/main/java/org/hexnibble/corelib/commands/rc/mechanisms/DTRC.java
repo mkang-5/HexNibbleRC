@@ -1,9 +1,9 @@
 package org.hexnibble.corelib.commands.rc.mechanisms;
 
-import org.hexnibble.corelib.commands.rc.RC;
+import org.hexnibble.corelib.commands.rc.RCk;
 import org.hexnibble.corelib.motion.DriveController;
 
-public class DTRC extends RC {
+public class DTRC extends RCk {
   DriveController driveController;
 
   public DTRC(DriveController driveController) {

@@ -2,8 +2,7 @@ package org.hexnibble.corelib.commands.rc;
 
 import org.hexnibble.corelib.misc.Timer;
 
-@Deprecated(since = "5/24/25", forRemoval = true)
-public abstract class RCJ {
+public abstract class RC {
   protected final String commandID;
   private int maxCommandDuration_ms;
   private Timer commandDurationTimer;
@@ -23,12 +22,11 @@ public abstract class RCJ {
   // Functions to run on start, failed, and complete
   protected Runnable onStartCallbackFunction, onCompleteCallbackFunction;
 
-  public RCJ(
-      String commandID,
-      int maxCommandDuration_ms,
+  public RC(String commandID, int maxCommandDuration_ms,
       Runnable onStartCallbackFunction,
       Runnable onCompleteCallbackFunction,
       boolean logCommandStart) {
+
     this.commandID = commandID;
     this.maxCommandDuration_ms = maxCommandDuration_ms < 0 ? -1 : maxCommandDuration_ms;
 
@@ -40,9 +38,7 @@ public abstract class RCJ {
     this.logCommandStart = logCommandStart;
   }
 
-  public RCJ(
-      String commandID,
-      int maxCommandDuration_ms,
+  public RC(String commandID, int maxCommandDuration_ms,
       Runnable onStartCallbackFunction,
       Runnable onCompleteCallbackFunction) {
     this(
@@ -53,19 +49,19 @@ public abstract class RCJ {
         false);
   }
 
-  public RCJ(String commandID, int maxCommandDuration_ms) {
+  public RC(String commandID, int maxCommandDuration_ms) {
     this(commandID, maxCommandDuration_ms, null, null);
   }
 
-  public RCJ(String commandID) {
+  public RC(String commandID) {
     this(commandID, -1, null, null);
   }
 
-  public RCJ(int maxCommandDuration_ms) {
+  public RC(int maxCommandDuration_ms) {
     this("", maxCommandDuration_ms, null, null);
   }
 
-  public RCJ() {
+  public RC() {
     this("", -1, null, null);
   }
 
@@ -143,9 +139,8 @@ public abstract class RCJ {
     processCommand();
     checkIfCommandTimedOut();
 
-    return !((commandStatus
-            == COMMAND_STATUS
-                .COMMAND_CREATED) // If the command were reset, it would be in created status
+    // If the command were reset, it would be in created status
+    return !((commandStatus == COMMAND_STATUS.COMMAND_CREATED)
         || (commandStatus == COMMAND_STATUS.COMMAND_RUNNING));
   }
 

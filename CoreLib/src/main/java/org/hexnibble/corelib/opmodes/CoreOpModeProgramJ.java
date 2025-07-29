@@ -3,7 +3,7 @@ package org.hexnibble.corelib.opmodes;
 import org.hexnibble.corelib.commands.rc.RC;
 import org.hexnibble.corelib.commands.rc.RCController;
 
-@Deprecated(since = "5/25/25", forRemoval = true)
+
 public class CoreOpModeProgramJ {
   private boolean programComplete;
 
@@ -13,7 +13,7 @@ public class CoreOpModeProgramJ {
 //  protected final Pose startingPedroPose;
 
   public CoreOpModeProgramJ(
-      RCController rcController) { //, Follower pedroFollower, Pose startingPedroPose) {
+        RCController rcController) { //, Follower pedroFollower, Pose startingPedroPose) {
     this.rcController = rcController;
 //    this.pedroFollower = pedroFollower;
 //    this.startingPedroPose = startingPedroPose;

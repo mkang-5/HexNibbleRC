@@ -1,24 +1,22 @@
-package org.hexnibble.corelib.robot;
+package org.hexnibble.corelib.robot.drivetrain;
 
 import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.hexnibble.corelib.commands.rc.DrivetrainRC;
 import org.hexnibble.corelib.misc.ConfigFile;
 import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.PolarCoords;
-import org.hexnibble.corelib.misc.Timer;
 import org.hexnibble.corelib.motion.MotorPowerSettings;
 import org.hexnibble.corelib.motion.pid.PIDSettings;
 import org.hexnibble.corelib.motion.pid.dtRotationPIDController;
-import org.hexnibble.corelib.opmodes.CoreLinearOpMode;
-import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
 import org.hexnibble.corelib.wrappers.motor.WheelMotor;
 
-public class MecanumDrivetrain extends CoreRobotSystem
+public class MecanumDrivetrain extends BaseDrivetrain
 {
 /*
   public native void onLoadJNI(BaseMotorWrapper LFMotor, BaseMotorWrapper RFMotor,
@@ -32,49 +30,20 @@ public class MecanumDrivetrain extends CoreRobotSystem
     System.loadLibrary("CoreLib");
   }
 */
-//  protected DriveController dtController;
-
-  protected double dtManual_X; // X Joystick movement, range -1.0 (left) to +1.0 (right)
-  protected double previousDTManual_X;
-  protected double dtManual_Y; // Y Joystick movement, range -1.0 (backward) to +1.0 (forward)
-  protected double previousDTManual_Y;
-//  protected double dtManual_Spin; // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
-//  protected double previousDTManual_Spin;
-  protected double dtManual_cwSpin; // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
-  protected double previousDTManual_cwSpin;
-  protected double dtManual_ccwSpin; // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
-  protected double previousDTManual_ccwSpin;
-  private boolean dtManualMovementUpdated;
-//  private double initialHeadingOnManualTranslationDegrees;
-  private double currentIMUHeading;
 
   // Variables to hold motor objects.
-  public enum WHEEL_MOTOR_NAME {
+  public enum WHEEL_MODULE_NAME {
     LF, RF, LB, RB
   }
 
-  private final WheelMotor motorLeftFront;
-  private final WheelMotor motorRightFront;
-  private final WheelMotor motorLeftBack;
-  private final WheelMotor motorRightBack;
+  private final WheelModule moduleLeftFront;
+  private final WheelModule moduleRightFront;
+  private final WheelModule moduleLeftBack;
+  private final WheelModule moduleRightBack;
 
   // Variables to hold target power for each motor
   private final MotorPowerSettings targetMotorPowerSettings = new MotorPowerSettings();
 
-  PIDSettings rotationPIDSettings =
-          new PIDSettings(
-                  ConfigFile.DRIVETRAIN_ROTATION_PID_Ks,
-                  ConfigFile.DRIVETRAIN_ROTATION_PID_Kp,
-                  ConfigFile.DRIVETRAIN_ROTATION_PID_Ki,
-                  ConfigFile.DRIVETRAIN_ROTATION_PID_Kd);
-
-  // Create PID Controllers
-  protected dtRotationPIDController rotationPIDController = new dtRotationPIDController(
-          rotationPIDSettings, Math.toRadians(2), dtRotationPIDController.ROTATION_DIRECTION.SHORTEST );
-
-  // Minimum threshold for motor power to exceed to send a new motor command (compared to the
-  // previously sent value)
-  private final double MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND = 0.001;
 
   /**
    * Constructor for mecanum drivetrain.
@@ -108,7 +77,7 @@ public class MecanumDrivetrain extends CoreRobotSystem
    *     being used for monitoring a separate wheel, then specify the diameter of the wheel attached
    *     to the encoder.
    */
-  public MecanumDrivetrain(HardwareMap hwMap,
+  public MecanumDrivetrain(@NonNull HardwareMap hwMap,
       String LFMotorName, DcMotor.Direction LFMotorRunDirection,
       BaseMotorWrapper.ENCODER LFEncoderType,
       DcMotor.Direction LFEncoderDirection,
@@ -121,28 +90,26 @@ public class MecanumDrivetrain extends CoreRobotSystem
       BaseMotorWrapper.MOTOR_MODEL motorModel, DcMotor.RunMode runMode,
       double extGearReduction, int targetPositionTolerance, double wheelDiameterMM) {
 
-    super(hwMap, "Drivetrain");
+    super(hwMap);
 
     Msg.log("MecanumDrivetrain", "Constructor", "Starting");
 
-    motorLeftFront =
-        new WheelMotor(hwMap, LFMotorName, motorModel, LFMotorRunDirection, runMode,
+    moduleLeftFront =
+        new WheelModule(hwMap, LFMotorName, motorModel, LFMotorRunDirection, runMode,
             LFEncoderType, LFEncoderDirection, extGearReduction, wheelDiameterMM,
             targetPositionTolerance);
-    motorRightFront =
-        new WheelMotor(hwMap, RFMotorName, motorModel, RFMotorRunDirection, runMode,
+    moduleRightFront =
+        new WheelModule(hwMap, RFMotorName, motorModel, RFMotorRunDirection, runMode,
             RFEncoderType, RFEncoderDirection, extGearReduction, wheelDiameterMM,
             targetPositionTolerance);
-    motorLeftBack =
-        new WheelMotor(hwMap, LBMotorName, motorModel, LBMotorRunDirection, runMode,
+    moduleLeftBack =
+        new WheelModule(hwMap, LBMotorName, motorModel, LBMotorRunDirection, runMode,
             LBEncoderType, LBEncoderDirection, extGearReduction, wheelDiameterMM,
             targetPositionTolerance);
-    motorRightBack =
-        new WheelMotor(hwMap, RBMotorName, motorModel, RBMotorRunDirection, runMode,
+    moduleRightBack =
+        new WheelModule(hwMap, RBMotorName, motorModel, RBMotorRunDirection, runMode,
             RBEncoderType, RBEncoderDirection, extGearReduction, wheelDiameterMM,
             targetPositionTolerance);
-
-//    dtController = new DriveController();
 
 //    onLoadJNI(motorLeftFront, motorRightFront, motorLeftBack, motorRightBack);
     Msg.log("MecanumDrivetrain", "Constructor", "Ending");
@@ -151,111 +118,57 @@ public class MecanumDrivetrain extends CoreRobotSystem
   /** Call this function to reinitialize motors to our set values when restarting an OpMode. */
   @Override
   public void resetSystem() {
-    motorLeftFront.reset();
-    motorRightFront.reset();
-    motorLeftBack.reset();
-    motorRightBack.reset();
+    super.resetSystem();
+
+    moduleLeftFront.reset();
+    moduleRightFront.reset();
+    moduleLeftBack.reset();
+    moduleRightBack.reset();
+
     targetMotorPowerSettings.reset();
-    dtManualMovementUpdated = false;
-//    initialHeadingOnManualTranslationDegrees = 0.0;
-    previousDTManual_X = 0.0;
-    previousDTManual_Y = 0.0;
-//    previousDTManual_Spin = 0.0;
-    previousDTManual_cwSpin = 0.0;
-    previousDTManual_ccwSpin = 0.0;
-    currentIMUHeading = 0.0;
   }
 
-  /**
-   * Set the X value for a manual drivetrain movement.
-   *
-   * @param X Movement in X direction, range -1.0 (left) to +1.0 (right)
-   */
-  public void setDrivetrainManualMovement_X(double X) {
-    previousDTManual_X = dtManual_X;
-    dtManual_X = X;
-    dtManualMovementUpdated = true;
-  }
-
-  /**
-   * Set the Y value for a manual drivetrain movement.
-   *
-   * @param Y Movement in Y direction, range -1.0 (backward) to +1.0 (forward). Remember Y values
-   *     need to be flipped when taken directly from the joystick.
-   */
-  public void setDrivetrainManualMovement_Y(double Y) {
-    previousDTManual_Y = dtManual_Y;
-    dtManual_Y = Y;
-    dtManualMovementUpdated = true;
-  }
-
-  /**
-   * Sets the spin for a manual drivetrain movement.
-   *
-   * @param spin Spin speed, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
-   */
-//  public void setDrivetrainManualMovement_Spin(double spin) {
-////    previousDTManual_Spin = dtManual_Spin;
-//    dtManual_Spin = spin;
-//    dtManualMovementUpdated = true;
-//  }
-
-  public void setDrivetrainManualMovement_cwSpin(double spin) {
-    previousDTManual_cwSpin = dtManual_cwSpin;
-    dtManual_cwSpin = spin;
-    dtManualMovementUpdated = true;
-  }
-
-  /**
-   *
-   * @param spin CCW as a positive number from 0 - 1.0
-   */
-  public void setDrivetrainManualMovement_ccwSpin(double spin) {
-    previousDTManual_ccwSpin = dtManual_ccwSpin;
-    dtManual_ccwSpin = spin;
-    dtManualMovementUpdated = true;
-  }
-
-
-  public WheelMotor getWheelMotorObject(WHEEL_MOTOR_NAME wheelMotorName) {
-    return switch (wheelMotorName) {
-      case LF -> motorLeftFront;
-      case RF -> motorRightFront;
-      case LB -> motorLeftBack;
-      case RB -> motorRightBack;
+  public WheelMotor getWheelMotorObject(WHEEL_MODULE_NAME wheelModuleName) {
+    return switch (wheelModuleName) {
+      case LF -> moduleLeftFront.getWheelMotorObject();
+      case RF -> moduleRightFront.getWheelMotorObject();
+      case LB -> moduleLeftBack.getWheelMotorObject();
+      case RB -> moduleRightBack.getWheelMotorObject();
     };
   }
 
   /** Brake drivetrain by setting all motors to 0 power. */
+  @Override
   public void brakeDrivetrain() {
-    motorLeftFront.setPower(0.0);
-    motorRightFront.setPower(0.0);
-    motorLeftBack.setPower(0.0);
-    motorRightBack.setPower(0.0);
+    moduleLeftFront.setMotorPower(0.0);
+    moduleRightFront.setMotorPower(0.0);
+    moduleLeftBack.setMotorPower(0.0);
+    moduleRightBack.setMotorPower(0.0);
   }
 
+  @Override
   public void setBrakeMode(DcMotor.ZeroPowerBehavior brakeMode) {
-    motorLeftFront.setBrakeMode(brakeMode);
-    motorRightFront.setBrakeMode(brakeMode);
-    motorLeftBack.setBrakeMode(brakeMode);
-    motorRightBack.setBrakeMode(brakeMode);
+    moduleLeftFront.setBrakeMode(brakeMode);
+    moduleRightFront.setBrakeMode(brakeMode);
+    moduleLeftBack.setBrakeMode(brakeMode);
+    moduleRightBack.setBrakeMode(brakeMode);
   }
 
-  public double getMotorCurrent(@NonNull WHEEL_MOTOR_NAME motorName) {
-    return switch (motorName) {
-      case LF -> motorLeftFront.getMotorCurrent(CurrentUnit.MILLIAMPS);
-      case RF -> motorRightFront.getMotorCurrent(CurrentUnit.MILLIAMPS);
-      case LB -> motorLeftBack.getMotorCurrent(CurrentUnit.MILLIAMPS);
-      case RB -> motorRightBack.getMotorCurrent(CurrentUnit.MILLIAMPS);
+  public double getMotorCurrent(@NonNull WHEEL_MODULE_NAME moduleName) {
+    return switch (moduleName) {
+      case LF -> moduleLeftFront.getMotorCurrent(CurrentUnit.MILLIAMPS);
+      case RF -> moduleRightFront.getMotorCurrent(CurrentUnit.MILLIAMPS);
+      case LB -> moduleLeftBack.getMotorCurrent(CurrentUnit.MILLIAMPS);
+      case RB -> moduleRightBack.getMotorCurrent(CurrentUnit.MILLIAMPS);
     };
   }
 
-  public double getMotorPower(@NonNull WHEEL_MOTOR_NAME motorName) {
-    return switch (motorName) {
-      case LF -> motorLeftFront.getMotorPower();
-      case RF -> motorRightFront.getMotorPower();
-      case LB -> motorLeftBack.getMotorPower();
-      case RB -> motorRightBack.getMotorPower();
+  public double getMotorPower(@NonNull WHEEL_MODULE_NAME moduleName) {
+    return switch (moduleName) {
+      case LF -> moduleLeftFront.getMotorPower();
+      case RF -> moduleRightFront.getMotorPower();
+      case LB -> moduleLeftBack.getMotorPower();
+      case RB -> moduleRightBack.getMotorPower();
     };
   }
 
@@ -272,7 +185,8 @@ public class MecanumDrivetrain extends CoreRobotSystem
    * @param offsetToConvertToFieldCentricHeadingDegrees Offset to subtract to convert robot's zero
    *     to field's zero heading
    */
-  public void driveMecanumByCartesianENU(
+  @Override
+  public void driveByRobotCartesianENU(
       double X, double Y, double spin, double offsetToConvertToFieldCentricHeadingDegrees) {
 
     final boolean useCPP = false;
@@ -290,7 +204,7 @@ public class MecanumDrivetrain extends CoreRobotSystem
     else {
       // Java version
 
-      long startTime = System.nanoTime();
+//      long startTime = System.nanoTime();
       // Convert X and Y (robot-centric) to polar coordinates (robot-centric)
       // Remember 0 degrees lies on x-axis in polar coordinates
       PolarCoords coords = Field.cartesianToPolarCoords(X, Y);
@@ -304,7 +218,8 @@ public class MecanumDrivetrain extends CoreRobotSystem
       coords.theta -= Math.toRadians(offsetToConvertToFieldCentricHeadingDegrees);
 
       calculateMotorPowers(coords.r, coords.theta, spin, targetMotorPowerSettings);
-//      setMotorPowers(targetMotorPowerSettings);
+      setMotorPowers(targetMotorPowerSettings);
+      dtManualMovementUpdated = false;
 //      Msg.log("MecanumDrivetrain", "driveMecanumByRobotPolarHeading", "Time for Java version= "
 //              + (System.nanoTime() - startTime)/1000 + " us");
     }
@@ -317,15 +232,15 @@ public class MecanumDrivetrain extends CoreRobotSystem
    * @param motorPower Motor power for translation (must be a positive value from 0.0 - 1.0)
    * @param spin Spin speed, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
    */
-  public void driveMecanumByRobotCompassHeading(
-      double headingDegrees, float motorPower, double spin) {
-    // Convert robot-centric compass heading (0-deg is on y-axis) to robot-centric polar heading
-    // (0-deg is on x-axis)
-    // Also convert to radians
-    double theta = Math.toRadians((360.0 - headingDegrees) + 90.0);
-
-    driveMecanumByRobotPolarHeading(motorPower, theta, spin);
-  }
+//  @Override
+//  public void driveByRobotCompassHeading(double headingDegrees, float motorPower, double spin) {
+//    // Convert robot-centric compass heading (0-deg is on y-axis) to robot-centric polar heading
+//    // (0-deg is on x-axis)
+//    // Also convert to radians
+//    double theta = Math.toRadians((360.0 - headingDegrees) + 90.0);
+//
+//    driveMecanumByRobotPolarHeading(motorPower, theta, spin);
+//  }
 
   /**
    * Calculate motor powers for each wheel motor to move mecanum drivetrain based on robot-centric
@@ -342,6 +257,7 @@ public class MecanumDrivetrain extends CoreRobotSystem
   }
 
   /**
+   * Calculate the motor powers needed to move the drivetrain the desired settings.
    *
    * @param r Magnitude of movement (0 - 1). Value will be clamped.
    * @param theta Heading (angle of movement) in radians using polar coordinates. 0 is to the right
@@ -402,94 +318,85 @@ public class MecanumDrivetrain extends CoreRobotSystem
   }
 
   private void setMotorPowers(MotorPowerSettings targetMPowers) {
-    motorLeftFront.setPowerNoClamping(targetMPowers.LF);
-    motorRightFront.setPowerNoClamping(targetMPowers.RF);
-    motorLeftBack.setPowerNoClamping(targetMPowers.LB);
-    motorRightBack.setPowerNoClamping(targetMPowers.RB);
+    moduleLeftFront.setMotorPowerNoClamping(targetMPowers.LF);
+    moduleRightFront.setMotorPowerNoClamping(targetMPowers.RF);
+    moduleLeftBack.setMotorPowerNoClamping(targetMPowers.LB);
+    moduleRightBack.setMotorPowerNoClamping(targetMPowers.RB);
   }
 
   public void setMotorPowers(double LF, double RF, double LB, double RB) {
-    motorLeftFront.setPowerNoClamping(LF);
-    motorRightFront.setPowerNoClamping(RF);
-    motorLeftBack.setPowerNoClamping(LB);
-    motorRightBack.setPowerNoClamping(RB);
+    moduleLeftFront.setMotorPowerNoClamping(LF);
+    moduleRightFront.setMotorPowerNoClamping(RF);
+    moduleLeftBack.setMotorPowerNoClamping(LB);
+    moduleRightBack.setMotorPowerNoClamping(RB);
   }
 
-  public void setMotorRunMode(WHEEL_MOTOR_NAME motorName, DcMotor.RunMode runMode) {
-    WheelMotor motor =
-        switch (motorName) {
-          case LF -> motorLeftFront;
-          case LB -> motorLeftBack;
-          case RF -> motorRightFront;
-          case RB -> motorRightBack;
+  public void setMotorRunMode(WHEEL_MODULE_NAME moduleName, DcMotor.RunMode runMode) {
+    WheelModule module =
+        switch (moduleName) {
+          case LF -> moduleLeftFront;
+          case LB -> moduleLeftBack;
+          case RF -> moduleRightFront;
+          case RB -> moduleRightBack;
         };
-    motor.setRunMode(runMode);
+    module.setMotorRunMode(runMode);
   }
 
-  public void setMotorPower(WHEEL_MOTOR_NAME motorName, double power) {
-    WheelMotor motor =
-        switch (motorName) {
-          case LF -> motorLeftFront;
-          case LB -> motorLeftBack;
-          case RF -> motorRightFront;
-          case RB -> motorRightBack;
+  public void setMotorPower(WHEEL_MODULE_NAME moduleName, double power) {
+    WheelModule module =
+        switch (moduleName) {
+          case LF -> moduleLeftFront;
+          case LB -> moduleLeftBack;
+          case RF -> moduleRightFront;
+          case RB -> moduleRightBack;
         };
-    motor.setPower(power);
+    module.setMotorPower(power);
   }
 
-  public void setCurrentIMUHeading(double currentIMUHeading) {
-    this.currentIMUHeading = currentIMUHeading;
-  }
+  public void qSpinTurnToNearest45(double currentIMUHeadingDegrees,
+                                   DrivetrainRC.ROTATION_DIRECTION rotationDirection) {
 
-  @Override
-  public void processCommands() {
-//    dtController.processPath();
+    final double targetTolerance = 2.5; // Must be >0.0
+    double deltaIMUHeadingDegrees;
 
-    if (dtManualMovementUpdated) {
-      clearSystemRCList();
-
-/*
-      // If a new translation movement is starting OR a manual spin is ending, save the heading
-      if (((previousDTManual_X == 0.0) && (dtManual_X != 0.0))
-          || ((previousDTManual_Y == 0.0) && (dtManual_Y != 0.0))
-          || ((previousDTManual_Spin != 0.0) && (dtManual_Spin == 0.0))) {
-
-        Msg.log("MecanumDrivetrain", "processCommands", "Saving start heading=" + currentIMUHeading);
-        initialHeadingOnManualTranslationDegrees = currentIMUHeading;
-      }
-
-      // If translating without spin, lock the heading to the saved value so the robot's heading
-      // does not drift.
-//      Msg.log("MecanumDrivetrain", "processCommands", "dtManual_Spin=" + dtManual_Spin);
-
-      if ((dtManual_Spin == 0.0)
-          && ((dtManual_X != 0.0) || (dtManual_Y != 0.0))) {
-        Msg.log("MecanumDrivetrain", "processCommands",
-                "No spin so subtracting current IMU=" + currentIMUHeading + " from startHdg=" + initialHeadingOnManualTranslationDegrees);
-
-        double errorHdgRadians = Field.addRadiansToIMUHeading(-Math.toRadians(currentIMUHeading), Math.toRadians(initialHeadingOnManualTranslationDegrees));
-        spinValue = rotationPIDController.calculateNewControlValue(errorHdgRadians);
-        Msg.log("MecanumDrivetrain", "processCommands", "error=" + Math.toDegrees(errorHdgRadians)
-                + " spin=" + spinValue);
-      }
-*/
-
-//      driveMecanumByCartesianENU(dtManual_X, dtManual_Y, dtManual_Spin, currentIMUHeading);
-      driveMecanumByCartesianENU(dtManual_X, dtManual_Y, dtManual_cwSpin - dtManual_ccwSpin, currentIMUHeading);
-      setMotorPowers(targetMotorPowerSettings);
-      dtManualMovementUpdated = false;
+    if (rotationDirection == DrivetrainRC.ROTATION_DIRECTION.CLOCKWISE) {
+      deltaIMUHeadingDegrees =
+            (Math.ceil((currentIMUHeadingDegrees - targetTolerance) / 45.0) * 45.0)
+                  - 45.0
+                  - currentIMUHeadingDegrees;
+    }
+    else {
+      deltaIMUHeadingDegrees =
+            (Math.floor((currentIMUHeadingDegrees + targetTolerance) / 45.0) * 45.0)
+                  + 45.0
+                  - currentIMUHeadingDegrees;
     }
 
+    DrivetrainRC command = new DrivetrainRC();
 
-
-//    else if (!isSystemRCListEmpty()) {
-////      Msg.log("MecanumDrivetrain", "processCommands", "here3");
-//      if (systemRCList.get(0).processRC()) {
-//
-//        systemRCList.remove(0);
-//      }
-//
-//      setMotorPowers(targetMotorPowerSettings);
-//    }
+    Msg.log(getClass().getSimpleName(), "qSpinTurToNearest45", "Queued spin turn to nearest 45 degrees.");
+    qSystemRC(command, true);
   }
+//
+//  @Override
+//  public void processCommands() {
+////    if (dtManualMovementUpdated) {
+////      clearSystemRCList();
+////
+////      driveByRobotCartesianENU(dtManual_X, dtManual_Y, dtManual_cwSpin - dtManual_ccwSpin, currentIMUHeading);
+////      setMotorPowers(targetMotorPowerSettings);
+////      dtManualMovementUpdated = false;
+////    }
+//
+//
+////    else if (!isSystemRCListEmpty()) {
+//////      Msg.log("MecanumDrivetrain", "processCommands", "here3");
+////      if (systemRCList.get(0).processRC()) {
+////
+////        systemRCList.remove(0);
+////      }
+////
+////      setMotorPowers(targetMotorPowerSettings);
+////    }
+//  }
 }

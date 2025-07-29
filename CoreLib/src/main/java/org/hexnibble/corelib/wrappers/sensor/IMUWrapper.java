@@ -47,7 +47,7 @@ public class IMUWrapper extends CoreSensorWrapper<IMU> {
    *
    * @return The newly read IMU Heading
    */
-  public double readIMUHeading() {
+  public double refreshIMUHeading() {
     YawPitchRollAngles angles = sensor.getRobotYawPitchRollAngles();
     currentIMUHeadingDegrees = angles.getYaw(AngleUnit.DEGREES);
 

@@ -15,7 +15,7 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
     private MecanumTestRobot r;
 
     public MT_TeleOpMode() {
-        super (OP_MODE_TYPE.TELE_OP, new ConfigFile(configFileName), new MTConstants());
+        super (OP_MODE_TYPE.TELE_OP, new MTConfigFile(configFileName), new MTConstants());
     }
 
     @Override

@@ -29,6 +29,7 @@ import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.motion.pid.PIDSettings;
 import org.hexnibble.corelib.motion.Waypoint;
+import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
 import org.hexnibble.corelib.wrappers.sensor.IMUWrapper;
@@ -235,9 +236,9 @@ public class CoreRobot extends CoreRobotSystem {
                 ),
             Arrays.asList(
                 drivetrain.getWheelMotorObject(
-                    MecanumDrivetrain.WHEEL_MOTOR_NAME.LF), // LR odometry wheel (x movements)
+                    MecanumDrivetrain.WHEEL_MODULE_NAME.LF), // LR odometry wheel (x movements)
                 drivetrain.getWheelMotorObject(
-                    MecanumDrivetrain.WHEEL_MOTOR_NAME.RF) // FB odometry wheel (y movements)
+                    MecanumDrivetrain.WHEEL_MODULE_NAME.RF) // FB odometry wheel (y movements)
                 ));
 
     robotSystemList.values().forEach(CoreRobotSystem::initializeSystem);
@@ -385,8 +386,8 @@ public class CoreRobot extends CoreRobotSystem {
    *
    * @return The newly read IMU Heading
    */
-  public double readIMUHeading() {
-    return IMU.readIMUHeading();
+  public double refreshIMUHeading() {
+    return IMU.refreshIMUHeading();
   }
 
   public double getStoredIMUHeadingDegrees() {
@@ -523,11 +524,11 @@ public class CoreRobot extends CoreRobotSystem {
     drivetrain.setBrakeMode(brakeMode);
   }
 
-  public double getDrivetrainMotorCurrent(MecanumDrivetrain.WHEEL_MOTOR_NAME motorName) {
+  public double getDrivetrainMotorCurrent(MecanumDrivetrain.WHEEL_MODULE_NAME motorName) {
     return drivetrain.getMotorCurrent(motorName);
   }
 
-  public double getDrivetrainMotorPower(MecanumDrivetrain.WHEEL_MOTOR_NAME motorName) {
+  public double getDrivetrainMotorPower(MecanumDrivetrain.WHEEL_MODULE_NAME motorName) {
     return drivetrain.getMotorPower(motorName);
   }
 
@@ -1046,8 +1047,6 @@ public class CoreRobot extends CoreRobotSystem {
    */
   @Override
   public void processCommands() {
-    boolean sendDriveTrainCommand = false;
-
     // Update the caches for both the control hub and expansion hub (if it was detected).
     bulkReadControlHub();
     bulkReadExpansionHub();
@@ -1055,17 +1054,30 @@ public class CoreRobot extends CoreRobotSystem {
     // Update odometry if being used. This needs to be done before any robot commands are processed
     // to have a fresh pose available for use.
     // Also read IMU to get heading if 3-wheel odometry is not being used
+    double IMUHeading;
     if (odometry != null) {
       if (odometry instanceof TwoWheelOdometry) {
-
-        odometry.updateOdometry(readIMUHeading()); // Update cumulative translation movements
-      } else {
-        odometry.updateOdometry(Double.NaN); // Update cumulative translation movements
+        IMUHeading = refreshIMUHeading();
+        odometry.updateOdometry(IMUHeading); // Update cumulative translation movements
       }
-    } else {
-      readIMUHeading();
+      else {
+        odometry.updateOdometry(Double.NaN); // Update cumulative translation movements
+        IMUHeading = Math.toDegrees(odometry.getPoseEstimate().heading);
+      }
+    }
+    else {
+      IMUHeading = refreshIMUHeading();
     }
 
+    // Send updated IMU heading to drivetrain
+    if (drivetrain != null) {
+      // Calculate heading offset for alliance/field-centric CF if needed
+      if (fieldCentricDrive) {
+        drivetrain.setCurrentIMUHeading(IMUHeading);
+      }
+    }
+
+/*
     // Obtain any manual drivetrain movement request. These values would remain 0 in AUTO.
 //    double joystickX = drivetrainManualMovement_X;
 //    double joystickY = drivetrainManualMovement_Y;
@@ -1173,23 +1185,8 @@ public class CoreRobot extends CoreRobotSystem {
 //      sendDriveTrainCommand = true;
 //      drivetrainManualMovementUpdated = false;
 //    }
+*/
 
-    // Send an updated drivetrain command if needed
-//    if ((sendDriveTrainCommand) && (drivetrain != null)) {
-    if (drivetrain != null) {
-      // Calculate heading offset for alliance/field-centric CF if needed
-//      double headingOffsetDegrees;
-      if (fieldCentricDrive) {
-        if ((odometry != null) && (odometry instanceof ThreeWheelOdometry)) {
-          Pose2D currentPose2DEstimate = odometry.getPoseEstimate();
-//          headingOffsetDegrees = Math.toDegrees(currentPose2DEstimate.heading);
-          drivetrain.setCurrentIMUHeading(Math.toDegrees(currentPose2DEstimate.heading));
-        }
-        else {
-//          headingOffsetDegrees = getStoredIMUHeadingDegrees();
-          drivetrain.setCurrentIMUHeading(getStoredIMUHeadingDegrees());
-        }
-      }
 //      else {
 //        headingOffsetDegrees = 0.0;
 //      }
@@ -1198,12 +1195,10 @@ public class CoreRobot extends CoreRobotSystem {
 //      if (!isPTOEngaged) {
 //        d.driveMecanumByCartesianENU(joystickX, joystickY, spin, headingOffsetDegrees);
 //      }
-    }
 
-//    Msg.log("CoreRobot", "processCommands", "here");
 
     robotSystemList.values().forEach(CoreRobotSystem::processCommands);
     super.processCommands();
-    drivetrain.processCommands();
+//    drivetrain.processCommands();
   }
 }

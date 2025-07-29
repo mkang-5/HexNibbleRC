@@ -17,7 +17,7 @@ import org.hexnibble.corelib.misc.Timer;
 import org.hexnibble.corelib.motion.pid.PIDSettings;
 import org.hexnibble.corelib.motion.Waypoint;
 import org.hexnibble.corelib.robot.CoreRobot;
-import org.hexnibble.corelib.robot.MecanumDrivetrain;
+import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.wrappers.controller.AnalogStickToFunction;
 import org.hexnibble.corelib.wrappers.controller.ButtonToFunction;
 import org.hexnibble.corelib.wrappers.controller.ControllerWrapper;
@@ -98,7 +98,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   public void runOpMode() {
     initializeOpMode();
 
-    rcController = new RCController(robot, opModeType, controller1, controller2);
+    rcController = new RCController(opModeType, robot, robot.drivetrain.getDtController(), controller1, controller2);
 
     telemetry.addLine("Ready.");
     telemetry.update();

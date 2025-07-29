@@ -6,18 +6,17 @@ import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.hexnibble.corelib.misc.Msg;
-import org.hexnibble.corelib.wrappers.AnalogInputWrapper;
 
 public class RegularServo extends BaseServoWrapper {
   private final ServoImplEx servo;
-  private final AnalogInputWrapper servoEncoder;
-  private final DcMotorSimple.Direction encoderDirection;
+//  private final AnalogInputWrapper servoEncoder;
+//  private final DcMotorSimple.Direction encoderDirection;
 
-  private final double lowerReferencePosition;
-  private final double angleAtLowerReferencePosition;
-  private final double upperReferencePosition;
-  private final double angleAtUpperReferencePosition;
-  private final double servoPositionPerDegree;
+//  private final double lowerReferencePosition;
+//  private final double angleAtLowerReferencePosition;
+//  private final double upperReferencePosition;
+//  private final double angleAtUpperReferencePosition;
+//  private final double servoPositionPerDegree;
 
   /**
    * Constructor providing angles.
@@ -34,37 +33,34 @@ public class RegularServo extends BaseServoWrapper {
    * @param upperReferencePosition Maximum servo position: 0 to 1 for regular servo
    * @param angleAtUpperReferencePosition Angle (degrees) at maximum servo position
    */
-  public RegularServo(
-      HardwareMap hwMap,
-      String servoName,
-      SERVO_MODEL servoModel,
-      String encoderName,
-      DcMotorSimple.Direction encoderDirection,
-      double absoluteMinimumPosition,
-      double absoluteMaximumPosition,
-      double lowerReferencePosition,
-      double angleAtLowerReferencePosition,
-      double upperReferencePosition,
-      double angleAtUpperReferencePosition) {
-    super(servoName, servoModel, absoluteMinimumPosition, absoluteMaximumPosition);
+  public RegularServo(HardwareMap hwMap, String servoName, SERVO_MODEL servoModel,
+      String encoderName, DcMotorSimple.Direction encoderDirection,
+      double absoluteMinimumPosition, double absoluteMaximumPosition,
+      double lowerReferencePosition, double angleAtLowerReferencePosition,
+      double upperReferencePosition, double angleAtUpperReferencePosition) {
 
-    this.lowerReferencePosition = lowerReferencePosition;
-    this.angleAtLowerReferencePosition = angleAtLowerReferencePosition;
-    this.upperReferencePosition = upperReferencePosition;
-    this.angleAtUpperReferencePosition = angleAtUpperReferencePosition;
-    this.servoPositionPerDegree =
-        (upperReferencePosition - lowerReferencePosition)
-            / (angleAtUpperReferencePosition - angleAtLowerReferencePosition);
+    super(hwMap, servoName, servoModel, absoluteMinimumPosition, absoluteMaximumPosition,
+          lowerReferencePosition, angleAtLowerReferencePosition,
+          upperReferencePosition, angleAtUpperReferencePosition,
+          encoderName, encoderDirection);
+
+//    this.lowerReferencePosition = lowerReferencePosition;
+//    this.angleAtLowerReferencePosition = angleAtLowerReferencePosition;
+//    this.upperReferencePosition = upperReferencePosition;
+//    this.angleAtUpperReferencePosition = angleAtUpperReferencePosition;
+//    this.servoPositionPerDegree =
+//        (upperReferencePosition - lowerReferencePosition)
+//            / (angleAtUpperReferencePosition - angleAtLowerReferencePosition);
 
     this.servo = hwMap.get(ServoImplEx.class, servoName);
 
-    if (encoderName != null) {
-      this.servoEncoder = new AnalogInputWrapper(encoderName, hwMap);
-      this.encoderDirection = encoderDirection;
-    } else {
-      this.servoEncoder = null;
-      this.encoderDirection = null;
-    }
+//    if (encoderName != null) {
+//      this.servoEncoder = new AnalogInputWrapper(encoderName, hwMap);
+//      this.encoderDirection = encoderDirection;
+//    } else {
+//      this.servoEncoder = null;
+//      this.encoderDirection = null;
+//    }
   }
 
   /**
@@ -79,36 +75,30 @@ public class RegularServo extends BaseServoWrapper {
    * @param absoluteMinimumPosition Minimum servo position: 0 to 1 for regular servo
    * @param absoluteMaximumPosition Maximum servo position: 0 to 1 for regular servo
    */
-  public RegularServo(
-      HardwareMap hwMap,
-      String servoName,
-      SERVO_MODEL servoModel,
-      String encoderName,
-      DcMotorSimple.Direction encoderDirection,
-      double absoluteMinimumPosition,
-      double absoluteMaximumPosition) {
-    super(servoName, servoModel, absoluteMinimumPosition, absoluteMaximumPosition);
+  public RegularServo(HardwareMap hwMap, String servoName, SERVO_MODEL servoModel,
+      String encoderName, DcMotorSimple.Direction encoderDirection,
+      double absoluteMinimumPosition, double absoluteMaximumPosition) {
 
-    if (hwMap == null) {
-      throw new NullPointerException();
-    }
+    super(hwMap, servoName, servoModel, absoluteMinimumPosition, absoluteMaximumPosition,
+          encoderName, encoderDirection);
 
     servo = hwMap.get(ServoImplEx.class, servoName);
 
-    if (encoderName != null) {
-      servoEncoder = new AnalogInputWrapper(encoderName, hwMap);
-      this.encoderDirection = encoderDirection;
-    } else {
-      servoEncoder = null;
-      this.encoderDirection = null;
-    }
+//    if (encoderName != null) {
+//      servoEncoder = new AnalogInputWrapper(encoderName, hwMap);
+//      this.encoderDirection = encoderDirection;
+//    }
+//    else {
+//      servoEncoder = null;
+//      this.encoderDirection = null;
+//    }
 
-    lowerReferencePosition = 0.0;
-    angleAtLowerReferencePosition = 0.0;
-    upperReferencePosition = 0.0;
-    angleAtUpperReferencePosition = 0.0;
-
-    servoPositionPerDegree = 0.0;
+//    lowerReferencePosition = 0.0;
+//    angleAtLowerReferencePosition = 0.0;
+//    upperReferencePosition = 0.0;
+//    angleAtUpperReferencePosition = 0.0;
+//
+//    servoPositionPerDegree = 0.0;
   }
 
   /**
@@ -210,8 +200,10 @@ public class RegularServo extends BaseServoWrapper {
   public void setServoPosition(double position) {
     double checkedPosition = rangeCheckPosition(position);
 
-    servo.setPosition(checkedPosition);
-    targetPosition = checkedPosition;
+    if (checkedPosition != targetPosition) {
+      servo.setPosition(checkedPosition);
+      targetPosition = checkedPosition;
+    }
   }
 
   public void setServoPositionDegrees(double targetAngleDegrees) {

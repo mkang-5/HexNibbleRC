@@ -54,6 +54,11 @@ public class ConfigFile {
   public static double DRIVETRAIN_ROTATION_PID_Ki;
   public static double DRIVETRAIN_ROTATION_PID_Kd;
 
+
+  public static double SWERVE_PID_Kp;
+  public static double SWERVE_PID_Ki;
+  public static double SWERVE_PID_Kd;
+
   // Robot Dimensions
   //    public static double ROBOT_DIMENSIONS_LENGTH_MM;
   //    public static double ROBOT_DIMENSIONS_WIDTH_MM;
@@ -246,6 +251,10 @@ public class ConfigFile {
     DRIVETRAIN_ROTATION_PID_Kp = getValueAsDouble("DRIVETRAIN_ROTATION_PID_Kp");
     DRIVETRAIN_ROTATION_PID_Ki = getValueAsDouble("DRIVETRAIN_ROTATION_PID_Ki");
     DRIVETRAIN_ROTATION_PID_Kd = getValueAsDouble("DRIVETRAIN_ROTATION_PID_Kd");
+
+    SWERVE_PID_Kp = getValueAsDouble("SWERVE_PID_Kp");
+    SWERVE_PID_Ki = getValueAsDouble("SWERVE_PID_Ki");
+    SWERVE_PID_Kd = getValueAsDouble("SWERVE_PID_Kd");
 
     Log.i(Constants.TAG, "   Completed reading base ConfigFile parameters.");
   }
