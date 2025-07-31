@@ -98,6 +98,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   public void runOpMode() {
     initializeOpMode();
 
+    Msg.log(className, "runOpMode", "Creating new rcController object");
     rcController = new RCController(opModeType, robot, robot.drivetrain.getDtController(), controller1, controller2);
 
     telemetry.addLine("Ready.");

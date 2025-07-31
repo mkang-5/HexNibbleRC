@@ -82,6 +82,11 @@ public class PIDController {
   //        activateTargetCounter = true;
   //    }
 
+  public void reset() {
+    resetTargetCounter();
+    resetErrorHistories();
+  }
+
   public void resetTargetCounter() {
     atTargetCounter = 0;
   }

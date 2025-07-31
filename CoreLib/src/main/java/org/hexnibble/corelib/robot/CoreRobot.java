@@ -1196,8 +1196,8 @@ public class CoreRobot extends CoreRobotSystem {
 //        d.driveMecanumByCartesianENU(joystickX, joystickY, spin, headingOffsetDegrees);
 //      }
 
-
     robotSystemList.values().forEach(CoreRobotSystem::processCommands);
+
     super.processCommands();
 //    drivetrain.processCommands();
   }

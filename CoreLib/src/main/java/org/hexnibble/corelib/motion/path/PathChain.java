@@ -5,13 +5,16 @@ import java.util.Collections;
 
 public class PathChain
 {
+    private final boolean holdPosition;
     private ArrayList<CorePath> pathChain = new ArrayList<>();
 
-    public PathChain(CorePath... paths) {
+    public PathChain(boolean holdPosition, CorePath... paths) {
+        this.holdPosition = holdPosition;
         Collections.addAll(pathChain, paths);
     }
 
-    public PathChain(ArrayList<CorePath> paths) {
+    public PathChain(boolean holdPosition, ArrayList<CorePath> paths) {
+        this.holdPosition = holdPosition;
         pathChain = paths;
     }
 
@@ -29,5 +32,9 @@ public class PathChain
     public CorePath getPath(int index) {
         index = Math.clamp(index, 0, pathChain.size() - 1);
         return pathChain.get(index);
+    }
+
+    public boolean getHoldPosition() {
+        return holdPosition;
     }
 }

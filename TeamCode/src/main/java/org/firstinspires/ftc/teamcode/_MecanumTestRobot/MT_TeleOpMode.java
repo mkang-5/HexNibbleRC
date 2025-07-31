@@ -5,10 +5,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.hexnibble.corelib.misc.ConfigFile;
 import org.hexnibble.corelib.misc.Pose2D;
+import org.hexnibble.corelib.motion.path.CorePath;
 import org.hexnibble.corelib.opmodes.CoreLinearOpMode;
 import org.hexnibble.corelib.robot.CoreRobot;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.controller.ButtonToFunction;
+import org.hexnibble.corelib.wrappers.controller.ControllerWrapper;
 
 @TeleOp(name = "MecanumTest TeleOp", group = "Linear OpMode")
 public class MT_TeleOpMode extends CoreLinearOpMode {
@@ -36,6 +38,19 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
         super.createControllersForTeleOp();
 
         // region ** Controller 1 **
+        // qSpinTurn
+        controller1.addActiveButtonGroup(
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.left_bumper,
+                    () -> r.drivetrain.qSpinTurnToNearest45(rcController,
+                          r.getStoredIMUHeadingDegrees(),
+                          CorePath.ROTATION_DIRECTION.COUNTERCLOCKWISE))
+        );
+        controller1.addActiveButtonGroup(
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.right_bumper,
+                    () -> r.drivetrain.qSpinTurnToNearest45(rcController,
+                          r.getStoredIMUHeadingDegrees(),
+                          CorePath.ROTATION_DIRECTION.CLOCKWISE))
+        );
         // Check motor powers
 //        controller1.addActiveButtonGroup(
 //              new ButtonToFunction(cross,
@@ -43,7 +58,7 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
 //              )
 //        );
     }
-
+/*
     @Override
     protected void addTelemetryBody() {
         Pose2D pose = r.getCurrentPose();
@@ -61,4 +76,6 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
             android.util.Log.i("oq", "OQ Status=" + status);
         }
     }
+
+ */
 }

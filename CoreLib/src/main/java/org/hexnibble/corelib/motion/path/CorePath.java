@@ -8,5 +8,10 @@ import org.hexnibble.corelib.misc.Pose2D;
  */
 public interface CorePath
 {
+    enum ROTATION_DIRECTION {
+        CLOCKWISE,
+        COUNTERCLOCKWISE
+    }
+
     public double getClosestInterpolatedTValue(Pose2D pose);
 }

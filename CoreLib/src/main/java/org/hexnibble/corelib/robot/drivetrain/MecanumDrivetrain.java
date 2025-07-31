@@ -6,11 +6,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.hexnibble.corelib.commands.rc.DrivetrainRC;
+import org.hexnibble.corelib.commands.rc.RCController;
 import org.hexnibble.corelib.misc.ConfigFile;
 import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.PolarCoords;
 import org.hexnibble.corelib.motion.MotorPowerSettings;
+import org.hexnibble.corelib.motion.path.CorePath;
+import org.hexnibble.corelib.motion.path.PathChain;
+import org.hexnibble.corelib.motion.path.Spin;
 import org.hexnibble.corelib.motion.pid.PIDSettings;
 import org.hexnibble.corelib.motion.pid.dtRotationPIDController;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
@@ -353,13 +357,13 @@ public class MecanumDrivetrain extends BaseDrivetrain
     module.setMotorPower(power);
   }
 
-  public void qSpinTurnToNearest45(double currentIMUHeadingDegrees,
-                                   DrivetrainRC.ROTATION_DIRECTION rotationDirection) {
+  public void qSpinTurnToNearest45(RCController rcController, double currentIMUHeadingDegrees,
+                                   CorePath.ROTATION_DIRECTION rotationDirection) {
 
     final double targetTolerance = 2.5; // Must be >0.0
     double deltaIMUHeadingDegrees;
 
-    if (rotationDirection == DrivetrainRC.ROTATION_DIRECTION.CLOCKWISE) {
+    if (rotationDirection == CorePath.ROTATION_DIRECTION.CLOCKWISE) {
       deltaIMUHeadingDegrees =
             (Math.ceil((currentIMUHeadingDegrees - targetTolerance) / 45.0) * 45.0)
                   - 45.0
@@ -372,10 +376,15 @@ public class MecanumDrivetrain extends BaseDrivetrain
                   - currentIMUHeadingDegrees;
     }
 
-    DrivetrainRC command = new DrivetrainRC();
+    double targetIMUHeadingDegrees = currentIMUHeadingDegrees + deltaIMUHeadingDegrees;
 
-    Msg.log(getClass().getSimpleName(), "qSpinTurToNearest45", "Queued spin turn to nearest 45 degrees.");
-    qSystemRC(command, true);
+    DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
+            new Spin(targetIMUHeadingDegrees, rotationDirection))
+    );
+
+    rcController.qRC(command);
+
+    Msg.log(getClass().getSimpleName(), "qSpinTurnToNearest45", "Queued spin turn to nearest 45 degrees, target=" + targetIMUHeadingDegrees);
   }
 //
 //  @Override

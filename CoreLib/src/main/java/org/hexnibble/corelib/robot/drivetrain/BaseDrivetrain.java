@@ -5,37 +5,40 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.hexnibble.corelib.misc.ConfigFile;
 import org.hexnibble.corelib.motion.DriveController;
-import org.hexnibble.corelib.motion.pid.PIDSettings;
-import org.hexnibble.corelib.motion.pid.dtRotationPIDController;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 
 abstract public class BaseDrivetrain extends CoreRobotSystem {
    DriveController dtController;
 
-   protected double dtManual_X; // X Joystick movement, range -1.0 (left) to +1.0 (right)
-   protected double previousDTManual_X;
-   protected double dtManual_Y; // Y Joystick movement, range -1.0 (backward) to +1.0 (forward)
-   protected double previousDTManual_Y;
+   protected double dtManual_X;  // X Joystick movement, range -1.0 (left) to +1.0 (right)
+//   protected double previousDTManual_X;
+   protected double dtAuto_X;    // X range -1.0 (left) to +1.0 (right)
+
+   protected double dtManual_Y;  // Y Joystick movement, range -1.0 (backward) to +1.0 (forward)
+//   protected double previousDTManual_Y;
+   protected double dtAuto_Y;    // Y range -1.0 (left) to +1.0 (right)
+
    protected double dtManual_cwSpin; // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
-   protected double previousDTManual_cwSpin;
+//   protected double previousDTManual_cwSpin;
    protected double dtManual_ccwSpin; // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
-   protected double previousDTManual_ccwSpin;
+//   protected double previousDTManual_ccwSpin;
+   protected double dtAuto_Spin;    // Spin, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
+
    protected boolean dtManualMovementUpdated;
 
    protected double currentIMUHeading;
 
-   protected PIDSettings rotationPIDSettings =
-         new PIDSettings(
-               ConfigFile.DRIVETRAIN_ROTATION_PID_Ks,
-               ConfigFile.DRIVETRAIN_ROTATION_PID_Kp,
-               ConfigFile.DRIVETRAIN_ROTATION_PID_Ki,
-               ConfigFile.DRIVETRAIN_ROTATION_PID_Kd);
+//   protected PIDSettings rotationPIDSettings =
+//         new PIDSettings(
+//               ConfigFile.DRIVETRAIN_ROTATION_PID_Ks,
+//               ConfigFile.DRIVETRAIN_ROTATION_PID_Kp,
+//               ConfigFile.DRIVETRAIN_ROTATION_PID_Ki,
+//               ConfigFile.DRIVETRAIN_ROTATION_PID_Kd);
 
-   // Create PID Controllers
-   protected dtRotationPIDController rotationPIDController = new dtRotationPIDController(
-         rotationPIDSettings, Math.toRadians(2), dtRotationPIDController.ROTATION_DIRECTION.SHORTEST );
+//   // Create PID Controllers
+//   protected dtRotationPIDController rotationPIDController = new dtRotationPIDController(
+//         rotationPIDSettings, Math.toRadians(2), dtRotationPIDController.ROTATION_DIRECTION.SHORTEST );
 
    // Minimum threshold for motor power to exceed to send a new motor command (compared to the
    // previously sent value)
@@ -47,14 +50,26 @@ abstract public class BaseDrivetrain extends CoreRobotSystem {
    }
 
    public void resetSystem() {
-      dtManualMovementUpdated = false;
+      super.resetSystem();
 
-      previousDTManual_X = 0.0;
-      previousDTManual_Y = 0.0;
-      previousDTManual_cwSpin = 0.0;
-      previousDTManual_ccwSpin = 0.0;
+      dtManualMovementUpdated = false;
+      dtManual_X = 0.0;
+      dtManual_Y = 0.0;
+      dtManual_cwSpin = 0.0;
+      dtManual_ccwSpin = 0.0;
+
+//      previousDTManual_X = 0.0;
+//      previousDTManual_Y = 0.0;
+//      previousDTManual_cwSpin = 0.0;
+//      previousDTManual_ccwSpin = 0.0;
+
+      dtAuto_X = 0.0;
+      dtAuto_Y = 0.0;
+      dtAuto_Spin = 0.0;
 
       currentIMUHeading = 0.0;
+
+      dtController = new DriveController(this);
    }
 
    /**
@@ -68,13 +83,13 @@ abstract public class BaseDrivetrain extends CoreRobotSystem {
       // 2) Requested value is different from previous value by greater than threshold
       if (((X == 0.0) && (dtManual_X != 0.0))
          || (Math.abs(X - dtManual_X) > 0.01)) {
-         previousDTManual_X = dtManual_X;
+//         previousDTManual_X = dtManual_X;
          dtManual_X = X;
          dtManualMovementUpdated = true;
       }
    }
 
-   public double getDtMovementX() {
+   public double getDtManualMovementX() {
       return dtManual_X;
    }
 
@@ -90,14 +105,22 @@ abstract public class BaseDrivetrain extends CoreRobotSystem {
       // 2) Requested value is different from previous value by greater than threshold
       if (((Y == 0.0) && (dtManual_Y != 0.0))
             || (Math.abs(Y - dtManual_Y) > 0.01)) {
-         previousDTManual_Y = dtManual_Y;
+//         previousDTManual_Y = dtManual_Y;
          dtManual_Y = Y;
          dtManualMovementUpdated = true;
       }
    }
 
-   public double getDtMovementY() {
+   public double getDtAutoMovementX() {
+      return dtAuto_X;
+   }
+
+   public double getDtManualMovementY() {
       return dtManual_Y;
+   }
+
+   public double getDtAutoMovementY() {
+      return dtAuto_Y;
    }
 
    /**
@@ -111,7 +134,7 @@ abstract public class BaseDrivetrain extends CoreRobotSystem {
       // 2) Requested value is different from previous value by greater than threshold
       if (((spin == 0.0) && (dtManual_cwSpin != 0.0))
             || (Math.abs(spin - dtManual_cwSpin) > 0.01)) {
-         previousDTManual_cwSpin = dtManual_cwSpin;
+//         previousDTManual_cwSpin = dtManual_cwSpin;
          dtManual_cwSpin = spin;
          dtManualMovementUpdated = true;
       }
@@ -128,17 +151,25 @@ abstract public class BaseDrivetrain extends CoreRobotSystem {
       // 2) Requested value is different from previous value by greater than threshold
       if (((spin == 0.0) && (dtManual_ccwSpin != 0.0))
             || (Math.abs(spin - dtManual_ccwSpin) > 0.01)) {
-         previousDTManual_ccwSpin = dtManual_ccwSpin;
+//         previousDTManual_ccwSpin = dtManual_ccwSpin;
          dtManual_ccwSpin = spin;
          dtManualMovementUpdated = true;
       }
    }
 
-   public double getDtMovementSpin() {
+   public void setDtAutoMovementSpin(double spin) {
+      dtAuto_Spin = spin;
+   }
+
+   public double getDtManualMovementSpin() {
       return dtManual_cwSpin - dtManual_ccwSpin;
    }
 
-   public boolean isMovementUpdated() {
+   public double getDtAutoMovementSpin() {
+      return dtAuto_Spin;
+   }
+
+   public boolean isManualMovementUpdated() {
       return dtManualMovementUpdated;
    }
 

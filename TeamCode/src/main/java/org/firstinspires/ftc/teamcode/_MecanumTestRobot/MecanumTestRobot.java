@@ -5,11 +5,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.robot.CoreRobot;
+import org.hexnibble.corelib.robot.TwoWheelOdometry;
 import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadWrapper;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
+import org.hexnibble.corelib.wrappers.sensor.IMUWrapper;
 
 public class MecanumTestRobot extends CoreRobot {
     private OctoQuadWrapper oq;
@@ -19,10 +21,11 @@ public class MecanumTestRobot extends CoreRobot {
 
     @Override
     public void initializeSystem() {
-        oq = new OctoQuadWrapper(hwMap, "OctoQuad", 0, OctoQuadFWv3.EncoderDirection.REVERSE,
-                1, OctoQuadFWv3.EncoderDirection.FORWARD,
-                -141.9f, 0.0f);
-//                                0.0f, 0.0f);
+//        oq = new OctoQuadWrapper(hwMap, "OctoQuad", 0, OctoQuadFWv3.EncoderDirection.REVERSE,
+//                1, OctoQuadFWv3.EncoderDirection.FORWARD,
+//                -141.9f, 0.0f);
+
+        IMU = new IMUWrapper(hwMap, IMU_NAME, CH_LOGO_FACING_DIRECTION, CH_USB_FACING_DIRECTION);
 
         // Create drivetrain object
         drivetrain =
@@ -55,19 +58,19 @@ public class MecanumTestRobot extends CoreRobot {
 
     // region ** IMU Functions **
     /** Reset the IMU heading (yaw) on the Octoquad. */
-    @Override
-    public void resetIMUHeading() {
-        oq.resetIMUHeading();
-    }
-    @Override
-    public double refreshIMUHeading() {
-        return oq.readIMUHeading();
-    }
-
-    @Override
-    public double getStoredIMUHeadingDegrees() {
-        return oq.getStoredIMUHeadingDegrees();
-    }
+//    @Override
+//    public void resetIMUHeading() {
+//        oq.resetIMUHeading();
+//    }
+//    @Override
+//    public double refreshIMUHeading() {
+//        return oq.readIMUHeading();
+//    }
+//
+//    @Override
+//    public double getStoredIMUHeadingDegrees() {
+//        return oq.getStoredIMUHeadingDegrees();
+//    }
     // endregion ** IMU Functions **
 
     @Override
@@ -81,20 +84,45 @@ public class MecanumTestRobot extends CoreRobot {
         // Update odometry if being used. This needs to be done before any robot commands are processed
         // to have a fresh pose available for use.
         // Also read IMU to get heading if 3-wheel odometry is not being used
+        double IMUHeading;
         if (oq != null) {
             oq.readLocalizerData();
 
-            // Send an updated drivetrain command if needed
-            if (drivetrain != null) {
-                // Calculate heading offset for alliance/field-centric CF if needed
-                if (fieldCentricDrive) {
-                    drivetrain.setCurrentIMUHeading(oq.getStoredIMUHeadingDegrees());
+            // Calculate heading offset for alliance/field-centric CF if needed
+//            if (fieldCentricDrive) {
+//                    drivetrain.setCurrentIMUHeading(oq.getStoredIMUHeadingDegrees());
+                IMUHeading = oq.getStoredIMUHeadingDegrees();
+//            }
+        }
+        else {
+            // Update odometry if being used. This needs to be done before any robot commands are processed
+            // to have a fresh pose available for use.
+            // Also read IMU to get heading if 3-wheel odometry is not being used
+            if (odometry != null) {
+                if (odometry instanceof TwoWheelOdometry) {
+                    IMUHeading = refreshIMUHeading();
+                    odometry.updateOdometry(IMUHeading); // Update cumulative translation movements
                 }
+                else {
+                    odometry.updateOdometry(Double.NaN); // Update cumulative translation movements
+                    IMUHeading = Math.toDegrees(odometry.getPoseEstimate().heading);
+                }
+            }
+            else {
+                IMUHeading = refreshIMUHeading();
+            }
+        }
+
+        // Send updated IMU heading to drivetrain
+        if (drivetrain != null) {
+            // Calculate heading offset for alliance/field-centric CF if needed
+            if (fieldCentricDrive) {
+                drivetrain.setCurrentIMUHeading(IMUHeading);
             }
         }
 
         robotSystemList.values().forEach(CoreRobotSystem::processCommands);
         super.processCommands();
-        drivetrain.processCommands();
+//        drivetrain.processCommands();
     }
 }

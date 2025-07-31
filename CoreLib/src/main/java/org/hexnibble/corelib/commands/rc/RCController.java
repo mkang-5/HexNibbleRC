@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.motion.DriveController;
 import org.hexnibble.corelib.opmodes.CoreLinearOpMode;
 import org.hexnibble.corelib.robot.CoreRobot;
@@ -27,6 +28,8 @@ public final class RCController {
       this.controller1 = controller1;
       this.controller2 = controller2;
       this.dtController = dtController;
+
+      Msg.log(getClass().getSimpleName(), "Constructor", "RCController created. activeRCList size=" + activeRCList.size());
    }
 
    public void qRC(RC... rc) {
@@ -46,6 +49,7 @@ public final class RCController {
       robot.processCommands();
 
       // Update general running commands
+//      Msg.log(getClass().getSimpleName(), "processCommands", "Updating activeRCList");
       if (!activeRCList.isEmpty() && activeRCList.get(0).processRC()) {
          activeRCList.remove(0);
       }
