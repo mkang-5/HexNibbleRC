@@ -363,6 +363,8 @@ public class MecanumDrivetrain extends BaseDrivetrain
     final double targetTolerance = 2.5; // Must be >0.0
     double deltaIMUHeadingDegrees;
 
+    Msg.log(getClass().getSimpleName(), "qSpinTurnToNearest45", "Queueing " + rotationDirection + " spin turn to nearest 45 degrees");
+
     if (rotationDirection == CorePath.ROTATION_DIRECTION.CLOCKWISE) {
       deltaIMUHeadingDegrees =
             (Math.ceil((currentIMUHeadingDegrees - targetTolerance) / 45.0) * 45.0)

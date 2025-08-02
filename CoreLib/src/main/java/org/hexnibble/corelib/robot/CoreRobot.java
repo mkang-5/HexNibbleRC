@@ -375,6 +375,9 @@ public class CoreRobot extends CoreRobotSystem {
   /** Reset the IMU heading (yaw). */
   public void resetIMUHeading() {
     IMU.resetIMUHeading();
+    if (odometry != null) {
+      odometry.resetHeading();
+    }
   }
 
   /**

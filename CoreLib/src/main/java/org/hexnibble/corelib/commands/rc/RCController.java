@@ -54,7 +54,8 @@ public final class RCController {
          activeRCList.remove(0);
       }
 
-      dtController.processPath(robot.getStoredIMUHeadingDegrees());
+//      dtController.processPath(robot.getStoredIMUHeadingDegrees());
+      dtController.processPath(robot.getRobotPoseEstimate());
 
 //      if (pedroFollower != null) {
 //         pedroFollower.update();

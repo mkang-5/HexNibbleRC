@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode._MecanumTestRobot;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.hexnibble.corelib.misc.Constants;
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.robot.CoreRobot;
 import org.hexnibble.corelib.robot.TwoWheelOdometry;
@@ -12,6 +15,8 @@ import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadWrapper;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
 import org.hexnibble.corelib.wrappers.sensor.IMUWrapper;
+
+import java.util.Arrays;
 
 public class MecanumTestRobot extends CoreRobot {
     private OctoQuadWrapper oq;
@@ -29,24 +34,59 @@ public class MecanumTestRobot extends CoreRobot {
 
         // Create drivetrain object
         drivetrain =
+//                new MecanumDrivetrain(hwMap,
+//                        "LFMotor", DcMotor.Direction.REVERSE,
+//                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
+//                        "RFMotor", DcMotor.Direction.FORWARD,
+//                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
+//                        "LBMotor", DcMotor.Direction.REVERSE,
+//                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
+//                        "RBMotor", DcMotor.Direction.FORWARD,
+//                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
+//                        BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_435, DcMotor.RunMode.RUN_WITHOUT_ENCODER,
+//                        1.0, TARGET_POSITION_TOLERANCE, 48.0);
+
                 new MecanumDrivetrain(hwMap,
-                        "LFMotor", DcMotor.Direction.REVERSE,
-                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
-                        "RFMotor", DcMotor.Direction.FORWARD,
-                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
-                        "LBMotor", DcMotor.Direction.REVERSE,
-                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
-                        "RBMotor", DcMotor.Direction.FORWARD,
-                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
-                        BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_435, DcMotor.RunMode.RUN_WITHOUT_ENCODER,
-                        1.0, TARGET_POSITION_TOLERANCE, 48.0);
+                  "LFMotor", DcMotor.Direction.REVERSE,
+                  BaseMotorWrapper.ENCODER.GO_BILDA_ODOPOD, DcMotorSimple.Direction.FORWARD,
+                  "RFMotor", DcMotor.Direction.FORWARD,
+                  BaseMotorWrapper.ENCODER.GO_BILDA_ODOPOD, DcMotorSimple.Direction.FORWARD,
+                  "LBMotor", DcMotor.Direction.REVERSE,
+                  BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
+                  "RBMotor", DcMotor.Direction.FORWARD,
+                  BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
+                  BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_435, DcMotor.RunMode.RUN_WITHOUT_ENCODER,
+                  1.0, TARGET_POSITION_TOLERANCE, 48.0);
 
         addRobotSystemToList("Drivetrain", drivetrain);
+
+        // Create odometry object
+        Msg.logIfDebug(className, "initializeSystem", "Creating odometry object.");
+        odometry =
+              new TwoWheelOdometry(
+                    Arrays.asList(
+                          new Pose2D(
+                                Constants.DRIVETRAIN_LRENCODER_OFFSET_X,
+                                Constants.DRIVETRAIN_LRENCODER_OFFSET_Y,
+                                Math.PI / 2.0), // Location of LR odometry wheel - x movements
+                          new Pose2D(
+                                Constants.DRIVETRAIN_FBENCODER_OFFSET_X,
+                                Constants.DRIVETRAIN_FBENCODER_OFFSET_Y,
+                                0.0) // Location of FB odometry wheel - y movements
+                    ),
+                    Arrays.asList(
+                          drivetrain.getWheelMotorObject(
+                                MecanumDrivetrain.WHEEL_MODULE_NAME.LF), // LR odometry wheel (x movements)
+                          drivetrain.getWheelMotorObject(
+                                MecanumDrivetrain.WHEEL_MODULE_NAME.RF) // FB odometry wheel (y movements)
+                    ));
+
+        robotSystemList.values().forEach(CoreRobotSystem::initializeSystem);
     }
 
-    public Pose2D getCurrentPose() {
-        return oq.getCurrentPose();
-    }
+//    public Pose2D getCurrentPose() {
+//        return oq.getCurrentPose();
+//    }
 
     public Pose2D getCurrentPoseVelocity() {
         return oq.getCurrentPoseVelocity();

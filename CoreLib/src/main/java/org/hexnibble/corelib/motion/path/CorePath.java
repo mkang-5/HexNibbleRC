@@ -13,5 +13,7 @@ public interface CorePath
         COUNTERCLOCKWISE
     }
 
+    public boolean isPathComplete(Pose2D currentPose);
+
     public double getClosestInterpolatedTValue(Pose2D pose);
 }

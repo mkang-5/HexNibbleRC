@@ -72,6 +72,11 @@ abstract public class BaseDrivetrain extends CoreRobotSystem {
       dtController = new DriveController(this);
    }
 
+
+   public double getDtManualMovementX() {
+      return dtManual_X;
+   }
+
    /**
     * Set the X value for a manual drivetrain movement.
     *
@@ -89,8 +94,16 @@ abstract public class BaseDrivetrain extends CoreRobotSystem {
       }
    }
 
-   public double getDtManualMovementX() {
-      return dtManual_X;
+   public double getDtAutoMovementX() {
+      return dtAuto_X;
+   }
+
+   public void setDtAutoMovementX(double x) {
+      dtAuto_X = x;
+   }
+
+   public double getDtManualMovementY() {
+      return dtManual_Y;
    }
 
    /**
@@ -111,16 +124,12 @@ abstract public class BaseDrivetrain extends CoreRobotSystem {
       }
    }
 
-   public double getDtAutoMovementX() {
-      return dtAuto_X;
-   }
-
-   public double getDtManualMovementY() {
-      return dtManual_Y;
-   }
-
    public double getDtAutoMovementY() {
       return dtAuto_Y;
+   }
+
+   public void setDtAutoMovementY(double y) {
+      dtAuto_Y = y;
    }
 
    /**
@@ -184,7 +193,7 @@ abstract public class BaseDrivetrain extends CoreRobotSystem {
     *     need to be flipped when taken directly from the joystick.
     * @param spin Spin speed, range -1.0 (CW) to +1.0 (CCW), using right-hand rule.
     * @param offsetToConvertToFieldCentricHeadingDegrees Offset to subtract to convert robot's zero
-    *     to field's zero heading
+    *     to field's zero heading (degrees)
     */
    abstract public void driveByRobotCartesianENU(double X, double Y, double spin,
                                                  double offsetToConvertToFieldCentricHeadingDegrees);

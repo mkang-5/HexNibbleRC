@@ -39,13 +39,13 @@ DRIVETRAIN_ALPHA_MAX = 150.0
 # Kd is the derivative term. It is directly proportional to the rate of change of error. It is multiplied by the difference between the last error and the current error (also divided by time elapsed). It works to dampen changes.
 
 DRIVETRAIN_TRANSLATION_PID_Ks = 0.0
-DRIVETRAIN_TRANSLATION_PID_Kp = 0.018
+DRIVETRAIN_TRANSLATION_PID_Kp = 0.004
 DRIVETRAIN_TRANSLATION_PID_Ki = 0.0
 DRIVETRAIN_TRANSLATION_PID_Kd = 0.0
 
 DRIVETRAIN_ROTATION_PID_Ks = 0.0
 #DRIVETRAIN_ROTATION_PID_Kp = 1.15
-DRIVETRAIN_ROTATION_PID_Kp = 1.0
+DRIVETRAIN_ROTATION_PID_Kp = 0.9
 DRIVETRAIN_ROTATION_PID_Ki = 0.0
 DRIVETRAIN_ROTATION_PID_Kd = 0.0
 

@@ -3,7 +3,6 @@
  *
  * It is extraordinarily rare that you will ever need to edit this file.
  */
-
 buildscript {
     ext {
         kotlin_version = '2.2.0'

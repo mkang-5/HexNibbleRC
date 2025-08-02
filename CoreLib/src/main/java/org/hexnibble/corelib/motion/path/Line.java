@@ -15,6 +15,11 @@ public class Line implements CorePath
         line = new Vector2D(endPose.x - startPose.x, endPose.y - startPose.y);
     }
 
+    @Override
+    public boolean isPathComplete(Pose2D currentPose) {
+        return false;
+    }
+
     /**
      * Calculate the parametric t on an interpolated version of this line segment that is closest
      * to the specified pose. If the point falls outside the segment, t will be clamped

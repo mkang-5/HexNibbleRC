@@ -13,16 +13,18 @@ import org.hexnibble.corelib.motion.pid.PIDSettings;
 import org.hexnibble.corelib.motion.pid.dtRotationPIDController;
 import org.hexnibble.corelib.robot.drivetrain.BaseDrivetrain;
 
-// This is similar to the Pedro Follower
+/*  The DriveController holds a drivetrain movement PathChain and directs the processes to move
+each path. This includes the PID controllers.
+
+ */
 public class DriveController {
   public enum STATUS {IDLE, HOLDING, FOLLOWING_PATH}
   private STATUS status;
-  private BaseDrivetrain dt;
+  private final BaseDrivetrain dt;
   private PathChain pathChain;
   private int pathChainIndex;
   private CorePath currentPath;
-//  private boolean holdPosition;
-  private Pose2D holdPose;
+  private Pose2D holdPose;        // Pose to hold, with IMU heading in radians
 
 //  private boolean isIdle;
 
@@ -41,7 +43,9 @@ public class DriveController {
           ConfigFile.DRIVETRAIN_ROTATION_PID_Kd);
 
   // Create PID Controllers
-  protected PIDController translationPIDController =
+  protected PIDController xPIDController =
+        new PIDController(translationPIDSettings, 5);
+  protected PIDController yPIDController =
         new PIDController(translationPIDSettings, 5);
   protected dtRotationPIDController rotationPIDController =
         new dtRotationPIDController(rotationPIDSettings, Math.toRadians(2.0),
@@ -53,24 +57,28 @@ public class DriveController {
   }
 
   /**
-   * This function is called to start a trajectory.
-   * @param pathChain
+   * This function is called by a DrivetrainRC at the start of the command to begin the provided
+   * pathChain (trajectory).
+   * @param pathChain The requested trajectory
    */
   public void startTrajectory(@NonNull PathChain pathChain) {
     this.pathChain = pathChain;
     pathChainIndex = 0;
     currentPath = this.pathChain.getPath(pathChainIndex);
     status = STATUS.FOLLOWING_PATH;
-//    isIdle = false;
-//    holdPosition = pathChain.getHoldPosition();
 
-    translationPIDController.reset();
+    xPIDController.reset();
+    yPIDController.reset();
     rotationPIDController.reset();
 
-    Msg.log(getClass().getSimpleName(), "startTrajectory", "pathChain size=" + pathChain.size());
+    Msg.log(getClass().getSimpleName(), "startTrajectory", "Starting a new trajectory with pathChain size=" + pathChain.size());
   }
 
-  private void getNextPath(double currentIMUHeading) {
+  /**
+   * Advance the active path on the pathChain, if one exists.
+   * @param currentPose Current pose with IMU Heading in radians
+   */
+  private void getNextPath(Pose2D currentPose) {
     pathChainIndex++;
     if (pathChainIndex < pathChain.size()) {
       currentPath = pathChain.getPath(pathChainIndex);
@@ -78,111 +86,114 @@ public class DriveController {
     else {
       if (pathChain.getHoldPosition()) {
         status = STATUS.HOLDING;
-        setHoldPose(currentIMUHeading);
+        setHoldPose(currentPose);
       }
       currentPath = null;
       pathChain = null;
-//      isIdle = true;
     }
   }
 
-  public void calculatePath(double currentIMUHeading) { // Probably needs the current pose as an argument
-//    Pose2D currentPose = new Pose2D(); // Placeholder
+  /**
+   *
+   * @param currentPose Current pose, with IMU Heading in radians.
+   */
+  public void calculatePath(final Pose2D currentPose) {
+
 //    currentPath.getClosestInterpolatedTValue(currentPose);
 
-    // Calculate the joystick values needed (x/y/spin)
-    // This needs a target
-
-//    if (currentPath != null) {
       // Process isolated spins
       if (currentPath instanceof Spin) {
-
-        Msg.log(getClass().getSimpleName(), "calculatePath", "calculatePath called 3");
-        double errorHeadingDegrees =
-              Field.addDegreesToIMUHeading(
-//              Field.addRadiansToIMUHeading(
-                    ((Spin) currentPath).getTargetHeading(), -currentIMUHeading);
+        double errorHeadingRadians = Field.addRadiansToIMUHeading(
+            ((Spin) currentPath).getTargetHeading(), -currentPose.heading);
 
         // Update PIDController values
-        double headingControlValue = rotationPIDController.calculateNewControlValue(Math.toRadians(errorHeadingDegrees));
+        double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
         dt.setDtAutoMovementSpin(headingControlValue);
 
-        Msg.log(getClass().getSimpleName(), "calculatePath", "errorHdgDeg=" + errorHeadingDegrees + ", CtrlValue=" + headingControlValue);
-
-        if (rotationPIDController.isCommandComplete()) {
-          Msg.log(getClass().getSimpleName(), "calculatePath", "errorHdg=" + errorHeadingDegrees + ", rotationPIDController.isCommandComplete = true");
-          getNextPath(currentIMUHeading);
+        if (currentPath.isPathComplete(currentPose)) {
+          Msg.log(getClass().getSimpleName(), "calculatePath", "Spin complete. errorHdg=" + Math.toDegrees(errorHeadingRadians) + " deg");
+          getNextPath(currentPose);
         }
       }
-//    }
   }
 
-  private void setHoldPose(double currentIMUHeading) {
-    holdPose = new Pose2D(0.0, 0.0, currentIMUHeading);
-    translationPIDController.reset();
+  /**
+   * Set the pose for the robot to hold.
+   * @param holdPose Pose to hold, with IMU heading in radians
+   */
+  private void setHoldPose(Pose2D holdPose) {
+    this.holdPose = new Pose2D(holdPose);
+    xPIDController.reset();
+    yPIDController.reset();
     rotationPIDController.reset();
+
+    Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + this.holdPose.x + ", " + this.holdPose.y + ", " + Math.toDegrees(this.holdPose.heading));
   }
 
-  private void calculatePathToHoldPose(double currentIMUHeading) {
-    double errorHeadingDegrees =
-          Field.addDegreesToIMUHeading(
-//              Field.addRadiansToIMUHeading(
-                holdPose.heading, -currentIMUHeading);
+  /**
+   * This function is used to hold a pose when no paths are active (if requested to hold).
+   * @param currentPose Current pose, with IMU Heading in radians.
+   */
+  private void calculatePathToHoldPose(Pose2D currentPose) {
+    double errorTranslationXmm = currentPose.x - holdPose.x;
+    Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "holdPose.x=" + holdPose.x + ", currentPose.x=" + currentPose.x + ", errorX=" + errorTranslationXmm);
 
+    double errorTranslationYmm = currentPose.y - holdPose.y;
+    Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "holdPose.y=" + holdPose.y + ", currentPose.y=" + currentPose.y + ", errorY=" + errorTranslationYmm);
+
+    double errorHeadingRadians = Field.addRadiansToIMUHeading(holdPose.heading, -currentPose.heading);
+    Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "errorHeadingDegrees=" + Math.toDegrees(errorHeadingRadians));
     // Update PIDController values
-    double headingControlValue = rotationPIDController.calculateNewControlValue(Math.toRadians(errorHeadingDegrees));
+    double xControlValue = xPIDController.calculateNewControlValue(errorTranslationXmm);
+    double yControlValue = yPIDController.calculateNewControlValue(errorTranslationYmm);
+    Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "PIDx=" + xControlValue + ", PIDy=" + yControlValue);
+    double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
+    dt.setDtAutoMovementX(xControlValue);
+    dt.setDtAutoMovementY(-yControlValue);          // Flip the sign for y joystick
     dt.setDtAutoMovementSpin(headingControlValue);
   }
-
-//  public boolean isIdle() {
-//    return isIdle;
-//  }
 
   public STATUS getStatus() {
     return status;
   }
 
   public void setHoldPositionOff() {
-//    holdPosition = false;
+    holdPose = null;
     status = STATUS.IDLE;
   }
 
   /**
-   * This function should be called each loop to calculate the PID outputs to run the path.
-   * @param currentIMUHeading Current IMU heading in degrees
+   * This function is called by the RCController each loop to run this driveController.
+   * @param currentPose Current pose, with IMU heading in radians
    */
-  public void processPath(double currentIMUHeading) {
-
+  public void processPath(Pose2D currentPose) {
     if (dt.isManualMovementUpdated()) {
-      Msg.log(getClass().getSimpleName(), "processPath", "isManualMovementUpdated = true");
+//      Msg.log(getClass().getSimpleName(), "processPath", "isManualMovementUpdated = true");
       status = STATUS.IDLE;
-      // Remove any auto movements if a manual movement is occurring
-      if (currentPath != null) {
-        currentPath = null;
-//        isIdle = true;
-//        holdPosition = false;
-      }
 
-      dt.driveByRobotCartesianENU(dt.getDtManualMovementX(), dt.getDtManualMovementY(), dt.getDtManualMovementSpin(),
-          currentIMUHeading);
+      // Remove any auto movements if a manual movement is occurring
+      currentPath = null;
+      pathChain = null;
+
+      dt.driveByRobotCartesianENU(dt.getDtManualMovementX(), dt.getDtManualMovementY(),
+            dt.getDtManualMovementSpin(), Math.toDegrees(currentPose.heading));
     }
     else {
-      Msg.log(getClass().getSimpleName(), "processPath", "isManualMovementUpdated = false");
+//      Msg.log(getClass().getSimpleName(), "processPath", "isManualMovementUpdated = false");
 
+      // If there is a path, then drive it. Otherwise, check if the robot should hold position.
       if (currentPath != null) {
-        Msg.log(getClass().getSimpleName(), "processPath", "currentPath != null");
-        calculatePath(currentIMUHeading);
-        dt.driveByRobotCartesianENU(dt.getDtAutoMovementX(), dt.getDtAutoMovementY(), dt.getDtAutoMovementSpin(),
-              currentIMUHeading);
+//        Msg.log(getClass().getSimpleName(), "processPath", "currentPath != null");
+        calculatePath(currentPose);
+        dt.driveByRobotCartesianENU(dt.getDtAutoMovementX(), dt.getDtAutoMovementY(),
+              dt.getDtAutoMovementSpin(), Math.toDegrees(currentPose.heading));
       }
       else if (status == STATUS.HOLDING) {
-        calculatePathToHoldPose(currentIMUHeading);
-        dt.driveByRobotCartesianENU(dt.getDtAutoMovementX(), dt.getDtAutoMovementY(), dt.getDtAutoMovementSpin(),
-              currentIMUHeading);
+        calculatePathToHoldPose(currentPose);
+        dt.driveByRobotCartesianENU(dt.getDtAutoMovementX(), dt.getDtAutoMovementY(),
+              dt.getDtAutoMovementSpin(), Math.toDegrees(currentPose.heading));
         Msg.log(getClass().getSimpleName(), "processPath", "status == HOLDING");
       }
     }
-
-
   }
 }

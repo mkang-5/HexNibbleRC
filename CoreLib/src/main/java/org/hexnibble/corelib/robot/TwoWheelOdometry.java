@@ -7,9 +7,11 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.hexnibble.corelib.misc.Constants;
 import org.hexnibble.corelib.misc.Field;
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.misc.Vector2D;
 import org.hexnibble.corelib.wrappers.motor.WheelMotor;
+import org.hexnibble.corelib.wrappers.sensor.IMUWrapper;
 
 public class TwoWheelOdometry extends BaseOdometry {
   /**
@@ -55,6 +57,8 @@ public class TwoWheelOdometry extends BaseOdometry {
    */
   @Override
   public void updateOdometry(double IMUHeadingDegrees) {
+//    Msg.log(getClass().getSimpleName(), "updateOdometry", "IMUHeadingDegrees=" + IMUHeadingDegrees + ", cumPose=" + cumulativeAllianceCentricPose.x + ", " + cumulativeAllianceCentricPose.y + ", " + cumulativeAllianceCentricPose.heading);
+
     ArrayList<Double> currentEncoderPositionList = getEncoderPositionList_mm();
     ArrayList<Double> deltaPositionList =
         new ArrayList<>(); // List to store the changes of each wheel and heading since the last
