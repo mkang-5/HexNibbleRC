@@ -3,32 +3,33 @@ package org.hexnibble.corelib.motion.path;
 import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Pose2D;
 
-public class Spin implements CorePath {
+public class Spin extends CorePath {
    private final double targetIMUHeadingRadians;
    private final CorePath.ROTATION_DIRECTION rotationDirection;
    private final double targetHeadingToleranceRadians = Math.toRadians(2.0);
+//   private final Pose2D targetPose;
 
    public Spin(double targetIMUHeadingRadians, CorePath.ROTATION_DIRECTION rotationDirection) {
+      super(new Pose2D(0.0, 0.0, targetIMUHeadingRadians));
       this.targetIMUHeadingRadians = targetIMUHeadingRadians;
+//      this.targetPose = new Pose2D(0.0, 0.0, targetIMUHeadingRadians);
       this.rotationDirection = rotationDirection;
    }
 
-   /**
-    *
-    * @return Target IMU Heading (degrees)
-    */
-   public double getTargetHeading() {
-      return targetIMUHeadingRadians;
+   @Override
+   protected void checkPathComplete(Pose2D currentPose) {
+      isPathComplete = Math.abs(Field.addRadiansToIMUHeading(currentPose.heading, - targetIMUHeadingRadians)) < targetHeadingToleranceRadians;
    }
+
+//   @Override
+//   public Pose2D getTargetPose() {
+//      return targetPose;
+//   }
 
    public CorePath.ROTATION_DIRECTION getRotationDirection() {
       return rotationDirection;
    }
 
-   @Override
-   public boolean isPathComplete(Pose2D currentPose) {
-      return Math.abs(Field.addRadiansToIMUHeading(currentPose.heading, - targetIMUHeadingRadians)) < targetHeadingToleranceRadians;
-   }
 
    @Override
    public double getClosestInterpolatedTValue(Pose2D pose) {

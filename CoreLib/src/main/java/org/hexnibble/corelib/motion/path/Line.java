@@ -1,24 +1,44 @@
 package org.hexnibble.corelib.motion.path;
 
+import org.hexnibble.corelib.misc.Field;
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.misc.Vector2D;
 
-public class Line implements CorePath
+public class Line extends CorePath
 {
     Pose2D startPose;
-    Pose2D endPose;
+//    Pose2D endPose;
+    private final double targetHeadingToleranceTranslation_mm = 5.0;
+    private final double targetHeadingToleranceRadians = Math.toRadians(2.0);
     final Vector2D line;
 
-    public Line(Pose2D startPose, Pose2D endPose) {
-        this.startPose = startPose;
-        this.endPose = endPose;
-        line = new Vector2D(endPose.x - startPose.x, endPose.y - startPose.y);
+    public Line(Pose2D startPose, Pose2D targetPose) {
+        super(targetPose);
+        Msg.log(getClass().getSimpleName(), "Constructor",
+              "Creating line path from " + startPose.x + ", " + startPose.y + ", "
+                    + Math.toDegrees(startPose.heading) + " to "
+                    + targetPose.x + ", " + targetPose.y + ", " + Math.toDegrees(targetPose.heading));
+        this.startPose = new Pose2D(startPose);
+        line = new Vector2D(targetPose.x - startPose.x, targetPose.y - startPose.y);
     }
 
+    /**
+     * Path completion occurs if:
+     * (1) The distance and heading to the target are less than the threshold
+     * @param currentPose The current pose with IMU Heading in degrees
+     * @return Whether the path is complete
+     */
     @Override
-    public boolean isPathComplete(Pose2D currentPose) {
-        return false;
+    protected void checkPathComplete(Pose2D currentPose) {
+        isPathComplete = ((Math.abs(currentPose.getDistanceTo(targetPose)) < targetHeadingToleranceTranslation_mm)
+            && (Math.abs(Field.addRadiansToIMUHeading(currentPose.heading, - targetPose.heading)) < targetHeadingToleranceRadians));
     }
+
+//    @Override
+//    public Pose2D getTargetPose() {
+//        return endPose;
+//    }
 
     /**
      * Calculate the parametric t on an interpolated version of this line segment that is closest
