@@ -11,8 +11,10 @@ import org.hexnibble.corelib.misc.ConfigFile;
 import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.PolarCoords;
+import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.motion.MotorPowerSettings;
 import org.hexnibble.corelib.motion.path.CorePath;
+import org.hexnibble.corelib.motion.path.Line;
 import org.hexnibble.corelib.motion.path.PathChain;
 import org.hexnibble.corelib.motion.path.Spin;
 import org.hexnibble.corelib.motion.pid.PIDSettings;
@@ -363,8 +365,6 @@ public class MecanumDrivetrain extends BaseDrivetrain
     final double targetTolerance = 2.5; // Must be >0.0
     double deltaIMUHeadingDegrees;
 
-    Msg.log(getClass().getSimpleName(), "qSpinTurnToNearest45", "Queueing " + rotationDirection + " spin turn to nearest 45 degrees");
-
     if (rotationDirection == CorePath.ROTATION_DIRECTION.CLOCKWISE) {
       deltaIMUHeadingDegrees =
             (Math.ceil((currentIMUHeadingDegrees - targetTolerance) / 45.0) * 45.0)
@@ -388,26 +388,15 @@ public class MecanumDrivetrain extends BaseDrivetrain
 
     Msg.log(getClass().getSimpleName(), "qSpinTurnToNearest45", "Queued spin turn to nearest 45 degrees, target=" + targetIMUHeadingDegrees);
   }
-//
-//  @Override
-//  public void processCommands() {
-////    if (dtManualMovementUpdated) {
-////      clearSystemRCList();
-////
-////      driveByRobotCartesianENU(dtManual_X, dtManual_Y, dtManual_cwSpin - dtManual_ccwSpin, currentIMUHeading);
-////      setMotorPowers(targetMotorPowerSettings);
-////      dtManualMovementUpdated = false;
-////    }
-//
-//
-////    else if (!isSystemRCListEmpty()) {
-//////      Msg.log("MecanumDrivetrain", "processCommands", "here3");
-////      if (systemRCList.get(0).processRC()) {
-////
-////        systemRCList.remove(0);
-////      }
-////
-////      setMotorPowers(targetMotorPowerSettings);
-////    }
-//  }
+
+  public void qTranslation(RCController rcController, Pose2D currentPose) {
+    Msg.log(getClass().getSimpleName(), "qTranslation", "Queueing translation");
+    Pose2D endPose = new Pose2D(currentPose);
+    endPose.y += 30.0;
+
+    DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
+          new Line(currentPose, endPose))
+    );
+    rcController.qRC(command);
+  }
 }

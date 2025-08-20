@@ -101,20 +101,33 @@ public class DriveController {
 
 //    currentPath.getClosestInterpolatedTValue(currentPose);
 
-      // Process isolated spins
-      if (currentPath instanceof Spin) {
-        double errorHeadingRadians = Field.addRadiansToIMUHeading(
-            ((Spin) currentPath).getTargetHeading(), -currentPose.heading);
+    // Process isolated spins
+    if (currentPath instanceof Spin) {
+      double errorHeadingRadians = Field.addRadiansToIMUHeading(
+          currentPath.getTargetPose().heading, -currentPose.heading);
 
-        // Update PIDController values
-        double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
-        dt.setDtAutoMovementSpin(headingControlValue);
+      // Update PIDController values
+      double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
+      dt.setDtAutoMovementSpin(headingControlValue);
+    }
+    else {
+      // Update PIDController values
+      double errorX = currentPose.x - currentPath.getTargetPose().x;
+      double XControlValue = xPIDController.calculateNewControlValue(errorX);
+      dt.setDtAutoMovementX(XControlValue);
 
-        if (currentPath.isPathComplete(currentPose)) {
-          Msg.log(getClass().getSimpleName(), "calculatePath", "Spin complete. errorHdg=" + Math.toDegrees(errorHeadingRadians) + " deg");
-          getNextPath(currentPose);
-        }
-      }
+      double errorY = currentPose.y - currentPath.getTargetPose().y;
+      double YControlValue = yPIDController.calculateNewControlValue(errorY);
+      dt.setDtAutoMovementY(-YControlValue);
+
+      double errorHeadingRadians = Field.addRadiansToIMUHeading(currentPath.getTargetPose().heading, -currentPose.heading);
+      double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
+      dt.setDtAutoMovementSpin(headingControlValue);
+    }
+
+    if (currentPath.isPathComplete(currentPose)) {
+      getNextPath(currentPose);
+    }
   }
 
   /**

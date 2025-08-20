@@ -51,6 +51,10 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
                           r.getStoredIMUHeadingDegrees(),
                           CorePath.ROTATION_DIRECTION.CLOCKWISE))
         );
+        controller1.addActiveButtonGroup(
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_up,
+                    () -> r.drivetrain.qTranslation(rcController, r.getRobotPoseEstimate()))
+        );
         // Check motor powers
 //        controller1.addActiveButtonGroup(
 //              new ButtonToFunction(cross,
