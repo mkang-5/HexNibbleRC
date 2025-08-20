@@ -23,6 +23,7 @@ public abstract class CorePath
 //    public boolean isPathComplete(Pose2D currentPose);
 
     public final boolean isPathComplete(Pose2D currentPose) {
+        // Only check if a path is complete if it has not already been completed.
         if (!isPathComplete) {
             checkPathComplete(currentPose);
         }
