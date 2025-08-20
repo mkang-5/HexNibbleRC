@@ -104,9 +104,9 @@ public class CoreRobot extends CoreRobotSystem {
 
   // Control Hub Logo/USB Facing Direction Options are: UP, DOWN, LEFT, RIGHT, FORWARD, BACKWARD
   protected RevHubOrientationOnRobot.LogoFacingDirection CH_LOGO_FACING_DIRECTION =
-      RevHubOrientationOnRobot.LogoFacingDirection.UP;
+      RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
   protected RevHubOrientationOnRobot.UsbFacingDirection CH_USB_FACING_DIRECTION =
-      RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
+      RevHubOrientationOnRobot.UsbFacingDirection.UP;
 
   public enum HUB_TYPE {
     CONTROL_HUB,

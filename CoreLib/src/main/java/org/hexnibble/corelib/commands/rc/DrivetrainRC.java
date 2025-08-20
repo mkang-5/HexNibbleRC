@@ -28,7 +28,7 @@ public class DrivetrainRC extends RC {
 
    @Override
    protected void processCommand() {
-      Msg.log(getClass().getSimpleName(), "processCommand", "In DrivetrainRC processCommand");
+//      Msg.log(getClass().getSimpleName(), "processCommand", "In DrivetrainRC processCommand");
       if ((dtController.getStatus() == DriveController.STATUS.HOLDING) ||
             (dtController.getStatus() == DriveController.STATUS.IDLE)) {
          Msg.log(getClass().getSimpleName(), "processCommand", "In DrivetrainRC processCommand - dtController.isIdle is true");

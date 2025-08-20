@@ -58,13 +58,16 @@ public abstract class BaseOdometry {
     return lastEncoderPositionReadTime_ms;
   }
 
-  /** Reset odometry wheel encoders */
+  /** Reset odometry wheel encoders
+   * This will also reset the current pose.
+   */
   public void resetEncoders() {
     odometryEncoderList.forEach(wheelMotor -> wheelMotor.resetEncoder());
+    setPoseEstimate(new Pose2D(0.0, 0.0, 0.0));
   }
 
   public void resetHeading() {
-    cumulativeAllianceCentricPose.heading = 0.0;
+    setPoseEstimate(new Pose2D(0.0, 0.0, 0.0));
   }
 
   /**

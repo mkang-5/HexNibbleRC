@@ -1,5 +1,6 @@
 package org.hexnibble.corelib.motion.path;
 
+import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Pose2D;
 
 /**
@@ -13,28 +14,30 @@ public abstract class CorePath
         COUNTERCLOCKWISE
     }
 
-    protected final Pose2D targetPose;
+    protected final Pose2D targetPose;      // Heading in radians
+    protected Pose2D holdPose;
     protected boolean isPathComplete;
 
     public CorePath(Pose2D targetPose) {
         this.targetPose = new Pose2D(targetPose);
+        this.holdPose = new Pose2D(targetPose);
     }
+
+    public double getHeadingError(double currentIMUHeading) {
+        return Field.addRadiansToIMUHeading(getTargetPose().heading, -currentIMUHeading);
+    }
+
 
 //    public boolean isPathComplete(Pose2D currentPose);
 
-    public final boolean isPathComplete(Pose2D currentPose) {
-        // Only check if a path is complete if it has not already been completed.
-        if (!isPathComplete) {
-            checkPathComplete(currentPose);
-        }
-
-        return isPathComplete;
-    }
-
-    protected abstract void checkPathComplete(Pose2D currentPose);
+    public abstract boolean isPathComplete(Pose2D currentPose);
 
     public Pose2D getTargetPose() {
         return targetPose;
+    }
+
+    public Pose2D getHoldPose() {
+        return holdPose;
     }
 
     public abstract double getClosestInterpolatedTValue(Pose2D pose);

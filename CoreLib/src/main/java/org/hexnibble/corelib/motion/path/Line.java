@@ -23,22 +23,29 @@ public class Line extends CorePath
         line = new Vector2D(targetPose.x - startPose.x, targetPose.y - startPose.y);
     }
 
+    public double getXError(Pose2D currentPose) {
+        return currentPose.x - getTargetPose().x;
+    }
+
+    public double getYError(Pose2D currentPose) {
+        return currentPose.y - getTargetPose().y;
+    }
+
     /**
      * Path completion occurs if:
      * (1) The distance and heading to the target are less than the threshold
      * @param currentPose The current pose with IMU Heading in degrees
-     * @return Whether the path is complete
      */
     @Override
-    protected void checkPathComplete(Pose2D currentPose) {
-        isPathComplete = ((Math.abs(currentPose.getDistanceTo(targetPose)) < targetHeadingToleranceTranslation_mm)
-            && (Math.abs(Field.addRadiansToIMUHeading(currentPose.heading, - targetPose.heading)) < targetHeadingToleranceRadians));
-    }
+    public boolean isPathComplete(Pose2D currentPose) {
+        // Only check if a path is complete if it has not already been completed.
+        if (!isPathComplete) {
+            isPathComplete = ((Math.abs(currentPose.getDistanceTo(targetPose)) < targetHeadingToleranceTranslation_mm)
+                  && (Math.abs(Field.addRadiansToIMUHeading(currentPose.heading, - targetPose.heading)) < targetHeadingToleranceRadians));
+        }
 
-//    @Override
-//    public Pose2D getTargetPose() {
-//        return endPose;
-//    }
+        return isPathComplete;
+    }
 
     /**
      * Calculate the parametric t on an interpolated version of this line segment that is closest

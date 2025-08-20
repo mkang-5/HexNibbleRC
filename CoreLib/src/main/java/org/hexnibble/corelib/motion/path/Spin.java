@@ -1,6 +1,7 @@
 package org.hexnibble.corelib.motion.path;
 
 import org.hexnibble.corelib.misc.Field;
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 
 public class Spin extends CorePath {
@@ -17,8 +18,22 @@ public class Spin extends CorePath {
    }
 
    @Override
-   protected void checkPathComplete(Pose2D currentPose) {
-      isPathComplete = Math.abs(Field.addRadiansToIMUHeading(currentPose.heading, - targetIMUHeadingRadians)) < targetHeadingToleranceRadians;
+   public boolean isPathComplete(Pose2D currentPose) {
+      // Only check if a path is complete if it has not already been completed.
+      if (isPathComplete) {
+         Msg.log(getClass().getSimpleName(), "isPathComplete", "isPathComplete=true");
+         return true;
+      }
+      else {
+         isPathComplete = Math.abs(Field.addRadiansToIMUHeading(currentPose.heading, - targetIMUHeadingRadians)) < targetHeadingToleranceRadians;
+         if (isPathComplete) {
+            holdPose.x = currentPose.x;
+            holdPose.y = currentPose.y;
+            Msg.log(getClass().getSimpleName(), "isPathComplete", "isPathComplete is newly true so setting holdPose to x=" + holdPose.x + ", y=" + holdPose.y + ", hdg(deg)=" + Math.toDegrees(holdPose.heading));
+         }
+         return isPathComplete;
+//         checkPathComplete(currentPose);
+      }
    }
 
 //   @Override

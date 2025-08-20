@@ -6,6 +6,7 @@ import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.motion.path.CorePath;
+import org.hexnibble.corelib.motion.path.Line;
 import org.hexnibble.corelib.motion.path.PathChain;
 import org.hexnibble.corelib.motion.path.Spin;
 import org.hexnibble.corelib.motion.pid.PIDController;
@@ -86,7 +87,8 @@ public class DriveController {
     else {
       if (pathChain.getHoldPosition()) {
         status = STATUS.HOLDING;
-        setHoldPose(currentPose);
+        setHoldPose(pathChain.getPath(pathChainIndex - 1).getTargetPose());
+//        setHoldPose(currentPose);
       }
       currentPath = null;
       pathChain = null;
@@ -101,28 +103,24 @@ public class DriveController {
 
 //    currentPath.getClosestInterpolatedTValue(currentPose);
 
-    // Process isolated spins
-    if (currentPath instanceof Spin) {
-      double errorHeadingRadians = Field.addRadiansToIMUHeading(
-          currentPath.getTargetPose().heading, -currentPose.heading);
+    // Update heading PIDController values
+    double errorHeadingRadians = currentPath.getHeadingError(currentPose.heading);
+    double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
+    dt.setDtAutoMovementSpin(headingControlValue);
 
+    // Process lines
+    if (!(currentPath instanceof Spin)) {
       // Update PIDController values
-      double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
-      dt.setDtAutoMovementSpin(headingControlValue);
-    }
-    else {
-      // Update PIDController values
-      double errorX = currentPose.x - currentPath.getTargetPose().x;
+//      double errorX = currentPose.x - currentPath.getTargetPose().x;
+      double errorX = ((Line) currentPath).getXError(currentPose);
       double XControlValue = xPIDController.calculateNewControlValue(errorX);
       dt.setDtAutoMovementX(XControlValue);
 
-      double errorY = currentPose.y - currentPath.getTargetPose().y;
+//      double errorY = currentPose.y - currentPath.getTargetPose().y;
+      double errorY = ((Line) currentPath).getXError(currentPose);
       double YControlValue = yPIDController.calculateNewControlValue(errorY);
       dt.setDtAutoMovementY(-YControlValue);
 
-      double errorHeadingRadians = Field.addRadiansToIMUHeading(currentPath.getTargetPose().heading, -currentPose.heading);
-      double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
-      dt.setDtAutoMovementSpin(headingControlValue);
     }
 
     if (currentPath.isPathComplete(currentPose)) {
@@ -140,7 +138,7 @@ public class DriveController {
     yPIDController.reset();
     rotationPIDController.reset();
 
-    Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + this.holdPose.x + ", " + this.holdPose.y + ", " + Math.toDegrees(this.holdPose.heading));
+    Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + this.holdPose.x + ", " + this.holdPose.y + ", " + Math.toDegrees(this.holdPose.heading) + " deg");
   }
 
   /**
@@ -155,15 +153,18 @@ public class DriveController {
     Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "holdPose.y=" + holdPose.y + ", currentPose.y=" + currentPose.y + ", errorY=" + errorTranslationYmm);
 
     double errorHeadingRadians = Field.addRadiansToIMUHeading(holdPose.heading, -currentPose.heading);
-    Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "errorHeadingDegrees=" + Math.toDegrees(errorHeadingRadians));
+    Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "holdPose.hdg (deg)=" + Math.toDegrees(holdPose.heading) + "currentPose.hdg (deg)=" + Math.toDegrees(currentPose.heading) + "errorHeadingDegrees=" + Math.toDegrees(errorHeadingRadians));
+
     // Update PIDController values
     double xControlValue = xPIDController.calculateNewControlValue(errorTranslationXmm);
     double yControlValue = yPIDController.calculateNewControlValue(errorTranslationYmm);
-    Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "PIDx=" + xControlValue + ", PIDy=" + yControlValue);
     double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
+
     dt.setDtAutoMovementX(xControlValue);
     dt.setDtAutoMovementY(-yControlValue);          // Flip the sign for y joystick
     dt.setDtAutoMovementSpin(headingControlValue);
+
+    Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "PIDx=" + xControlValue + ", PIDy (unflipped)=" + yControlValue + ", PIDHdg=" + headingControlValue);
   }
 
   public STATUS getStatus() {
@@ -187,6 +188,8 @@ public class DriveController {
       // Remove any auto movements if a manual movement is occurring
       currentPath = null;
       pathChain = null;
+
+      Msg.log(getClass().getSimpleName(), "processPath", "currentPose Heading=" + Math.toDegrees(currentPose.heading));
 
       dt.driveByRobotCartesianENU(dt.getDtManualMovementX(), dt.getDtManualMovementY(),
             dt.getDtManualMovementSpin(), Math.toDegrees(currentPose.heading));
