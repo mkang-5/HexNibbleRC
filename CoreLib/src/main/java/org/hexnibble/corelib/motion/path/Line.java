@@ -24,11 +24,11 @@ public class Line extends CorePath
     }
 
     public double getXError(Pose2D currentPose) {
-        return currentPose.x - getTargetPose().x;
+        return getTargetPose().x - currentPose.x;
     }
 
     public double getYError(Pose2D currentPose) {
-        return currentPose.y - getTargetPose().y;
+        return getTargetPose().y - currentPose.y;
     }
 
     /**

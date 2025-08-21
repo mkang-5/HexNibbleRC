@@ -48,13 +48,16 @@ public class MecanumTestRobot extends CoreRobot {
 
                 new MecanumDrivetrain(hwMap,
                       "LFMotor", DcMotor.Direction.REVERSE,
-                      BaseMotorWrapper.ENCODER.GO_BILDA_ODOPOD, DcMotorSimple.Direction.FORWARD,
+                      BaseMotorWrapper.ENCODER.GO_BILDA_ODOPOD, DcMotorSimple.Direction.REVERSE,
+
                       "RFMotor", DcMotor.Direction.FORWARD,
                       BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
                       "LBMotor", DcMotor.Direction.REVERSE,
                       BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
+
                       "RBMotor", DcMotor.Direction.FORWARD,
-                      BaseMotorWrapper.ENCODER.GO_BILDA_ODOPOD, DcMotorSimple.Direction.FORWARD,
+                      BaseMotorWrapper.ENCODER.GO_BILDA_ODOPOD, DcMotorSimple.Direction.REVERSE,
+
                       BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_435, DcMotor.RunMode.RUN_WITHOUT_ENCODER,
                       1.0, TARGET_POSITION_TOLERANCE, 48.0);
 

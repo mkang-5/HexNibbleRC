@@ -30,6 +30,10 @@ public class Pose2D {
     this.heading = headingRadians;
   }
 
+  public String toString() {
+    return "x=" + x + ", y=" + y + "hdg (deg)=" + Math.toDegrees(heading);
+  }
+
   public Vector2D getCoordsAsVector() {
     return new Vector2D(x, y);
   }

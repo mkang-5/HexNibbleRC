@@ -1,6 +1,7 @@
 package org.hexnibble.corelib.motion.path;
 
 import org.hexnibble.corelib.misc.Field;
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 
 /**
@@ -15,12 +16,13 @@ public abstract class CorePath
     }
 
     protected final Pose2D targetPose;      // Heading in radians
-    protected Pose2D holdPose;
+//    protected Pose2D holdPose;
     protected boolean isPathComplete;
 
     public CorePath(Pose2D targetPose) {
         this.targetPose = new Pose2D(targetPose);
-        this.holdPose = new Pose2D(targetPose);
+//        this.holdPose = new Pose2D(targetPose);
+        Msg.log(getClass().getSimpleName(), "Constructor", "Creating targetPose as " + targetPose);
     }
 
     public double getHeadingError(double currentIMUHeading) {
@@ -36,9 +38,9 @@ public abstract class CorePath
         return targetPose;
     }
 
-    public Pose2D getHoldPose() {
-        return holdPose;
-    }
+//    public Pose2D getHoldPose() {
+//        return holdPose;
+//    }
 
     public abstract double getClosestInterpolatedTValue(Pose2D pose);
 }

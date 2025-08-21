@@ -8,12 +8,10 @@ public class Spin extends CorePath {
    private final double targetIMUHeadingRadians;
    private final CorePath.ROTATION_DIRECTION rotationDirection;
    private final double targetHeadingToleranceRadians = Math.toRadians(2.0);
-//   private final Pose2D targetPose;
 
    public Spin(double targetIMUHeadingRadians, CorePath.ROTATION_DIRECTION rotationDirection) {
       super(new Pose2D(0.0, 0.0, targetIMUHeadingRadians));
       this.targetIMUHeadingRadians = targetIMUHeadingRadians;
-//      this.targetPose = new Pose2D(0.0, 0.0, targetIMUHeadingRadians);
       this.rotationDirection = rotationDirection;
    }
 
@@ -26,11 +24,11 @@ public class Spin extends CorePath {
       }
       else {
          isPathComplete = Math.abs(Field.addRadiansToIMUHeading(currentPose.heading, - targetIMUHeadingRadians)) < targetHeadingToleranceRadians;
-         if (isPathComplete) {
-            holdPose.x = currentPose.x;
-            holdPose.y = currentPose.y;
-            Msg.log(getClass().getSimpleName(), "isPathComplete", "isPathComplete is newly true so setting holdPose to x=" + holdPose.x + ", y=" + holdPose.y + ", hdg(deg)=" + Math.toDegrees(holdPose.heading));
-         }
+//         if (isPathComplete) {
+//            holdPose.x = currentPose.x;
+//            holdPose.y = currentPose.y;
+//            Msg.log(getClass().getSimpleName(), "isPathComplete", "isPathComplete is newly true so setting holdPose to " + holdPose.toString());
+//         }
          return isPathComplete;
 //         checkPathComplete(currentPose);
       }
@@ -44,7 +42,6 @@ public class Spin extends CorePath {
    public CorePath.ROTATION_DIRECTION getRotationDirection() {
       return rotationDirection;
    }
-
 
    @Override
    public double getClosestInterpolatedTValue(Pose2D pose) {

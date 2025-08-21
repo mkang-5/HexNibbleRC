@@ -414,6 +414,14 @@ public class CoreRobot extends CoreRobotSystem {
     }
   }
 
+  public ArrayList<Integer> getOdometryEncoderCounts() {
+    if (odometry != null) {
+      return odometry.getEncoderCounts();
+    } else {
+      return null;
+    }
+  }
+
   /**
    * Get current pose estimate in alliance CF.
    *

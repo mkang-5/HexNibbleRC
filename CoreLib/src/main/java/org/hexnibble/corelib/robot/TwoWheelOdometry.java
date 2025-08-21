@@ -19,7 +19,7 @@ public class TwoWheelOdometry extends BaseOdometry {
    *
    * @param odometryWheelMountingLocationList A list of odometry wheel mounting locations relative
    *     to the center of the robot. The first wheel is for X direction (left/right movements). The
-   *     second wheel is for Y direction (forward/back movemetns).
+   *     second wheel is for Y direction (forward/back movements).
    * @param odometryWheelMotorList A list of motor objects where the odometry wheel encoders are
    *     plugged in. The first motor port is for X direction. The second motor port is for Y
    *     direction.

@@ -381,7 +381,7 @@ public class MecanumDrivetrain extends BaseDrivetrain
     double targetIMUHeadingDegrees = currentIMUHeadingDegrees + deltaIMUHeadingDegrees;
 
     DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
-            new Spin(targetIMUHeadingDegrees, rotationDirection))
+            new Spin(Math.toRadians(targetIMUHeadingDegrees), rotationDirection))
     );
 
     rcController.qRC(command);
@@ -392,7 +392,7 @@ public class MecanumDrivetrain extends BaseDrivetrain
   public void qTranslation(RCController rcController, Pose2D currentPose) {
     Msg.log(getClass().getSimpleName(), "qTranslation", "Queueing translation");
     Pose2D endPose = new Pose2D(currentPose);
-    endPose.y += 30.0;
+    endPose.y += 50.0;
 
     DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
           new Line(currentPose, endPose))

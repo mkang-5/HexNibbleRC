@@ -49,6 +49,16 @@ public abstract class BaseOdometry {
     return odometryEncoderPositionList;
   }
 
+  public ArrayList<Integer> getEncoderCounts() {
+    ArrayList<Integer> odometryEncoderCounts = new ArrayList<>();
+
+    odometryEncoderList.forEach(
+          wheelMotor -> odometryEncoderCounts.add(wheelMotor.getCurrentPosition())
+    );
+
+    return odometryEncoderCounts;
+  }
+
   /**
    * Retrieve the last time the encoder positions were read (system ms)
    *

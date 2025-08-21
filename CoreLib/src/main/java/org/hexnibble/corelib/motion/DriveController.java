@@ -87,8 +87,6 @@ public class DriveController {
     else {
       if (pathChain.getHoldPosition()) {
         status = STATUS.HOLDING;
-        setHoldPose(pathChain.getPath(pathChainIndex - 1).getTargetPose());
-//        setHoldPose(currentPose);
       }
       currentPath = null;
       pathChain = null;
@@ -100,7 +98,7 @@ public class DriveController {
    * @param currentPose Current pose, with IMU Heading in radians.
    */
   public void calculatePath(final Pose2D currentPose) {
-
+    Msg.log(getClass().getSimpleName(), "calculatePath", "Calculating control values from " + currentPose.toString());
 //    currentPath.getClosestInterpolatedTValue(currentPose);
 
     // Update heading PIDController values
@@ -110,6 +108,8 @@ public class DriveController {
 
     // Process lines
     if (!(currentPath instanceof Spin)) {
+      Msg.log(getClass().getSimpleName(), "calculatePath", "currentPath is not Spin");
+
       // Update PIDController values
 //      double errorX = currentPose.x - currentPath.getTargetPose().x;
       double errorX = ((Line) currentPath).getXError(currentPose);
@@ -117,13 +117,15 @@ public class DriveController {
       dt.setDtAutoMovementX(XControlValue);
 
 //      double errorY = currentPose.y - currentPath.getTargetPose().y;
-      double errorY = ((Line) currentPath).getXError(currentPose);
+      double errorY = ((Line) currentPath).getYError(currentPose);
       double YControlValue = yPIDController.calculateNewControlValue(errorY);
-      dt.setDtAutoMovementY(-YControlValue);
+      dt.setDtAutoMovementY(YControlValue);
 
+      Msg.log(getClass().getSimpleName(), "calculatePath", "errorX=" + errorX + " , errorY=" + errorY);
     }
 
     if (currentPath.isPathComplete(currentPose)) {
+      setHoldPose(currentPose);
       getNextPath(currentPose);
     }
   }
@@ -133,12 +135,21 @@ public class DriveController {
    * @param holdPose Pose to hold, with IMU heading in radians
    */
   private void setHoldPose(Pose2D holdPose) {
-    this.holdPose = new Pose2D(holdPose);
+//    this.holdPose = new Pose2D(holdPose);
+
+    if (currentPath instanceof Spin) {
+      this.holdPose = new Pose2D(holdPose.x, holdPose.y, currentPath.getTargetPose().heading);
+//      this.holdPose.heading = currentPath.getTargetPose().heading;
+      Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting SPIN hold pose to: " + holdPose.toString());
+    }
+    else {
+      this.holdPose = new Pose2D(holdPose);
+      Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + holdPose.toString());
+    }
+
     xPIDController.reset();
     yPIDController.reset();
     rotationPIDController.reset();
-
-    Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + this.holdPose.x + ", " + this.holdPose.y + ", " + Math.toDegrees(this.holdPose.heading) + " deg");
   }
 
   /**
@@ -146,10 +157,10 @@ public class DriveController {
    * @param currentPose Current pose, with IMU Heading in radians.
    */
   private void calculatePathToHoldPose(Pose2D currentPose) {
-    double errorTranslationXmm = currentPose.x - holdPose.x;
+    double errorTranslationXmm = holdPose.x - currentPose.x;
     Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "holdPose.x=" + holdPose.x + ", currentPose.x=" + currentPose.x + ", errorX=" + errorTranslationXmm);
 
-    double errorTranslationYmm = currentPose.y - holdPose.y;
+    double errorTranslationYmm = holdPose.y - currentPose.y;
     Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "holdPose.y=" + holdPose.y + ", currentPose.y=" + currentPose.y + ", errorY=" + errorTranslationYmm);
 
     double errorHeadingRadians = Field.addRadiansToIMUHeading(holdPose.heading, -currentPose.heading);
@@ -161,7 +172,7 @@ public class DriveController {
     double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
 
     dt.setDtAutoMovementX(xControlValue);
-    dt.setDtAutoMovementY(-yControlValue);          // Flip the sign for y joystick
+    dt.setDtAutoMovementY(yControlValue);          // Flip the sign for y joystick
     dt.setDtAutoMovementSpin(headingControlValue);
 
     Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "PIDx=" + xControlValue + ", PIDy (unflipped)=" + yControlValue + ", PIDHdg=" + headingControlValue);

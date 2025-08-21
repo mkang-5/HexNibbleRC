@@ -561,6 +561,10 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
         telemetry.addData("Robot Pose: Alliance CF y (mm)=", "%.2f", pose.y);
         telemetry.addData(
             "Robot Pose: Alliance CF hdg (deg)=", "%.2f", Math.toDegrees(pose.heading));
+
+        ArrayList<Integer> encoderCountList = robot.getOdometryEncoderCounts();
+        telemetry.addLine("Odo Encoder Count: x=" + encoderCountList.get(0));
+        telemetry.addLine("Odo Encoder Count: y=" + encoderCountList.get(1));
       }
     }
   }

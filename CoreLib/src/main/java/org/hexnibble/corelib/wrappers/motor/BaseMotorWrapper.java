@@ -323,9 +323,19 @@ public class BaseMotorWrapper {
       return motor.getCurrentPosition();
     }
     else {
-      return (encoderDirection == DcMotorSimple.Direction.FORWARD)
-          ? motor.getCurrentPosition()
-          : -motor.getCurrentPosition();
+      if (((runDirection == DcMotorSimple.Direction.FORWARD) && (encoderDirection == DcMotorSimple.Direction.FORWARD))
+        || ((runDirection == DcMotorSimple.Direction.REVERSE) && (encoderDirection == DcMotorSimple.Direction.REVERSE))) {
+
+        return motor.getCurrentPosition();
+      }
+      else {
+        return -motor.getCurrentPosition();
+      }
+
+
+//      return (encoderDirection == DcMotorSimple.Direction.FORWARD)
+//          ? motor.getCurrentPosition()
+//          : -motor.getCurrentPosition();
     }
   }
 
