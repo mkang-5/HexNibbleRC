@@ -62,6 +62,8 @@ public class DriveController {
    * @param pathChain The requested trajectory
    */
   public void startTrajectory(@NonNull PathChain pathChain) {
+    Msg.log(getClass().getSimpleName(), "startTrajectory", "Starting a new trajectory with pathChain size=" + pathChain.size());
+
     this.pathChain = pathChain;
     pathChainIndex = 0;
     currentPath = this.pathChain.getPath(pathChainIndex);
@@ -71,8 +73,6 @@ public class DriveController {
     xPIDController.reset();
     yPIDController.reset();
     rotationPIDController.reset();
-
-    Msg.log(getClass().getSimpleName(), "startTrajectory", "Starting a new trajectory with pathChain size=" + pathChain.size());
   }
 
   /**
