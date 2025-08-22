@@ -55,6 +55,14 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
               new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_up,
                     () -> r.drivetrain.qTranslation(rcController, r.getRobotPoseEstimate()))
         );
+        controller1.addActiveButtonGroup(
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_left,
+                    () -> r.drivetrain.qTranslationRight(rcController, r.getRobotPoseEstimate()))
+        );
+        controller1.addActiveButtonGroup(
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_down,
+                    () -> r.drivetrain.qTestTranslation(rcController, r.getRobotPoseEstimate()))
+        );
         // Check motor powers
 //        controller1.addActiveButtonGroup(
 //              new ButtonToFunction(cross,

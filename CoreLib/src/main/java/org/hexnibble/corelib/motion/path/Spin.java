@@ -3,6 +3,7 @@ package org.hexnibble.corelib.motion.path;
 import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
+import org.hexnibble.corelib.misc.Vector2D;
 
 public class Spin extends CorePath {
    private final double targetIMUHeadingRadians;
@@ -13,6 +14,22 @@ public class Spin extends CorePath {
       super(new Pose2D(0.0, 0.0, targetIMUHeadingRadians));
       this.targetIMUHeadingRadians = targetIMUHeadingRadians;
       this.rotationDirection = rotationDirection;
+   }
+
+//   @Override
+//   public double getXError(Pose2D currentPose) {
+//      return 0.0;
+//   }
+//
+//   @Override
+//   public double getYError(Pose2D currentPose) {
+//      return 0.0;
+//   }
+
+   @Override
+   public Pose2D getPoseError(Pose2D currentPose) {
+      return new Pose2D(new Vector2D(0.0, 0.0),
+            Field.addRadiansToIMUHeading(getTargetPose().heading, -currentPose.heading));
    }
 
    @Override
@@ -41,10 +58,5 @@ public class Spin extends CorePath {
 
    public CorePath.ROTATION_DIRECTION getRotationDirection() {
       return rotationDirection;
-   }
-
-   @Override
-   public double getClosestInterpolatedTValue(Pose2D pose) {
-      return 0.0;
    }
 }

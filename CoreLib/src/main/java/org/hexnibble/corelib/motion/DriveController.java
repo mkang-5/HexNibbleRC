@@ -99,29 +99,31 @@ public class DriveController {
    */
   public void calculatePath(final Pose2D currentPose) {
     Msg.log(getClass().getSimpleName(), "calculatePath", "Calculating control values from " + currentPose.toString());
-//    currentPath.getClosestInterpolatedTValue(currentPose);
+
+    Pose2D error = currentPath.getPoseError(currentPose);
 
     // Update heading PIDController values
-    double errorHeadingRadians = currentPath.getHeadingError(currentPose.heading);
+//    double errorHeadingRadians = currentPath.getHeadingError(currentPose.heading);
+    double errorHeadingRadians = error.heading;
     double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
     dt.setDtAutoMovementSpin(headingControlValue);
 
-    // Process lines
     if (!(currentPath instanceof Spin)) {
-      Msg.log(getClass().getSimpleName(), "calculatePath", "currentPath is not Spin");
-
       // Update PIDController values
 //      double errorX = currentPose.x - currentPath.getTargetPose().x;
-      double errorX = ((Line) currentPath).getXError(currentPose);
+//      Msg.log(getClass().getSimpleName(), "calculatePath", "Calculating errorX");
+
+//      double errorX = currentPath.getXError(currentPose);
+      double errorX = error.x;
       double XControlValue = xPIDController.calculateNewControlValue(errorX);
       dt.setDtAutoMovementX(XControlValue);
 
-//      double errorY = currentPose.y - currentPath.getTargetPose().y;
-      double errorY = ((Line) currentPath).getYError(currentPose);
+//      double errorY = currentPath.getYError(currentPose);
+      double errorY = error.y;
       double YControlValue = yPIDController.calculateNewControlValue(errorY);
       dt.setDtAutoMovementY(YControlValue);
 
-      Msg.log(getClass().getSimpleName(), "calculatePath", "errorX=" + errorX + " , errorY=" + errorY);
+      Msg.log(getClass().getSimpleName(), "calculatePath", "errorX=" + errorX + ", errorY=" + errorY + ", XCtrlVal=" + XControlValue + ", YCtrlVal=" + YControlValue);
     }
 
     if (currentPath.isPathComplete(currentPose)) {
@@ -140,11 +142,11 @@ public class DriveController {
     if (currentPath instanceof Spin) {
       this.holdPose = new Pose2D(holdPose.x, holdPose.y, currentPath.getTargetPose().heading);
 //      this.holdPose.heading = currentPath.getTargetPose().heading;
-      Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting SPIN hold pose to: " + holdPose.toString());
+      Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting SPIN hold pose to: " + holdPose);
     }
     else {
       this.holdPose = new Pose2D(holdPose);
-      Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + holdPose.toString());
+      Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + holdPose);
     }
 
     xPIDController.reset();
@@ -210,7 +212,7 @@ public class DriveController {
 
       // If there is a path, then drive it. Otherwise, check if the robot should hold position.
       if (currentPath != null) {
-//        Msg.log(getClass().getSimpleName(), "processPath", "currentPath != null");
+        Msg.log(getClass().getSimpleName(), "processPath", "currentPath != null");
         calculatePath(currentPose);
         dt.driveByRobotCartesianENU(dt.getDtAutoMovementX(), dt.getDtAutoMovementY(),
               dt.getDtAutoMovementSpin(), Math.toDegrees(currentPose.heading));

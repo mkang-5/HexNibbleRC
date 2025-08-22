@@ -851,31 +851,31 @@ public class CoreRobot extends CoreRobotSystem {
    *     values are CCW)
    * @param rotationDirection CLOCKWISE or COUNTERCLOCKWISE
    */
-  public void qAbsoluteDrivetrainRC(
-      String commandID, Pose2D allianceCFPose, DrivetrainRC.ROTATION_DIRECTION rotationDirection) {
-    /*        DrivetrainRC command = new DrivetrainRC(
-                    commandID, DrivetrainRC.COMMAND_TYPE.ABSOLUTE, DrivetrainRC.COMMAND_CONTENTS.TRANSLATION_AND_ROTATION,
-                    allianceCFPose,
-                    rotationDirection, odometry, -1);
-    */
-    Waypoint waypoint = new Waypoint(allianceCFPose);
-    List<Waypoint> waypointList = new ArrayList<Waypoint>();
-    waypointList.add(waypoint);
-
-    MultiDrivetrainRC command =
-        new MultiDrivetrainRC(
-            commandID,
-            MultiDrivetrainRC.COMMAND_TYPE.ABSOLUTE,
-            MultiDrivetrainRC.COMMAND_CONTENTS.TRANSLATION_AND_ROTATION,
-            waypointList,
-            rotationDirection,
-            odometry,
-            1.0,
-            -1);
-
-    command.initializeCommand();
-    robotDrivetrainCommandQueue.add(command);
-  }
+//  public void qAbsoluteDrivetrainRC(
+//      String commandID, Pose2D allianceCFPose, DrivetrainRC.ROTATION_DIRECTION rotationDirection) {
+//    /*        DrivetrainRC command = new DrivetrainRC(
+//                    commandID, DrivetrainRC.COMMAND_TYPE.ABSOLUTE, DrivetrainRC.COMMAND_CONTENTS.TRANSLATION_AND_ROTATION,
+//                    allianceCFPose,
+//                    rotationDirection, odometry, -1);
+//    */
+//    Waypoint waypoint = new Waypoint(allianceCFPose);
+//    List<Waypoint> waypointList = new ArrayList<Waypoint>();
+//    waypointList.add(waypoint);
+//
+//    MultiDrivetrainRC command =
+//        new MultiDrivetrainRC(
+//            commandID,
+//            MultiDrivetrainRC.COMMAND_TYPE.ABSOLUTE,
+//            MultiDrivetrainRC.COMMAND_CONTENTS.TRANSLATION_AND_ROTATION,
+//            waypointList,
+//            rotationDirection,
+//            odometry,
+//            1.0,
+//            -1);
+//
+//    command.initializeCommand();
+//    robotDrivetrainCommandQueue.add(command);
+//  }
 
   /**
    * Queue a *list of waypoint* movements to X,Y coordinates, with an IMU-style heading, in alliance

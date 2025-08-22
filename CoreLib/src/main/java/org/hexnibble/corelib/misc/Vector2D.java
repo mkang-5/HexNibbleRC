@@ -1,5 +1,7 @@
 package org.hexnibble.corelib.misc;
 
+import androidx.annotation.NonNull;
+
 /** A 2-D vector */
 public class Vector2D {
   public double x;
@@ -16,6 +18,28 @@ public class Vector2D {
     x = vector.x;
     y = vector.y;
     magnitude = vector.magnitude;
+  }
+
+  @NonNull
+  @Override
+  public String toString() {
+    return "(" + x + ", " + y + ")";
+  }
+
+  public void setX(double x) {
+    this.x = x;
+    magnitude = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+  }
+
+  public void setY(double y) {
+    this.y = y;
+    magnitude = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+  }
+
+  public void setXY(double x, double y) {
+    this.x = x;
+    this.y = y;
+    magnitude = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
   }
 
   public static double dotProduct(Vector2D vector1, Vector2D vector2) {

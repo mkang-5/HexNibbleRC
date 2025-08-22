@@ -25,22 +25,18 @@ public abstract class CorePath
         Msg.log(getClass().getSimpleName(), "Constructor", "Creating targetPose as " + targetPose);
     }
 
+//    public abstract double getXError(Pose2D currentPose);
+//    public abstract double getYError(Pose2D currentPose);
+
+    public abstract Pose2D getPoseError(Pose2D currentPose);
+
     public double getHeadingError(double currentIMUHeading) {
         return Field.addRadiansToIMUHeading(getTargetPose().heading, -currentIMUHeading);
     }
-
-
-//    public boolean isPathComplete(Pose2D currentPose);
 
     public abstract boolean isPathComplete(Pose2D currentPose);
 
     public Pose2D getTargetPose() {
         return targetPose;
     }
-
-//    public Pose2D getHoldPose() {
-//        return holdPose;
-//    }
-
-    public abstract double getClosestInterpolatedTValue(Pose2D pose);
 }
