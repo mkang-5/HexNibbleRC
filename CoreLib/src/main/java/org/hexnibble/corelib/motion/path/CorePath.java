@@ -39,4 +39,8 @@ public abstract class CorePath
     public Pose2D getTargetPose() {
         return targetPose;
     }
+
+    public double getTargetHeading() {
+        return targetPose.heading;
+    }
 }

@@ -56,7 +56,7 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
                     () -> r.drivetrain.qTranslation(rcController, r.getRobotPoseEstimate()))
         );
         controller1.addActiveButtonGroup(
-              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_left,
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_right,
                     () -> r.drivetrain.qTranslationRight(rcController, r.getRobotPoseEstimate()))
         );
         controller1.addActiveButtonGroup(

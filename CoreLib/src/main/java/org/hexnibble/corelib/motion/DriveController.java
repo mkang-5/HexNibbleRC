@@ -35,6 +35,12 @@ public class DriveController {
           ConfigFile.DRIVETRAIN_TRANSLATION_PID_Kp,
           ConfigFile.DRIVETRAIN_TRANSLATION_PID_Ki,
           ConfigFile.DRIVETRAIN_TRANSLATION_PID_Kd);
+  PIDSettings translationYPIDSettings =
+        new PIDSettings(
+              ConfigFile.DRIVETRAIN_Y_PID_Ks,
+              ConfigFile.DRIVETRAIN_Y_PID_Kp,
+              ConfigFile.DRIVETRAIN_Y_PID_Ki,
+              ConfigFile.DRIVETRAIN_Y_PID_Kd);
   PIDSettings rotationPIDSettings =
       new PIDSettings(
           ConfigFile.DRIVETRAIN_ROTATION_PID_Ks,
@@ -46,7 +52,7 @@ public class DriveController {
   protected PIDController xPIDController =
         new PIDController(translationPIDSettings, 5);
   protected PIDController yPIDController =
-        new PIDController(translationPIDSettings, 5);
+        new PIDController(translationYPIDSettings, 5);
   protected dtRotationPIDController rotationPIDController =
         new dtRotationPIDController(rotationPIDSettings, Math.toRadians(2.0),
               dtRotationPIDController.ROTATION_DIRECTION.SHORTEST );
@@ -107,6 +113,7 @@ public class DriveController {
     double errorHeadingRadians = error.heading;
     double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
     dt.setDtAutoMovementSpin(headingControlValue);
+    Msg.log(getClass().getSimpleName(), "calculatePath", "errorHdg(deg)=" + Math.toDegrees(errorHeadingRadians) + ", hdgCtrlVal=" + headingControlValue);
 
     if (!(currentPath instanceof Spin)) {
       // Update PIDController values
@@ -149,9 +156,9 @@ public class DriveController {
       Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + holdPose);
     }
 
-    xPIDController.reset();
-    yPIDController.reset();
-    rotationPIDController.reset();
+//    xPIDController.reset();
+//    yPIDController.reset();
+//    rotationPIDController.reset();
   }
 
   /**
@@ -202,7 +209,7 @@ public class DriveController {
       currentPath = null;
       pathChain = null;
 
-      Msg.log(getClass().getSimpleName(), "processPath", "currentPose Heading=" + Math.toDegrees(currentPose.heading));
+//      Msg.log(getClass().getSimpleName(), "processPath", "currentPose Heading=" + Math.toDegrees(currentPose.heading));
 
       dt.driveByRobotCartesianENU(dt.getDtManualMovementX(), dt.getDtManualMovementY(),
             dt.getDtManualMovementSpin(), Math.toDegrees(currentPose.heading));

@@ -10,7 +10,7 @@ public class PIDController {
   protected final double Kd;
 
   protected double sumOfITerms = 0.0;
-  protected final int NUM_ERROR_VALUES_TO_STORE = 200;
+  protected final int NUM_ERROR_VALUES_TO_STORE = 50;
   protected double[] arrayOfErrors = new double[NUM_ERROR_VALUES_TO_STORE];
   protected int numStoredErrorValues = 0;
 //  protected int lastErrorSign;

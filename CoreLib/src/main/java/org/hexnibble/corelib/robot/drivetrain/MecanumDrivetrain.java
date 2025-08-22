@@ -393,7 +393,7 @@ public class MecanumDrivetrain extends BaseDrivetrain
   public void qTranslation(RCController rcController, Pose2D currentPose) {
     Msg.log(getClass().getSimpleName(), "qTranslation", "Queueing translation");
     Pose2D endPose = new Pose2D(currentPose);
-    endPose.y += 100.0;
+    endPose.y += 254.0;
 
     DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
           new Line(currentPose, endPose))
@@ -404,7 +404,7 @@ public class MecanumDrivetrain extends BaseDrivetrain
   public void qTranslationRight(RCController rcController, Pose2D currentPose) {
     Msg.log(getClass().getSimpleName(), "qTranslationRight", "Queueing translation right");
     Pose2D endPose = new Pose2D(currentPose);
-    endPose.x += 100.0;
+    endPose.x += 254.0;
 
     DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
           new Line(currentPose, endPose))
@@ -415,8 +415,8 @@ public class MecanumDrivetrain extends BaseDrivetrain
   public void qTestTranslation(RCController rcController, Pose2D currentPose) {
     Msg.log(getClass().getSimpleName(), "qTestTranslation", "Queueing test translation");
 
-    Pose2D cp1 = new Pose2D(currentPose.x + 150, currentPose.y + 150, currentPose.heading);
-    Pose2D endPose = new Pose2D(currentPose.x, currentPose.y + 300, currentPose.heading);
+    Pose2D cp1 = new Pose2D(currentPose.x - 300, currentPose.y - 150, currentPose.heading);
+    Pose2D endPose = new Pose2D(currentPose.x, currentPose.y - 300, currentPose.heading);
 
     DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
           new BezierCurve(currentPose, cp1, endPose))

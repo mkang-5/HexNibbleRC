@@ -49,6 +49,11 @@ public class ConfigFile {
   public static double DRIVETRAIN_TRANSLATION_PID_Ki;
   public static double DRIVETRAIN_TRANSLATION_PID_Kd;
 
+  public static double DRIVETRAIN_Y_PID_Ks;
+  public static double DRIVETRAIN_Y_PID_Kp;
+  public static double DRIVETRAIN_Y_PID_Ki;
+  public static double DRIVETRAIN_Y_PID_Kd;
+
   public static double DRIVETRAIN_ROTATION_PID_Ks;
   public static double DRIVETRAIN_ROTATION_PID_Kp;
   public static double DRIVETRAIN_ROTATION_PID_Ki;
@@ -246,6 +251,11 @@ public class ConfigFile {
     DRIVETRAIN_TRANSLATION_PID_Kp = getValueAsDouble("DRIVETRAIN_TRANSLATION_PID_Kp");
     DRIVETRAIN_TRANSLATION_PID_Ki = getValueAsDouble("DRIVETRAIN_TRANSLATION_PID_Ki");
     DRIVETRAIN_TRANSLATION_PID_Kd = getValueAsDouble("DRIVETRAIN_TRANSLATION_PID_Kd");
+
+    DRIVETRAIN_Y_PID_Ks = getValueAsDouble("DRIVETRAIN_Y_PID_Ks");
+    DRIVETRAIN_Y_PID_Kp = getValueAsDouble("DRIVETRAIN_Y_PID_Kp");
+    DRIVETRAIN_Y_PID_Ki = getValueAsDouble("DRIVETRAIN_Y_PID_Ki");
+    DRIVETRAIN_Y_PID_Kd = getValueAsDouble("DRIVETRAIN_Y_PID_Kd");
 
     DRIVETRAIN_ROTATION_PID_Ks = getValueAsDouble("DRIVETRAIN_ROTATION_PID_Ks");
     DRIVETRAIN_ROTATION_PID_Kp = getValueAsDouble("DRIVETRAIN_ROTATION_PID_Kp");
