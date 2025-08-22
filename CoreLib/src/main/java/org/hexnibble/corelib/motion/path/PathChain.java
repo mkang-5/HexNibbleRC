@@ -34,7 +34,7 @@ public class PathChain
         return pathChain.get(index);
     }
 
-    public boolean getHoldPosition() {
+    public boolean holdPosition() {
         return holdPosition;
     }
 }

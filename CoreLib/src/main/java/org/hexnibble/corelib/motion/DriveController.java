@@ -6,7 +6,6 @@ import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.motion.path.CorePath;
-import org.hexnibble.corelib.motion.path.Line;
 import org.hexnibble.corelib.motion.path.PathChain;
 import org.hexnibble.corelib.motion.path.Spin;
 import org.hexnibble.corelib.motion.pid.PIDController;
@@ -67,6 +66,7 @@ public class DriveController {
     pathChainIndex = 0;
     currentPath = this.pathChain.getPath(pathChainIndex);
     status = STATUS.FOLLOWING_PATH;
+    holdPose = null;
 
     xPIDController.reset();
     yPIDController.reset();
@@ -85,7 +85,7 @@ public class DriveController {
       currentPath = pathChain.getPath(pathChainIndex);
     }
     else {
-      if (pathChain.getHoldPosition()) {
+      if (pathChain.holdPosition()) {
         status = STATUS.HOLDING;
       }
       currentPath = null;
