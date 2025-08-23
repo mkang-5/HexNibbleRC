@@ -147,13 +147,13 @@ public class DriveController {
 //    this.holdPose = new Pose2D(holdPose);
 
     if (currentPath instanceof Spin) {
-      this.holdPose = new Pose2D(holdPose.x, holdPose.y, currentPath.getTargetPose().heading);
+      this.holdPose = new Pose2D(holdPose.x, holdPose.y, currentPath.getTargetHeading());
 //      this.holdPose.heading = currentPath.getTargetPose().heading;
-      Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting SPIN hold pose to: " + holdPose);
+      Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting SPIN hold pose to: " + this.holdPose);
     }
     else {
-      this.holdPose = new Pose2D(holdPose);
-      Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + holdPose);
+      this.holdPose = new Pose2D(currentPath.getTargetPose());
+      Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + this.holdPose);
     }
 
 //    xPIDController.reset();
@@ -219,7 +219,7 @@ public class DriveController {
 
       // If there is a path, then drive it. Otherwise, check if the robot should hold position.
       if (currentPath != null) {
-        Msg.log(getClass().getSimpleName(), "processPath", "currentPath != null");
+//        Msg.log(getClass().getSimpleName(), "processPath", "currentPath != null");
         calculatePath(currentPose);
         dt.driveByRobotCartesianENU(dt.getDtAutoMovementX(), dt.getDtAutoMovementY(),
               dt.getDtAutoMovementSpin(), Math.toDegrees(currentPose.heading));

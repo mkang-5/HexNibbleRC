@@ -170,6 +170,18 @@ public class PIDController {
 //    lastErrorSign = errorSign;
 
 //    return (Ks * errorSign) + P + I + D;
-    return Ks + P + I + D;
+
+    double cv = P + I + D;
+    double abs_cv = Math.abs(cv);
+    if (abs_cv < 0.001) {
+      return 0.0;
+    }
+    else {
+      if (abs_cv < Ks) {
+        return cv / abs_cv * Ks;
+      }
+      else return P + I + D;
+    }
+//    return Ks + P + I + D;
   }
 }

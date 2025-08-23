@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode._MecanumTestRobot;
 
+import static org.hexnibble.corelib.wrappers.controller.ButtonWrapper.BUTTON_STATE.NEWLY_PRESSED;
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -60,9 +62,19 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
                     () -> r.drivetrain.qTranslationRight(rcController, r.getRobotPoseEstimate()))
         );
         controller1.addActiveButtonGroup(
-              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_down,
-                    () -> r.drivetrain.qTestTranslation(rcController, r.getRobotPoseEstimate()))
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_up, NEWLY_PRESSED, ControllerWrapper.OPTION_SHIFT,
+                    () -> r.drivetrain.qTestCurveUp(rcController, r.getRobotPoseEstimate()))
         );
+        controller1.addActiveButtonGroup(
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_down, NEWLY_PRESSED, ControllerWrapper.OPTION_SHIFT,
+                    () -> r.drivetrain.qTestCurveDown(rcController, r.getRobotPoseEstimate()))
+        );
+        controller1.addActiveButtonGroup(
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_right, NEWLY_PRESSED, ControllerWrapper.OPTION_SHIFT,
+                    () -> r.drivetrain.qTestCurveRight(rcController, r.getRobotPoseEstimate()))
+        );
+
+
         // Check motor powers
 //        controller1.addActiveButtonGroup(
 //              new ButtonToFunction(cross,

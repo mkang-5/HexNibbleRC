@@ -1,8 +1,7 @@
 package org.hexnibble.corelib.motion.path;
 
-import androidx.annotation.Nullable;
-
 import org.hexnibble.corelib.exception.InvalidArgumentException;
+import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.misc.Vector2D;
@@ -10,6 +9,7 @@ import org.hexnibble.corelib.misc.Vector2D;
 import java.util.ArrayList;
 
 public class BezierCurve extends CorePath {
+   // This is enough for 8 points (including the start/end)
    static final int[][] BINOMIAL_COEFFICIENT = {
          {1},
          {1, 1},
@@ -24,11 +24,14 @@ public class BezierCurve extends CorePath {
    private final int numControlPoints;       // Curve Order
    private final int curveDegree;            // Control Points - 1
    private ArrayList<Pose2D> controlPoints = new ArrayList<>();
-//   private final int LENGTH_CALCULATION_STEPS = 50;
-   private final double curveLength;
+
+//   private final double curveLength;
 
    final int CURVE_LENGTH_INTEGRATION_STEPS = 100;
    int[][] curveLengthsLUT;
+
+   private final double initialHeading;
+   private final double finalHeading;
 
    private double lastTValue;
 
@@ -37,9 +40,7 @@ public class BezierCurve extends CorePath {
     *
     * @param controlPoints Points that define the curve
     */
-   public BezierCurve(Pose2D... controlPoints) {
-      super(controlPoints[controlPoints.length - 1]);
-
+   public BezierCurve(HEADING_INTERPOLATION headingInterpolation, Pose2D... controlPoints) {
       if ((controlPoints.length < 3) || (controlPoints.length > 8)) {
          String errorMsg = "Only Bezier curves with between 3 and 8 control points are supported--" + controlPoints.length + " were provided.";
          try {
@@ -52,6 +53,8 @@ public class BezierCurve extends CorePath {
          }
       }
 
+      this.headingInterpolation = headingInterpolation;
+
       numControlPoints = controlPoints.length;
       curveDegree = numControlPoints - 1;
 
@@ -61,77 +64,59 @@ public class BezierCurve extends CorePath {
 
       curveLengthsLUT = createCurveLengthsLUT();
 
-      curveLength = getCurveLength();
+//      curveLength = getRemainingCurveLength(0.0);
       lastTValue = 0.0;
+      initialHeading = this.controlPoints.get(0).heading;
+      targetPose = this.controlPoints.get(curveDegree);
 
-//      initialize();
+      if (headingInterpolation == HEADING_INTERPOLATION.FIXED) {
+         finalHeading = initialHeading;
+         targetPose.heading = initialHeading;
+      }
+      else {
+         finalHeading = this.controlPoints.get(curveDegree).heading;
+      }
+
+      Msg.log(getClass().getSimpleName(), "Constructor", "Setting targetPose = " + targetPose);
    }
-
-//   public void initialize() {
-//      int n = controlPoints.size()-1;
-//
-//      length = approximateLength();
-//      UNIT_TO_TIME = 1/length;
-//      endTangent.setOrthogonalComponents(controlPoints.get(controlPoints.size()-1).getX()-controlPoints.get(controlPoints.size()-2).getX(), controlPoints.get(controlPoints.size()-1).getY()-controlPoints.get(controlPoints.size()-2).getY());
-//      endTangent = MathFunctions.normalizeVector(endTangent);
-//   }
-//
-//   @Override
-//   public double getXError(Pose2D currentPose) {
-//      // Need to decide what the target coordinate is, taking into account distance off the path
-//      // and distance from the end of the curve
-//      // Magnitude ~ distance to the path + distance remaining on the path -- should actually be
-//      // the distance of a combined vector
-//
-//      Msg.log(getClass().getSimpleName(), "getXError", "Looking for closest T value");
-//      Vector2D closestCurvePoint = new Vector2D(0.0, 0.0);
-//      double currentT = getClosestTValue(currentPose, closestCurvePoint);
-//      Msg.log(getClass().getSimpleName(), "getXError", "Closest T value=" + currentT + ", Closest Point=" + closestCurvePoint);
-//
-//      double pathRemaining = getRemainingCurveLength(currentT);
-////      Vector2D closestCurvePoint = getPoint(currentT);
-//      Vector2D tangentAtClosestPoint = getTangent(currentT);
-//      double slope = tangentAtClosestPoint.y / tangentAtClosestPoint.x;
-//      double theta = Math.atan(slope);
-//      double x = pathRemaining * Math.cos(theta);
-//
-//      Msg.log(getClass().getSimpleName(), "getXError", "currentX=" + currentPose.x + ", curvePtX=" + closestCurvePoint.x + ", pathRemainingX=" + x);
-//
-//      Vector2D errorVector = new Vector2D(
-//            (closestCurvePoint.x - currentPose.x) + x,
-//            0.0
-//      );
-//
-//      Msg.log(getClass().getSimpleName(), "getXError", "xError=" + errorVector.x);
-//
-//      return 0.0;
-//   }
-
-//   @Override
-//   public double getYError(Pose2D currentPose) {
-//      return 0.0;
-//   }
 
    @Override
    public Pose2D getPoseError(Pose2D currentPose) {
 //      Msg.log(getClass().getSimpleName(), "getPoseError", "Looking for closest T value");
       Vector2D closestCurvePoint = new Vector2D(0.0, 0.0);
-      double currentT = getClosestTValue(currentPose, closestCurvePoint);
+      double currentT = getClosestTValue(currentPose.getCoordsAsVector(), closestCurvePoint);
       Msg.log(getClass().getSimpleName(), "getPoseError", "Closest T value=" + currentT + ", Closest Point=" + closestCurvePoint);
 
-      double pathLengthRemaining = getRemainingCurveLength(currentT);
+      double pathLengthRemaining = Math.min(getRemainingCurveLength(currentT), 100.0);
 //      Vector2D closestCurvePoint = getPoint(currentT);
       Vector2D tangentAtClosestPoint = getTangent(currentT);
-      double tangentXSign = tangentAtClosestPoint.x / Math.abs(tangentAtClosestPoint.x);
-      double tangentYSign = tangentAtClosestPoint.y / Math.abs(tangentAtClosestPoint.y);
+//      double tangentXSign = tangentAtClosestPoint.x / Math.abs(tangentAtClosestPoint.x);
+//      double tangentYSign = tangentAtClosestPoint.y / Math.abs(tangentAtClosestPoint.y);
+//
+//      if (isNaN(tangentXSign)) {
+//         tangentXSign = 0.0;
+//      }
+//      if (isNaN(tangentYSign)) {
+//         tangentYSign = 0.0;
+//      }
 
       double slope = tangentAtClosestPoint.y / tangentAtClosestPoint.x;
 
       double theta = Math.atan(slope);
 
-      if (slope < 0.0) {
-         theta += Math.PI;
+      if (tangentAtClosestPoint.y > 0.0) {
+         if (slope < 0.0) {
+            theta += Math.PI;
+         }
       }
+      else {
+         if (slope > 0.0) {
+            theta += Math.PI;
+         }
+      }
+
+//      double pathX = pathLengthRemaining * Math.cos(theta) * tangentXSign;
+//      double pathY = pathLengthRemaining * Math.sin(theta) * tangentYSign;
 
       double pathX = pathLengthRemaining * Math.cos(theta);
       double pathY = pathLengthRemaining * Math.sin(theta);
@@ -141,26 +126,25 @@ public class BezierCurve extends CorePath {
 
       double xTerm, yTerm;
 //      if (tangentAtClosestPoint.x < 0.0) {
-         xTerm = (closestCurvePoint.x - currentPose.x) + (tangentXSign * pathX);
+         xTerm = (closestCurvePoint.x - currentPose.x) + pathX;
 //      }
 //      else {
 //         xTerm = (closestCurvePoint.x - currentPose.x) + pathX;
 //      }
 
 //      if (tangentAtClosestPoint.y < 0.0) {
-         yTerm = (closestCurvePoint.y - currentPose.y) + (tangentYSign * pathY);
+         yTerm = (closestCurvePoint.y - currentPose.y) + pathY;
 //      }
 //      else {
 //         yTerm = (closestCurvePoint.y - currentPose.y) + pathY;
 //      }
 
       Pose2D translationError = new Pose2D(new Vector2D(
-            xTerm,
-            yTerm),
-            0.0
+            xTerm, yTerm),
+            Field.addRadiansToIMUHeading(getHeading(currentT), -currentPose.heading)
       );
 
-//      Msg.log(getClass().getSimpleName(), "getPoseError", "xError=" + translationError.x + ", yError=" + translationError.y + ", hdgError(deg)=");
+      Msg.log(getClass().getSimpleName(), "getPoseError", "xError=" + translationError.x + ", yError=" + translationError.y + ", hdgError(deg)=" + Math.toDegrees(translationError.heading));
 
       return translationError;
    }
@@ -169,7 +153,18 @@ public class BezierCurve extends CorePath {
    public boolean isPathComplete(Pose2D currentPose) {
       Msg.log(getClass().getSimpleName(), "isPathComplete", "lastTValue=" + lastTValue);
 
-      return lastTValue > 0.95;
+      return lastTValue > 0.96;
+   }
+
+   /**
+    * Return the remaining curve length at the specified t parameter.
+    *
+    * @return Remaining curve length.
+    */
+   protected double getRemainingCurveLength(double currentT) {
+      int t = (int) (Math.clamp(currentT, 0.0, 1.0) * 100.0);
+
+      return curveLengthsLUT[t][0];
    }
 
    /**
@@ -178,39 +173,8 @@ public class BezierCurve extends CorePath {
     *
     * @return returns the approximated length of the BezierCurve.
     */
-   protected double getCurveLength() {
-      return getRemainingCurveLength(0.0);
-   }
-
-//   public double getRemainingCurveLength(double currentT) {
-//      Msg.log(getClass().getSimpleName(), "getRemainingCurveLength", "currentT=" + currentT);
-//      Vector2D previousPoint = getPoint(currentT);
-//      Vector2D currentPoint;
-//      double curveLength = 0.0;
-//      double T_INTERVAL = 0.02;
-//      final int numIntegrationSteps = (int) ((1.0 - currentT) / T_INTERVAL);
-//
-//      // Start index at 1 since 0 is assigned to previousPoint
-//      for (int i = 1; i < (numIntegrationSteps + 1); i++) {
-//         currentPoint = getPoint(currentT + ((double) i * T_INTERVAL));
-//         curveLength += Vector2D.getDistance(previousPoint, currentPoint);
-//         previousPoint = currentPoint;
-//      }
-//
-//      Msg.log(getClass().getSimpleName(), "getRemainingCurveLength", "curveLength=" + curveLength);
-//      return curveLength;
-//   }
-
-   protected double getRemainingCurveLength(double currentT) {
-      int t = (int) (Math.clamp(currentT, 0.0, 1.0) * 100.0);
-      int curveLength = curveLengthsLUT[t][0];
-
-      Msg.log(getClass().getSimpleName(), "getRemainingCurveLength", "currentT=" + currentT + ", curveLength=" + curveLength);
-      return curveLength;
-   }
-
    private int[][] createCurveLengthsLUT() {
-      Msg.log(getClass().getSimpleName(), "createCurveLengthsLUT", "");
+//      Msg.log(getClass().getSimpleName(), "createCurveLengthsLUT", "");
       int[][] curveLengthsLUT = new int[CURVE_LENGTH_INTEGRATION_STEPS + 1][1];
       curveLengthsLUT[CURVE_LENGTH_INTEGRATION_STEPS][0] = 0;
       Vector2D previousPoint = getPoint(1.0);
@@ -218,12 +182,11 @@ public class BezierCurve extends CorePath {
       double curveLength = 0.0;
 
       // Start index at 1 since 0 is assigned to previousPoint
-//      for (int i = 1; i < (CURVE_LENGTH_INTEGRATION_STEPS + 1); i++) {
       for (int i = (CURVE_LENGTH_INTEGRATION_STEPS - 1); i > -1 ; i--) {
          currentPoint = getPoint(1.0 / CURVE_LENGTH_INTEGRATION_STEPS * (double) i);
          curveLength += Vector2D.getDistance(previousPoint, currentPoint);
          curveLengthsLUT[i][0] = (int) curveLength;
-         Msg.log(getClass().getSimpleName(), "createCurveLengthsLUT", "t=" + (1.0 / CURVE_LENGTH_INTEGRATION_STEPS * (double) i) + ", length=" + curveLength);
+//         Msg.log(getClass().getSimpleName(), "createCurveLengthsLUT", "t=" + (1.0 / CURVE_LENGTH_INTEGRATION_STEPS * (double) i) + ", length=" + curveLength);
          previousPoint = currentPoint;
       }
 
@@ -255,6 +218,18 @@ public class BezierCurve extends CorePath {
       return point;
    }
 
+   protected double getHeading(double t) {
+      switch (headingInterpolation) {
+         case FIXED -> {
+            return initialHeading;
+         }
+         case LINEAR -> {
+            return Field.addRadiansToIMUHeading(initialHeading, (t * (finalHeading - initialHeading)));
+         }
+         default -> throw new IllegalStateException("Unexpected value: " + headingInterpolation);
+      }
+   }
+
    public Vector2D getTangent(double t) {
       t = Math.clamp(t, 0, 1);
       double x = 0.0;
@@ -268,7 +243,7 @@ public class BezierCurve extends CorePath {
       }
 
       Vector2D tangentVector = new Vector2D(x, y);
-      Msg.log(getClass().getSimpleName(), "getTangent", "Tangent vector at t=" + t + " is " + tangentVector);
+//      Msg.log(getClass().getSimpleName(), "getTangent", "Tangent vector at t=" + t + " is " + tangentVector);
 
       return tangentVector;
    }
@@ -287,11 +262,11 @@ public class BezierCurve extends CorePath {
     * Calculate the parametric t on an interpolated version of this line segment that is closest
     * to the specified pose. If the point falls outside the segment, t will be clamped
     * between 0 and 1 to keep it on the segment.
-    * @param pose
+    * @param currentPosition
     * @return parametric t value that is closest to the specified pose (clamped to between 0 and 1)
     */
 //   @Override
-   public double getClosestTValue(Pose2D pose, Vector2D refClosestPointOnCurve) {
+   public double getClosestTValue(Vector2D currentPosition, Vector2D refClosestPointOnCurve) {
       // First determine a rough t-value that is closest to the current pose
       // This is done by starting with the previous t-value and checking values around it as well
       // Store the t-value that gives the minimum distance to the current pose
@@ -323,13 +298,13 @@ public class BezierCurve extends CorePath {
 
       for (double t : tValuesToTest) {
          Vector2D pointAtT = getPoint(t);
-         double dist = Vector2D.getDistance(pointAtT, pose.getCoordsAsVector());
+         double dist = Vector2D.getDistance(pointAtT, currentPosition);
 
          if (dist < closestDist) {
             closestDist = dist;
             closestT = t;
             refClosestPointOnCurve.setXY(pointAtT.x, pointAtT.y);
-            Msg.log(getClass().getSimpleName(), "getClosestTValue", "Setting closest point on curve to " + refClosestPointOnCurve);
+//            Msg.log(getClass().getSimpleName(), "getClosestTValue", "Setting closest point on curve to " + refClosestPointOnCurve);
          }
       }
       lastTValue = closestT;

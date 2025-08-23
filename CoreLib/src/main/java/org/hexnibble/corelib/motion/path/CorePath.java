@@ -15,14 +15,21 @@ public abstract class CorePath
         COUNTERCLOCKWISE
     }
 
-    protected final Pose2D targetPose;      // Heading in radians
-//    protected Pose2D holdPose;
+    public enum HEADING_INTERPOLATION {
+        FIXED, LINEAR
+    }
+    protected HEADING_INTERPOLATION headingInterpolation = HEADING_INTERPOLATION.FIXED;
+
+    protected Pose2D targetPose;      // Heading in radians
     protected boolean isPathComplete;
 
     public CorePath(Pose2D targetPose) {
         this.targetPose = new Pose2D(targetPose);
 //        this.holdPose = new Pose2D(targetPose);
         Msg.log(getClass().getSimpleName(), "Constructor", "Creating targetPose as " + targetPose);
+    }
+
+    public CorePath() {
     }
 
 //    public abstract double getXError(Pose2D currentPose);

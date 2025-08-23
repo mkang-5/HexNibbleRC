@@ -412,14 +412,46 @@ public class MecanumDrivetrain extends BaseDrivetrain
     rcController.qRC(command);
   }
 
-  public void qTestTranslation(RCController rcController, Pose2D currentPose) {
-    Msg.log(getClass().getSimpleName(), "qTestTranslation", "Queueing test translation");
+  public void qTestCurveUp(RCController rcController, Pose2D currentPose) {
+    Msg.log(getClass().getSimpleName(), "qTestCurveUp", "");
 
+//    Pose2D cp1 = new Pose2D(currentPose.x + 300, currentPose.y + 150, currentPose.heading);
+//    Pose2D endPose = new Pose2D(currentPose.x, currentPose.y + 300, currentPose.heading);
+    Pose2D cp1 = new Pose2D(currentPose.x + 300, currentPose.y + 200, currentPose.heading);
+    Pose2D cp2 = new Pose2D(currentPose.x + 300, currentPose.y + 800, currentPose.heading);
+    Pose2D endPose = new Pose2D(currentPose.x, currentPose.y + 1000, currentPose.heading - Math.toRadians(45.0));
+
+
+    DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
+          new BezierCurve(CorePath.HEADING_INTERPOLATION.LINEAR, currentPose, cp1, cp2, endPose))
+    );
+    rcController.qRC(command);
+  }
+
+  public void qTestCurveDown(RCController rcController, Pose2D currentPose) {
+    Msg.log(getClass().getSimpleName(), "qTestCurveDown", "");
+
+//    Pose2D cp1 = new Pose2D(currentPose.x + 300, currentPose.y - 150, currentPose.heading);
+//    Pose2D endPose = new Pose2D(currentPose.x, currentPose.y - 300, currentPose.heading);
     Pose2D cp1 = new Pose2D(currentPose.x - 300, currentPose.y - 150, currentPose.heading);
     Pose2D endPose = new Pose2D(currentPose.x, currentPose.y - 300, currentPose.heading);
 
     DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
-          new BezierCurve(currentPose, cp1, endPose))
+          new BezierCurve(CorePath.HEADING_INTERPOLATION.FIXED, currentPose, cp1, endPose))
+    );
+    rcController.qRC(command);
+  }
+
+  public void qTestCurveRight(RCController rcController, Pose2D currentPose) {
+    Msg.log(getClass().getSimpleName(), "qTestCurveRight", "");
+
+//    Pose2D cp1 = new Pose2D(currentPose.x + 300, currentPose.y - 150, currentPose.heading);
+//    Pose2D endPose = new Pose2D(currentPose.x, currentPose.y - 300, currentPose.heading);
+    Pose2D cp1 = new Pose2D(currentPose.x + 300, currentPose.y - 300, currentPose.heading);
+    Pose2D endPose = new Pose2D(currentPose.x + 600, currentPose.y, currentPose.heading);
+
+    DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
+          new BezierCurve(CorePath.HEADING_INTERPOLATION.FIXED, currentPose, cp1, endPose))
     );
     rcController.qRC(command);
   }
