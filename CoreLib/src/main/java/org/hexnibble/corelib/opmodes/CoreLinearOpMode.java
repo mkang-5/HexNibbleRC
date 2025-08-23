@@ -5,7 +5,6 @@ import static org.hexnibble.corelib.wrappers.controller.ControllerWrapper.ANALOG
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.hexnibble.corelib.commands.DrivetrainRC;
 import org.hexnibble.corelib.commands.rc.RCController;
 import org.hexnibble.corelib.exception.StopOpModeException;
 import org.hexnibble.corelib.misc.AllianceInfo;
@@ -14,8 +13,6 @@ import org.hexnibble.corelib.misc.Constants;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.misc.Timer;
-import org.hexnibble.corelib.motion.pid.PIDSettings;
-import org.hexnibble.corelib.motion.Waypoint;
 import org.hexnibble.corelib.robot.CoreRobot;
 import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.wrappers.controller.AnalogStickToFunction;
@@ -23,7 +20,6 @@ import org.hexnibble.corelib.wrappers.controller.ButtonToFunction;
 import org.hexnibble.corelib.wrappers.controller.ControllerWrapper;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /** This is an abstract base class for Autonomous and Driver-controlled OpModes. */
 public abstract class CoreLinearOpMode extends LinearOpMode {
@@ -391,79 +387,79 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   // endregion ** Utility Functions **
 
   // region ** Queue robot command functions **
-  /**
-   * Queue a robot drivetrain movement to a field location.
-   *
-   * @param commandID String identifier for this command
-   * @param fieldPose X,Y coordinates (Field CF) and heading (IMU-style, radians)
-   * @param rotationDirection Direction of rotation
-   * @param maxVelocityAdjustment Maximum velocity/acceleration adjustment factor (0 - 1.0)
-   * @param maxCommandDuration maximum duration in ms
-   */
-  @Deprecated
-  protected void qRobotMoveTo(
-      String commandID,
-      Pose2D fieldPose,
-      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
-      double maxVelocityAdjustment,
-      int maxCommandDuration) {
-    List<Waypoint> waypointList = new ArrayList<>();
-    waypointList.add(new Waypoint(fieldPose));
-    qRobotMoveTo(
-        commandID, waypointList, rotationDirection, maxVelocityAdjustment, maxCommandDuration);
-    //        robot.qAbsoluteDrivetrainRC(commandID, waypointList, rotationDirection);
-  }
-
-  /**
-   * Queue a robot drivetrain movement to a list of field waypoint locations.
-   *
-   * @param commandID String identifier for this command
-   * @param waypointList List of waypoints in Field CF--X,Y coordinates and heading (IMU-style,
-   *     radians)
-   * @param rotationDirection Direction of rotation
-   * @param maxVelocityAdjustment Maximum velocity/acceleration adjustment factor (0 - 1.0)
-   * @param maxCommandDuration maximum duration in ms
-   */
-  @Deprecated
-  protected void qRobotMoveTo(
-      String commandID,
-      List<Waypoint> waypointList,
-      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
-      double maxVelocityAdjustment,
-      int maxCommandDuration) {
-    // Convert each waypoint from field CF to alliance CF
-    waypointList.forEach(
-        waypoint -> {
-          Pose2D targetPose = waypoint.getTargetPose();
-          targetPose =
-              Pose2D.convertFieldCFAbsoluteToAllianceCFAbsolute(
-                  targetPose, AllianceInfo.getAllianceColor());
-          waypoint.setTargetPose(targetPose);
-        });
-
-    robot.qAbsoluteDrivetrainRC(
-        commandID, waypointList, rotationDirection, maxVelocityAdjustment, maxCommandDuration);
-  }
-
-  /**
-   * This is only for PID testing OpMode
-   *
-   * @param commandID
-   * @param allianceCFDeltaPose
-   * @param rotationDirection
-   * @param xyPIDSettings
-   * @param rotationPIDSettings
-   */
-  @Deprecated
-  protected void qDeltaDrivetrainRC(
-      String commandID,
-      Pose2D allianceCFDeltaPose,
-      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
-      PIDSettings xyPIDSettings,
-      PIDSettings rotationPIDSettings) {
-    robot.qDeltaDrivetrainRC(
-        commandID, allianceCFDeltaPose, rotationDirection, xyPIDSettings, rotationPIDSettings);
-  }
+//  /**
+//   * Queue a robot drivetrain movement to a field location.
+//   *
+//   * @param commandID String identifier for this command
+//   * @param fieldPose X,Y coordinates (Field CF) and heading (IMU-style, radians)
+//   * @param rotationDirection Direction of rotation
+//   * @param maxVelocityAdjustment Maximum velocity/acceleration adjustment factor (0 - 1.0)
+//   * @param maxCommandDuration maximum duration in ms
+//   */
+//  @Deprecated
+//  protected void qRobotMoveTo(
+//      String commandID,
+//      Pose2D fieldPose,
+//      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
+//      double maxVelocityAdjustment,
+//      int maxCommandDuration) {
+//    List<Waypoint> waypointList = new ArrayList<>();
+//    waypointList.add(new Waypoint(fieldPose));
+//    qRobotMoveTo(
+//        commandID, waypointList, rotationDirection, maxVelocityAdjustment, maxCommandDuration);
+//    //        robot.qAbsoluteDrivetrainRC(commandID, waypointList, rotationDirection);
+//  }
+//
+//  /**
+//   * Queue a robot drivetrain movement to a list of field waypoint locations.
+//   *
+//   * @param commandID String identifier for this command
+//   * @param waypointList List of waypoints in Field CF--X,Y coordinates and heading (IMU-style,
+//   *     radians)
+//   * @param rotationDirection Direction of rotation
+//   * @param maxVelocityAdjustment Maximum velocity/acceleration adjustment factor (0 - 1.0)
+//   * @param maxCommandDuration maximum duration in ms
+//   */
+//  @Deprecated
+//  protected void qRobotMoveTo(
+//      String commandID,
+//      List<Waypoint> waypointList,
+//      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
+//      double maxVelocityAdjustment,
+//      int maxCommandDuration) {
+//    // Convert each waypoint from field CF to alliance CF
+//    waypointList.forEach(
+//        waypoint -> {
+//          Pose2D targetPose = waypoint.getTargetPose();
+//          targetPose =
+//              Pose2D.convertFieldCFAbsoluteToAllianceCFAbsolute(
+//                  targetPose, AllianceInfo.getAllianceColor());
+//          waypoint.setTargetPose(targetPose);
+//        });
+//
+//    robot.qAbsoluteDrivetrainRC(
+//        commandID, waypointList, rotationDirection, maxVelocityAdjustment, maxCommandDuration);
+//  }
+//
+//  /**
+//   * This is only for PID testing OpMode
+//   *
+//   * @param commandID
+//   * @param allianceCFDeltaPose
+//   * @param rotationDirection
+//   * @param xyPIDSettings
+//   * @param rotationPIDSettings
+//   */
+//  @Deprecated
+//  protected void qDeltaDrivetrainRC(
+//      String commandID,
+//      Pose2D allianceCFDeltaPose,
+//      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
+//      PIDSettings xyPIDSettings,
+//      PIDSettings rotationPIDSettings) {
+//    robot.qDeltaDrivetrainRC(
+//        commandID, allianceCFDeltaPose, rotationDirection, xyPIDSettings, rotationPIDSettings);
+//  }
 
   /*
       protected void qDrivetrainSpinTurnToNearest45(String commandID,

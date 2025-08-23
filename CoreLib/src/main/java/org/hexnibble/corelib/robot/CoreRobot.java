@@ -20,15 +20,9 @@ import java.util.List;
 import java.util.Map;
 import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.hexnibble.corelib.commands.DrivetrainRC;
-import org.hexnibble.corelib.commands.MultiDrivetrainRC;
-import org.hexnibble.corelib.commands.RobotCommand;
 import org.hexnibble.corelib.misc.Constants;
-import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
-import org.hexnibble.corelib.motion.pid.PIDSettings;
-import org.hexnibble.corelib.motion.Waypoint;
 import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
@@ -161,7 +155,7 @@ public class CoreRobot extends CoreRobotSystem {
   public VisionPortal visionPortal;
 
   // Commands
-  protected final List<RobotCommand> robotDrivetrainCommandQueue = new ArrayList<>();
+//  protected final List<RobotCommand> robotDrivetrainCommandQueue = new ArrayList<>();
   protected final List<String> completedRCList =
       new ArrayList<>(); // Store IDs of completed Robot Commands (we do not save cancelled
                          // commands)
@@ -259,7 +253,7 @@ public class CoreRobot extends CoreRobotSystem {
     isPTOEngaged = false;
 
     // Clear robot command-related lists
-    robotDrivetrainCommandQueue.clear();
+//    robotDrivetrainCommandQueue.clear();
     completedRCList.clear();
 
     cancelCurrentDrivetrainRobotCommand = false;
@@ -876,179 +870,179 @@ public class CoreRobot extends CoreRobotSystem {
 //    command.initializeCommand();
 //    robotDrivetrainCommandQueue.add(command);
 //  }
-
-  /**
-   * Queue a *list of waypoint* movements to X,Y coordinates, with an IMU-style heading, in alliance
-   * CF.
-   *
-   * @param commandID String label for this command
-   * @param waypointList Alliance CF X,Y (mm) location and IMU-Style orientation in radians (+
-   *     values are CCW)
-   * @param rotationDirection CLOCKWISE or COUNTERCLOCKWISE
-   * @param maxVelocityAdjustment Maximum velocity/acceleration adjustment factor (0 - 1.0)
-   * @param maxCommandDuration maximum duration in ms
-   */
-  public void qAbsoluteDrivetrainRC(
-      String commandID,
-      List<Waypoint> waypointList,
-      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
-      double maxVelocityAdjustment,
-      int maxCommandDuration) {
-
-    Log.i(TAG, "CoreRobot: qAbsoluteDrivetrainRC");
-
-    MultiDrivetrainRC command =
-        new MultiDrivetrainRC(
-            commandID,
-            MultiDrivetrainRC.COMMAND_TYPE.ABSOLUTE,
-            MultiDrivetrainRC.COMMAND_CONTENTS.TRANSLATION_AND_ROTATION,
-            waypointList,
-            rotationDirection,
-            odometry,
-            maxVelocityAdjustment,
-            maxCommandDuration);
-
-    command.initializeCommand();
-    robotDrivetrainCommandQueue.add(command);
-  }
-
-  /**
-   * This is only used for PID tuning opmode. Queue a delta translation with X,Y, and IMU-style
-   * heading, in alliance CF. These deltas will be relative to the location at the time the command
-   * is initialized.
-   *
-   * @param commandID String label for this command
-   * @param allianceCFDeltaPose
-   * @param rotationDirection
-   * @param xyPIDSettings PID settings for translation movements
-   * @param rotationPIDSettings PID settings for rotation movements
-   */
-  public void qDeltaDrivetrainRC(
-      String commandID,
-      Pose2D allianceCFDeltaPose,
-      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
-      PIDSettings xyPIDSettings,
-      PIDSettings rotationPIDSettings) {
-    Pose2D targetAllianceCFPose = new Pose2D(getRobotPoseEstimate());
-    targetAllianceCFPose.x += allianceCFDeltaPose.x;
-    targetAllianceCFPose.y += allianceCFDeltaPose.y;
-    targetAllianceCFPose.heading =
-        Field.enforceIMUHeadingRangeRadians(
-            targetAllianceCFPose.heading + allianceCFDeltaPose.heading);
-    Log.i(
-        TAG,
-        "CoreRobot.j: qDeltaDrivetrainRC() - New target AllianceCF (x,y,hdg degs): "
-            + targetAllianceCFPose.x
-            + ", "
-            + targetAllianceCFPose.y
-            + ", "
-            + Math.toDegrees(targetAllianceCFPose.heading));
-    Waypoint waypoint = new Waypoint(targetAllianceCFPose);
-    List<Waypoint> waypointList = new ArrayList<Waypoint>();
-    waypointList.add(waypoint);
-
-    MultiDrivetrainRC command =
-        new MultiDrivetrainRC(
-            commandID,
-            MultiDrivetrainRC.COMMAND_TYPE.ABSOLUTE,
-            MultiDrivetrainRC.COMMAND_CONTENTS.TRANSLATION_AND_ROTATION,
-            waypointList,
-            rotationDirection,
-            odometry,
-            xyPIDSettings,
-            rotationPIDSettings,
-            1.0,
-            -1);
-
-    command.initializeCommand();
-    robotDrivetrainCommandQueue.add(command);
-  }
-
-  /**
-   * Add a drivetrain spin turn command to the robot command queue to turn the heading to the
-   * closest multiple of 45-degrees.
-   *
-   * @param commandID ID of the command
-   * @param rotationDirection Specify spin turn direction as Clockwise or Counterclockwise
-   * @param maxCommandDuration_ms Maximum duration (ms) for this command
-   */
-  public void qDrivetrainSpinTurnToNearest45(
-      String commandID,
-      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
-      int maxCommandDuration_ms) {
-    final double targetTolerance = 2.5; // Must be >0.0
-    double deltaIMUHeadingDegrees;
-
-    double currentIMUHeadingDegrees = getStoredIMUHeadingDegrees();
-
-    if (rotationDirection == DrivetrainRC.ROTATION_DIRECTION.CLOCKWISE) {
-      deltaIMUHeadingDegrees =
-          (Math.ceil((currentIMUHeadingDegrees - targetTolerance) / 45.0) * 45.0)
-              - 45.0
-              - currentIMUHeadingDegrees;
-    } else {
-      deltaIMUHeadingDegrees =
-          (Math.floor((getStoredIMUHeadingDegrees() + targetTolerance) / 45.0) * 45.0)
-              + 45.0
-              - currentIMUHeadingDegrees;
-    }
-
-    DrivetrainRC command =
-        new DrivetrainRC(
-            commandID,
-            DrivetrainRC.COMMAND_TYPE.DELTA,
-            DrivetrainRC.COMMAND_CONTENTS.ROTATION,
-            new Pose2D(0.0, 0.0, Math.toRadians(deltaIMUHeadingDegrees)),
-            rotationDirection,
-            odometry,
-            maxCommandDuration_ms);
-
-    Log.i(TAG, "Queuing " + rotationDirection + " spin turn to nearest 45 degrees");
-
-    command.initializeCommand();
-    robotDrivetrainCommandQueue.add(command);
-  }
-
-  public void qDrivetrainSpinTurnToNearest45(
-      String commandID,
-      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
-      PIDSettings xyPIDSettings,
-      PIDSettings rotationPIDSettings,
-      int maxCommandDuration_ms) {
-    final double targetTolerance = 2.5; // Must be >0.0
-    double deltaIMUHeadingDegrees;
-
-    double currentIMUHeadingDegrees = getStoredIMUHeadingDegrees();
-
-    if (rotationDirection == DrivetrainRC.ROTATION_DIRECTION.CLOCKWISE) {
-      deltaIMUHeadingDegrees =
-          (Math.ceil((currentIMUHeadingDegrees - targetTolerance) / 45.0) * 45.0)
-              - 45.0
-              - currentIMUHeadingDegrees;
-    } else {
-      deltaIMUHeadingDegrees =
-          (Math.floor((getStoredIMUHeadingDegrees() + targetTolerance) / 45.0) * 45.0)
-              + 45.0
-              - currentIMUHeadingDegrees;
-    }
-
-    DrivetrainRC command =
-        new DrivetrainRC(
-            commandID,
-            DrivetrainRC.COMMAND_TYPE.DELTA,
-            DrivetrainRC.COMMAND_CONTENTS.ROTATION,
-            new Pose2D(0.0, 0.0, Math.toRadians(deltaIMUHeadingDegrees)),
-            rotationDirection,
-            odometry,
-            xyPIDSettings,
-            rotationPIDSettings,
-            maxCommandDuration_ms);
-
-    Log.i(TAG, "Queuing " + rotationDirection + " spin turn to nearest 45 degrees");
-
-    command.initializeCommand();
-    robotDrivetrainCommandQueue.add(command);
-  }
+//
+//  /**
+//   * Queue a *list of waypoint* movements to X,Y coordinates, with an IMU-style heading, in alliance
+//   * CF.
+//   *
+//   * @param commandID String label for this command
+//   * @param waypointList Alliance CF X,Y (mm) location and IMU-Style orientation in radians (+
+//   *     values are CCW)
+//   * @param rotationDirection CLOCKWISE or COUNTERCLOCKWISE
+//   * @param maxVelocityAdjustment Maximum velocity/acceleration adjustment factor (0 - 1.0)
+//   * @param maxCommandDuration maximum duration in ms
+//   */
+//  public void qAbsoluteDrivetrainRC(
+//      String commandID,
+//      List<Waypoint> waypointList,
+//      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
+//      double maxVelocityAdjustment,
+//      int maxCommandDuration) {
+//
+//    Log.i(TAG, "CoreRobot: qAbsoluteDrivetrainRC");
+//
+//    MultiDrivetrainRC command =
+//        new MultiDrivetrainRC(
+//            commandID,
+//            MultiDrivetrainRC.COMMAND_TYPE.ABSOLUTE,
+//            MultiDrivetrainRC.COMMAND_CONTENTS.TRANSLATION_AND_ROTATION,
+//            waypointList,
+//            rotationDirection,
+//            odometry,
+//            maxVelocityAdjustment,
+//            maxCommandDuration);
+//
+//    command.initializeCommand();
+//    robotDrivetrainCommandQueue.add(command);
+//  }
+//
+//  /**
+//   * This is only used for PID tuning opmode. Queue a delta translation with X,Y, and IMU-style
+//   * heading, in alliance CF. These deltas will be relative to the location at the time the command
+//   * is initialized.
+//   *
+//   * @param commandID String label for this command
+//   * @param allianceCFDeltaPose
+//   * @param rotationDirection
+//   * @param xyPIDSettings PID settings for translation movements
+//   * @param rotationPIDSettings PID settings for rotation movements
+//   */
+//  public void qDeltaDrivetrainRC(
+//      String commandID,
+//      Pose2D allianceCFDeltaPose,
+//      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
+//      PIDSettings xyPIDSettings,
+//      PIDSettings rotationPIDSettings) {
+//    Pose2D targetAllianceCFPose = new Pose2D(getRobotPoseEstimate());
+//    targetAllianceCFPose.x += allianceCFDeltaPose.x;
+//    targetAllianceCFPose.y += allianceCFDeltaPose.y;
+//    targetAllianceCFPose.heading =
+//        Field.enforceIMUHeadingRangeRadians(
+//            targetAllianceCFPose.heading + allianceCFDeltaPose.heading);
+//    Log.i(
+//        TAG,
+//        "CoreRobot.j: qDeltaDrivetrainRC() - New target AllianceCF (x,y,hdg degs): "
+//            + targetAllianceCFPose.x
+//            + ", "
+//            + targetAllianceCFPose.y
+//            + ", "
+//            + Math.toDegrees(targetAllianceCFPose.heading));
+//    Waypoint waypoint = new Waypoint(targetAllianceCFPose);
+//    List<Waypoint> waypointList = new ArrayList<Waypoint>();
+//    waypointList.add(waypoint);
+//
+//    MultiDrivetrainRC command =
+//        new MultiDrivetrainRC(
+//            commandID,
+//            MultiDrivetrainRC.COMMAND_TYPE.ABSOLUTE,
+//            MultiDrivetrainRC.COMMAND_CONTENTS.TRANSLATION_AND_ROTATION,
+//            waypointList,
+//            rotationDirection,
+//            odometry,
+//            xyPIDSettings,
+//            rotationPIDSettings,
+//            1.0,
+//            -1);
+//
+//    command.initializeCommand();
+//    robotDrivetrainCommandQueue.add(command);
+//  }
+//
+//  /**
+//   * Add a drivetrain spin turn command to the robot command queue to turn the heading to the
+//   * closest multiple of 45-degrees.
+//   *
+//   * @param commandID ID of the command
+//   * @param rotationDirection Specify spin turn direction as Clockwise or Counterclockwise
+//   * @param maxCommandDuration_ms Maximum duration (ms) for this command
+//   */
+//  public void qDrivetrainSpinTurnToNearest45(
+//      String commandID,
+//      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
+//      int maxCommandDuration_ms) {
+//    final double targetTolerance = 2.5; // Must be >0.0
+//    double deltaIMUHeadingDegrees;
+//
+//    double currentIMUHeadingDegrees = getStoredIMUHeadingDegrees();
+//
+//    if (rotationDirection == DrivetrainRC.ROTATION_DIRECTION.CLOCKWISE) {
+//      deltaIMUHeadingDegrees =
+//          (Math.ceil((currentIMUHeadingDegrees - targetTolerance) / 45.0) * 45.0)
+//              - 45.0
+//              - currentIMUHeadingDegrees;
+//    } else {
+//      deltaIMUHeadingDegrees =
+//          (Math.floor((getStoredIMUHeadingDegrees() + targetTolerance) / 45.0) * 45.0)
+//              + 45.0
+//              - currentIMUHeadingDegrees;
+//    }
+//
+//    DrivetrainRC command =
+//        new DrivetrainRC(
+//            commandID,
+//            DrivetrainRC.COMMAND_TYPE.DELTA,
+//            DrivetrainRC.COMMAND_CONTENTS.ROTATION,
+//            new Pose2D(0.0, 0.0, Math.toRadians(deltaIMUHeadingDegrees)),
+//            rotationDirection,
+//            odometry,
+//            maxCommandDuration_ms);
+//
+//    Log.i(TAG, "Queuing " + rotationDirection + " spin turn to nearest 45 degrees");
+//
+//    command.initializeCommand();
+//    robotDrivetrainCommandQueue.add(command);
+//  }
+//
+//  public void qDrivetrainSpinTurnToNearest45(
+//      String commandID,
+//      DrivetrainRC.ROTATION_DIRECTION rotationDirection,
+//      PIDSettings xyPIDSettings,
+//      PIDSettings rotationPIDSettings,
+//      int maxCommandDuration_ms) {
+//    final double targetTolerance = 2.5; // Must be >0.0
+//    double deltaIMUHeadingDegrees;
+//
+//    double currentIMUHeadingDegrees = getStoredIMUHeadingDegrees();
+//
+//    if (rotationDirection == DrivetrainRC.ROTATION_DIRECTION.CLOCKWISE) {
+//      deltaIMUHeadingDegrees =
+//          (Math.ceil((currentIMUHeadingDegrees - targetTolerance) / 45.0) * 45.0)
+//              - 45.0
+//              - currentIMUHeadingDegrees;
+//    } else {
+//      deltaIMUHeadingDegrees =
+//          (Math.floor((getStoredIMUHeadingDegrees() + targetTolerance) / 45.0) * 45.0)
+//              + 45.0
+//              - currentIMUHeadingDegrees;
+//    }
+//
+//    DrivetrainRC command =
+//        new DrivetrainRC(
+//            commandID,
+//            DrivetrainRC.COMMAND_TYPE.DELTA,
+//            DrivetrainRC.COMMAND_CONTENTS.ROTATION,
+//            new Pose2D(0.0, 0.0, Math.toRadians(deltaIMUHeadingDegrees)),
+//            rotationDirection,
+//            odometry,
+//            xyPIDSettings,
+//            rotationPIDSettings,
+//            maxCommandDuration_ms);
+//
+//    Log.i(TAG, "Queuing " + rotationDirection + " spin turn to nearest 45 degrees");
+//
+//    command.initializeCommand();
+//    robotDrivetrainCommandQueue.add(command);
+//  }
 
   // endregion ** Robot Command Functions **
 

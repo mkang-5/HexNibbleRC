@@ -32,14 +32,7 @@ public abstract class CorePath
     public CorePath() {
     }
 
-//    public abstract double getXError(Pose2D currentPose);
-//    public abstract double getYError(Pose2D currentPose);
-
     public abstract Pose2D getPoseError(Pose2D currentPose);
-
-    public double getHeadingError(double currentIMUHeading) {
-        return Field.addRadiansToIMUHeading(getTargetPose().heading, -currentIMUHeading);
-    }
 
     public abstract boolean isPathComplete(Pose2D currentPose);
 
