@@ -88,7 +88,7 @@ public class BezierCurve extends CorePath {
       Msg.log(getClass().getSimpleName(), "getPoseError", "Closest T value=" + currentT + ", Closest Point=" + closestCurvePoint);
 
       double pathLengthRemaining = Math.min(getRemainingCurveLength(currentT), 100.0);
-//      Vector2D closestCurvePoint = getPoint(currentT);
+
       Vector2D tangentAtClosestPoint = getTangent(currentT);
 //      double tangentXSign = tangentAtClosestPoint.x / Math.abs(tangentAtClosestPoint.x);
 //      double tangentYSign = tangentAtClosestPoint.y / Math.abs(tangentAtClosestPoint.y);

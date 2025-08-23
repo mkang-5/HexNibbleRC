@@ -8,7 +8,7 @@ import org.hexnibble.corelib.misc.Vector2D;
 public class Line extends CorePath
 {
     Pose2D startPose;
-//    Pose2D endPose;
+
     private final double targetHeadingToleranceTranslation_mm = 5.0;
     private final double targetHeadingToleranceRadians = Math.toRadians(2.0);
     final Vector2D line;
@@ -22,16 +22,6 @@ public class Line extends CorePath
         this.startPose = new Pose2D(startPose);
         line = new Vector2D(targetPose.x - startPose.x, targetPose.y - startPose.y);
     }
-
-//    @Override
-//    public double getXError(Pose2D currentPose) {
-//        return getTargetPose().x - currentPose.x;
-//    }
-//
-//    @Override
-//    public double getYError(Pose2D currentPose) {
-//        return getTargetPose().y - currentPose.y;
-//    }
 
     @Override
     public Pose2D getPoseError(Pose2D currentPose) {
@@ -57,11 +47,6 @@ public class Line extends CorePath
 
         return isPathComplete;
     }
-
-//    @Override
-//    public double getClosestTValue(Pose2D pose) {
-//        return 0.0;
-//    }
 
     /**
      * Find the point on the line segment represented by the specified parametric t
