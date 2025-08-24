@@ -5,12 +5,9 @@ import static org.hexnibble.corelib.wrappers.controller.ButtonWrapper.BUTTON_STA
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.hexnibble.corelib.misc.ConfigFile;
-import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.motion.path.CorePath;
 import org.hexnibble.corelib.opmodes.CoreLinearOpMode;
 import org.hexnibble.corelib.robot.CoreRobot;
-import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.controller.ButtonToFunction;
 import org.hexnibble.corelib.wrappers.controller.ControllerWrapper;
 
@@ -55,11 +52,15 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
         );
         controller1.addActiveButtonGroup(
               new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_up,
-                    () -> r.drivetrain.qTranslation(rcController, r.getRobotPoseEstimate()))
+                    () -> r.drivetrain.qTranslationUp(rcController, r.getRobotPoseEstimate()))
         );
         controller1.addActiveButtonGroup(
               new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_right,
                     () -> r.drivetrain.qTranslationRight(rcController, r.getRobotPoseEstimate()))
+        );
+        controller1.addActiveButtonGroup(
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_down,
+                    () -> r.drivetrain.qTranslationDiagDown(rcController, r.getRobotPoseEstimate()))
         );
         controller1.addActiveButtonGroup(
               new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_up, NEWLY_PRESSED, ControllerWrapper.OPTION_SHIFT,

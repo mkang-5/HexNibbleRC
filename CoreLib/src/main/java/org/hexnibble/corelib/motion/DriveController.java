@@ -176,9 +176,18 @@ public class DriveController {
     Msg.log(getClass().getSimpleName(), "calculatePathToHoldPose", "holdPose.hdg (deg)=" + Math.toDegrees(holdPose.heading) + "currentPose.hdg (deg)=" + Math.toDegrees(currentPose.heading) + "errorHeadingDegrees=" + Math.toDegrees(errorHeadingRadians));
 
     // Update PIDController values
-    double xControlValue = xPIDController.calculateNewControlValue(errorTranslationXmm);
-    double yControlValue = yPIDController.calculateNewControlValue(errorTranslationYmm);
-    double headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
+    double xControlValue = 0.0;
+    double yControlValue = 0.0;
+    double headingControlValue = 0.0;
+    if (Math.abs(errorTranslationXmm) > 2.0) {
+      xControlValue = xPIDController.calculateNewControlValue(errorTranslationXmm);
+    }
+    if (Math.abs(errorTranslationYmm) > 2.0) {
+      yControlValue = yPIDController.calculateNewControlValue(errorTranslationYmm);
+    }
+    if (Math.abs(errorHeadingRadians) > Math.toRadians(1.0)) {
+      headingControlValue = rotationPIDController.calculateNewControlValue(errorHeadingRadians);
+    }
 
     dt.setDtAutoMovementX(xControlValue);
     dt.setDtAutoMovementY(yControlValue);          // Flip the sign for y joystick

@@ -25,6 +25,7 @@ public class Line extends CorePath
         lastTValue = 0.0;
     }
 
+/*  // Simple working version
     @Override
     public Pose2D getPoseError(Pose2D currentPose) {
         Vector2D closestCurvePoint = new Vector2D(0.0, 0.0);
@@ -34,6 +35,49 @@ public class Line extends CorePath
               getTargetPose().y - currentPose.y),
               Field.addRadiansToIMUHeading(getHeading(currentT), -currentPose.heading)
         );
+    }
+*/
+
+    @Override
+    public Pose2D getPoseError(Pose2D currentPose) {
+        Vector2D closestCurvePoint = new Vector2D(0.0, 0.0);
+        double currentT = getClosestTValue(currentPose.getCoordsAsVector(), closestCurvePoint);
+
+        double pathLengthRemaining = Math.min(((1.0 - currentT) * line.magnitude), 100.0);
+
+        double slope = line.y / line.x;
+
+        double theta = Math.atan(slope);
+
+        if (line.y > 0.0) {
+            if (slope < 0.0) {
+                theta += Math.PI;
+            }
+        }
+        else {
+            if (slope > 0.0) {
+                theta += Math.PI;
+            }
+        }
+
+        double pathX = pathLengthRemaining * Math.cos(theta);
+        double pathY = pathLengthRemaining * Math.sin(theta);
+
+        Msg.log(getClass().getSimpleName(), "getPoseError", "currentX=" + currentPose.x + ", curvePtX=" + closestCurvePoint.x + ", pathRemainingX=" + pathX
+              + "\ncurrentY=" + currentPose.y + ", curvePtY=" + closestCurvePoint.y + ", pathRemainingY=" + pathY + ", theta" + Math.toDegrees(theta));
+
+        double xTerm, yTerm;
+        xTerm = (closestCurvePoint.x - currentPose.x) + pathX;
+        yTerm = (closestCurvePoint.y - currentPose.y) + pathY;
+
+        Pose2D translationError = new Pose2D(new Vector2D(
+              xTerm, yTerm),
+              Field.addRadiansToIMUHeading(getHeading(currentT), -currentPose.heading)
+        );
+
+//        Msg.log(getClass().getSimpleName(), "getPoseError", "xError=" + translationError.x + ", yError=" + translationError.y + ", hdgError(deg)=" + Math.toDegrees(translationError.heading));
+
+        return translationError;
     }
 
     protected double getHeading(double t) {

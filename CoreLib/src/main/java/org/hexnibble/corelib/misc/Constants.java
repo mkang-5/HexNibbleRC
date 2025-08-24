@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class Constants {
   public static final String TAG = "HexNibble";
 
-  public static int MINIMUM_OP_MODE_LOOP_TIME_MS = 19;
-  public static int LOOP_TIME_THRESHOLD_FOR_LOGGING_MS = 40;
+  public static int MINIMUM_OP_MODE_LOOP_TIME_MS = 18;        // Minimum loop time to try and keep them more constant
+  public static int LOOP_TIME_THRESHOLD_FOR_LOGGING_MS = 30;
 
   // region ** IMU Parameters **
   //    public static String IMU_NAME = "imu";

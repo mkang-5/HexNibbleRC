@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.hexnibble.corelib.commands.rc.DrivetrainRC;
 import org.hexnibble.corelib.commands.rc.RCController;
-import org.hexnibble.corelib.misc.ConfigFile;
 import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.PolarCoords;
@@ -18,8 +17,6 @@ import org.hexnibble.corelib.motion.path.CorePath;
 import org.hexnibble.corelib.motion.path.Line;
 import org.hexnibble.corelib.motion.path.PathChain;
 import org.hexnibble.corelib.motion.path.Spin;
-import org.hexnibble.corelib.motion.pid.PIDSettings;
-import org.hexnibble.corelib.motion.pid.dtRotationPIDController;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
 import org.hexnibble.corelib.wrappers.motor.WheelMotor;
 
@@ -390,10 +387,10 @@ public class MecanumDrivetrain extends BaseDrivetrain
     Msg.log(getClass().getSimpleName(), "qSpinTurnToNearest45", "Queued spin turn to nearest 45 degrees, target=" + targetIMUHeadingDegrees);
   }
 
-  public void qTranslation(RCController rcController, Pose2D currentPose) {
-    Msg.log(getClass().getSimpleName(), "qTranslation", "Queueing translation");
+  public void qTranslationUp(RCController rcController, Pose2D currentPose) {
+    Msg.log(getClass().getSimpleName(), "qTranslationUp", "Queueing translation up");
     Pose2D endPose = new Pose2D(currentPose);
-    endPose.y += 254.0;
+    endPose.y += 500.0;
 
     DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
           new Line(currentPose, endPose))
@@ -404,7 +401,19 @@ public class MecanumDrivetrain extends BaseDrivetrain
   public void qTranslationRight(RCController rcController, Pose2D currentPose) {
     Msg.log(getClass().getSimpleName(), "qTranslationRight", "Queueing translation right");
     Pose2D endPose = new Pose2D(currentPose);
-    endPose.x += 254.0;
+    endPose.x += 500.0;
+
+    DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
+          new Line(currentPose, endPose))
+    );
+    rcController.qRC(command);
+  }
+
+  public void qTranslationDiagDown(RCController rcController, Pose2D currentPose) {
+    Msg.log(getClass().getSimpleName(), "qTranslationDiagDown", "Queueing translation diag/down");
+    Pose2D endPose = new Pose2D(currentPose);
+    endPose.x -= 500.0;
+    endPose.y -= 500.0;
 
     DrivetrainRC command = new DrivetrainRC(dtController, new PathChain(true,
           new Line(currentPose, endPose))
