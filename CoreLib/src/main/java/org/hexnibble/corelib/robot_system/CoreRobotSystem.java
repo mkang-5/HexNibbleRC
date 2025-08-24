@@ -198,7 +198,7 @@ public class CoreRobotSystem {
   public void setServoPosition(String servoName, double position) {
     BaseServoWrapper servo = servoList.get(servoName);
     if (servo != null)
-      servo.setServoPosition(position);
+      servo.setServoPoint(position);
   }
 
   /**

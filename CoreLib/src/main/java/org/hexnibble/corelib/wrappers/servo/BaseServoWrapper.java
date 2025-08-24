@@ -1,11 +1,9 @@
 package org.hexnibble.corelib.wrappers.servo;
 
-import android.util.Log;
-
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.hexnibble.corelib.misc.Constants;
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.wrappers.AnalogInputWrapper;
 
 import java.util.HashMap;
@@ -26,7 +24,7 @@ public abstract class BaseServoWrapper {
   protected double targetPosition;
   protected final double absoluteMinimumPosition;
   protected final double absoluteMaximumPosition;
-  private final double maxAngularRangeDegrees;
+//  private final double maxAngularRangeDegrees;
   protected double positionIncrement;
 
   protected final double lowerReferencePosition;
@@ -34,7 +32,6 @@ public abstract class BaseServoWrapper {
   protected final double upperReferencePosition;
   protected final double angleAtUpperReferencePosition;
   protected final double servoPositionPerDegree;
-
 
   // The default PWM range of the Rev hubs are 600 - 2400 microseconds.
   protected double PWMLowerPulse_us;
@@ -57,12 +54,15 @@ public abstract class BaseServoWrapper {
   /**
    * Constructor for servo wrapper Toggle positions can also be specified.
    *
+   * @param hwMap Hardware map
    * @param servoName Servo name
    * @param servoModel Servo model
    * @param absoluteMinimumPosition Minimum servo position: 0 to 1 for regular servo, -1 to +1 for
    *     continuous servo
    * @param absoluteMaximumPosition Maximum servo position: 0 to 1 for regular servo, -1 to +1 for
    *     continuous servo
+   * @param encoderName Name of the analog encoder, if applicable
+   * @param encoderDirection Direction of the analog encoder, if applicable
    */
   public BaseServoWrapper(
         HardwareMap hwMap, String servoName, SERVO_MODEL servoModel,
@@ -88,15 +88,15 @@ public abstract class BaseServoWrapper {
 
     if (this.servoModel == SERVO_MODEL.Axon) {
       this.positionIncrement = 1.0 / 360.0; // Half a degree each time
-      this.maxAngularRangeDegrees = 352.0;
+//      this.maxAngularRangeDegrees = 352.0;
     }
     else if (this.servoModel == SERVO_MODEL.GoBilda5Turn) {
       this.positionIncrement = 0.001;
-      this.maxAngularRangeDegrees = 360.0;
+//      this.maxAngularRangeDegrees = 360.0;
     }
     else {
       this.positionIncrement = 0.01;
-      this.maxAngularRangeDegrees = 270.0;
+//      this.maxAngularRangeDegrees = 270.0;
     }
 
     if (encoderName != null) {
@@ -127,6 +127,19 @@ public abstract class BaseServoWrapper {
     }
   }
 
+  /**
+   * Simpler constructor without reference points.
+   *
+   * @param hwMap Hardware map
+   * @param servoName Servo name
+   * @param servoModel Servo model
+   * @param absoluteMinimumPosition Minimum servo position: 0 to 1 for regular servo, -1 to +1 for
+   *     continuous servo
+   * @param absoluteMaximumPosition Maximum servo position: 0 to 1 for regular servo, -1 to +1 for
+   *     continuous servo
+   * @param encoderName Name of the analog encoder, if applicable
+   * @param encoderDirection Direction of the analog encoder, if applicable
+   */
   public BaseServoWrapper(
         HardwareMap hwMap, String servoName, SERVO_MODEL servoModel,
         double absoluteMinimumPosition, double absoluteMaximumPosition,
@@ -139,14 +152,11 @@ public abstract class BaseServoWrapper {
 
   /** Call this function to initialize the servo. This will extend the PWM range as appropriate. */
   public void initialize() {
-    Log.i(Constants.TAG, "BaseServoWrapper.j: Initializing servo " + servoName);
+    Msg.log(getClass().getSimpleName(), "initialize", "Initializing servo " + servoName);
     extendPWMRange();
   }
 
   public abstract void reset();
-
-  //    abstract protected void setServoRunDirection(RUN_DIRECTION servoRunDirection);
-  public abstract void setPWMRange(double usPulseLower, double usPulseUpper);
 
   public void extendPWMRange() {
     switch (servoModel) {
@@ -170,6 +180,8 @@ public abstract class BaseServoWrapper {
     setPWMRange(PWMLowerPulse_us, PWMUpperPulse_us);
   }
 
+  public abstract void setPWMRange(double usPulseLower, double usPulseUpper);
+
   public abstract void disablePWM();
 
   public abstract void enablePWM();
@@ -184,65 +196,47 @@ public abstract class BaseServoWrapper {
   }
 
   /**
-   * Get the name of the servo.
+   * Specify a servo's set point. For a regular servo, this will be the position (0.0 - 1.0).
+   * For a CR servo, this will be the speed (-1.0 to +1.0).
    *
-   * @return Name of the servo
+   * @param point For a regular servo: position (0.0 - 1.0).\n For a CR servo: speed (-1.0 to +1.0). Stop is 0.0
    */
-  public String getServoName() {
-    return servoName;
-  }
-
-  /**
-   * Set a regular servo to the specified position. This is for regular servos only.
-   *
-   * @param position Specified position (0.0 - 1.0).
-   */
-  public abstract void setServoPosition(double position);
-
-  /**
-   * Set a CR servo to the specified speed (-1.0 to +1.0). The underlying servo implementation
-   * automatically scales this so be sure to provide the correct range.
-   *
-   * @param speed Specified speed (-1.0 to +1.0). Stop is 0.0
-   */
-  public abstract void setServoSpeed(double speed);
+  public abstract void setServoPoint(double point);
 
   /** Set the servo to the minimum position (or speed if CR). */
   public void setServoToMinPosition() {
-    setServoPosition(absoluteMinimumPosition);
-//    targetPosition = absoluteMinimumPosition;
+    setServoPoint(absoluteMinimumPosition);
   }
 
   /** Set the servo to the maximum position (or speed if CR). */
   public void setServoToMaxPosition() {
-    setServoPosition(absoluteMaximumPosition);
-//    targetPosition = absoluteMaximumPosition;
+    setServoPoint(absoluteMaximumPosition);
   }
 
   /** Increment the servo position (or speed if CR) up. */
   public void moveServoPositionUp() {
-    setServoPosition(getTargetPosition() + positionIncrement);
+    setServoPoint(getTargetPosition() + positionIncrement);
   }
 
-  /** Increment the servo position (or speed if CR) up. */
+  /** Increment the servo position (or speed if CR) up by the specified increment. */
   public void moveServoPositionUp(float positionIncrement) {
-    setServoPosition(getTargetPosition() + positionIncrement);
+    setServoPoint(getTargetPosition() + positionIncrement);
   }
 
   /** Decrement the servo position (or speed if CR) down. */
   public void moveServoPositionDown() {
-    setServoPosition(getTargetPosition() - positionIncrement);
+    setServoPoint(getTargetPosition() - positionIncrement);
   }
 
-  /** Decrement the servo position (or speed if CR) down. */
+  /** Decrement the servo position (or speed if CR) down by the specified increment. */
   public void moveServoPositionDown(float positionIncrement) {
-    setServoPosition(getTargetPosition() - positionIncrement);
+    setServoPoint(getTargetPosition() - positionIncrement);
   }
 
   /**
    * Read the servo's position from the attached encoder, if present.
    *
-   * @return Servo position (0 - 1). Returns 0 if there is no encoder.
+   * @return Servo position (0 - 1). Returns the last target position if there is no encoder.
    */
   public double readServoPositionFromEncoder() {
     // Divide voltage by 3.3 V (this is the max value) to normalize to a value from 0 - 1.
@@ -255,19 +249,15 @@ public abstract class BaseServoWrapper {
 
   /**
    * Read the servo's position from the attached encoder, if present, and convert to degrees.
+   * Returns the last target position if there is no encoder.
    *
-   * @return Servo position, in degrees. Returns 0 if there is no encoder.
+   * @return Servo position, in degrees.
    */
   public double readServoPositionFromEncoderDegrees() {
-    //        // Multiply servo position by 360 degrees to get the servo position in degrees.
-    //        return (180.0 - (readServoPosition() * 360.0));
-
     return convertServoPositionToDegrees(readServoPositionFromEncoder());
   }
 
   private double convertServoPositionToDegrees(double position) {
-    //        Log.i(TAG, "ServoTargetPosition=" + getTargetPosition() + ", position/deg=" +
-    // servoPositionPerDegree + ", angleAtLowerPosition=" + angleAtLowerPosition);
     return ((position - lowerReferencePosition) / servoPositionPerDegree)
           + angleAtLowerReferencePosition;
   }

@@ -7,8 +7,6 @@ import org.hexnibble.corelib.misc.ConfigFile;
 import org.hexnibble.corelib.motion.pid.dtRotationPIDController;
 
 public class CRPIDServo extends CRServo {
-//   private double currentServoPositionDegrees;
-
    private final dtRotationPIDController pid;
 
    private double servoTargetAngleDegrees;
@@ -43,6 +41,6 @@ public class CRPIDServo extends CRServo {
          pid.resetErrorHistories();
       }
 
-      setServoSpeed(power);
+      setServoPoint(power);
    }
 }

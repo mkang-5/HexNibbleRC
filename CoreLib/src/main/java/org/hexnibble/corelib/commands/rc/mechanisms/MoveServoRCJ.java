@@ -53,7 +53,7 @@ public class MoveServoRCJ extends RCk {
 
   @Override
   protected void onStartCommand() {
-    if (servoUnit == ServoUnit.POSITION) servo.setServoPosition(targetServoLocation);
+    if (servoUnit == ServoUnit.POSITION) servo.setServoPoint(targetServoLocation);
     else servo.setServoPositionDegrees(targetServoLocation);
   }
 

@@ -5,18 +5,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-import org.hexnibble.corelib.misc.Msg;
-
 public class RegularServo extends BaseServoWrapper {
   private final ServoImplEx servo;
-//  private final AnalogInputWrapper servoEncoder;
-//  private final DcMotorSimple.Direction encoderDirection;
-
-//  private final double lowerReferencePosition;
-//  private final double angleAtLowerReferencePosition;
-//  private final double upperReferencePosition;
-//  private final double angleAtUpperReferencePosition;
-//  private final double servoPositionPerDegree;
 
   /**
    * Constructor providing angles.
@@ -101,20 +91,8 @@ public class RegularServo extends BaseServoWrapper {
 //    servoPositionPerDegree = 0.0;
   }
 
-  /**
-   * Call this function to initialize the servo. Usually, the command to set the starting position
-   * can be placed in here.
-   */
-  @Override
-  public void initialize() {
-    //        Log.i(TAG, "RegularServo.j: initialize " + servoName);
-    super.initialize();
-  }
-
   @Override
   public void reset() {
-    //        Log.i(TAG, "RegularServo.j: Reinitialize " + servoName);
-
     extendPWMRange();
 
     if (servoEncoder != null) {
@@ -194,11 +172,11 @@ public class RegularServo extends BaseServoWrapper {
   /**
    * Set a regular servo to the specified position. This is for regular servos only.
    *
-   * @param position Specified position (0.0 - 1.0).
+   * @param point Specified position (0.0 - 1.0).
    */
   @Override
-  public void setServoPosition(double position) {
-    double checkedPosition = rangeCheckPosition(position);
+  public void setServoPoint(double point) {
+    double checkedPosition = rangeCheckPosition(point);
 
     if (checkedPosition != targetPosition) {
       servo.setPosition(checkedPosition);
@@ -207,7 +185,7 @@ public class RegularServo extends BaseServoWrapper {
   }
 
   public void setServoPositionDegrees(double targetAngleDegrees) {
-    setServoPosition(
+    setServoPoint(
         lowerReferencePosition
             + (targetAngleDegrees - angleAtLowerReferencePosition) * servoPositionPerDegree);
   }
@@ -223,16 +201,10 @@ public class RegularServo extends BaseServoWrapper {
         + angleAtLowerReferencePosition;
   }
 
-  @Override
-  public void setServoSpeed(double speed) {
-    // This function should not be used for a regular servo.
-    Msg.log(getClass().getSimpleName(), "setServoSpeed", "setServoSpeed should not be called on a RegularServo.");
-  }
-
   /**
    * Query whether an encoder is active for this servo
    *
-   * @return
+   * @return True/False whether the servo encoder exists.
    */
   public boolean isServoEncoderActive() {
     return (servoEncoder != null);

@@ -25,7 +25,7 @@ class MoveServoRCk @JvmOverloads constructor(
 
   override fun onStartCommand() {
     if (servoUnit == ServoUnit.POSITION) {
-      servo.setServoPosition(targetServoLocation)
+      servo.setServoPoint(targetServoLocation)
     } else {
       servo.servoPositionDegrees = targetServoLocation
     }
