@@ -1,10 +1,12 @@
 package org.hexnibble.corelib.motion.path;
 
 import org.hexnibble.corelib.exception.InvalidArgumentException;
+import org.hexnibble.corelib.misc.Constants;
 import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.misc.Vector2D;
+import org.hexnibble.corelib.opmodes.CoreLinearOpMode;
 
 import java.util.ArrayList;
 
@@ -90,15 +92,6 @@ public class BezierCurve extends CorePath {
       double pathLengthRemaining = Math.min(getRemainingCurveLength(currentT), 100.0);
 
       Vector2D tangentAtClosestPoint = getTangent(currentT);
-//      double tangentXSign = tangentAtClosestPoint.x / Math.abs(tangentAtClosestPoint.x);
-//      double tangentYSign = tangentAtClosestPoint.y / Math.abs(tangentAtClosestPoint.y);
-//
-//      if (isNaN(tangentXSign)) {
-//         tangentXSign = 0.0;
-//      }
-//      if (isNaN(tangentYSign)) {
-//         tangentYSign = 0.0;
-//      }
 
       double slope = tangentAtClosestPoint.y / tangentAtClosestPoint.x;
 
@@ -115,9 +108,6 @@ public class BezierCurve extends CorePath {
          }
       }
 
-//      double pathX = pathLengthRemaining * Math.cos(theta) * tangentXSign;
-//      double pathY = pathLengthRemaining * Math.sin(theta) * tangentYSign;
-
       double pathX = pathLengthRemaining * Math.cos(theta);
       double pathY = pathLengthRemaining * Math.sin(theta);
 
@@ -125,26 +115,25 @@ public class BezierCurve extends CorePath {
          + "\ncurrentY=" + currentPose.y + ", curvePtY=" + closestCurvePoint.y + ", pathRemainingY=" + pathY + ", theta" + Math.toDegrees(theta));
 
       double xTerm, yTerm;
-//      if (tangentAtClosestPoint.x < 0.0) {
-         xTerm = (closestCurvePoint.x - currentPose.x) + pathX;
-//      }
-//      else {
-//         xTerm = (closestCurvePoint.x - currentPose.x) + pathX;
-//      }
-
-//      if (tangentAtClosestPoint.y < 0.0) {
-         yTerm = (closestCurvePoint.y - currentPose.y) + pathY;
-//      }
-//      else {
-//         yTerm = (closestCurvePoint.y - currentPose.y) + pathY;
-//      }
+         xTerm = (closestCurvePoint.x - currentPose.x);
+         yTerm = (closestCurvePoint.y - currentPose.y);
 
       Pose2D translationError = new Pose2D(new Vector2D(
-            xTerm, yTerm),
+            xTerm + pathX, yTerm + pathY),
             Field.addRadiansToIMUHeading(getHeading(currentT), -currentPose.heading)
       );
 
       Msg.log(getClass().getSimpleName(), "getPoseError", "xError=" + translationError.x + ", yError=" + translationError.y + ", hdgError(deg)=" + Math.toDegrees(translationError.heading));
+
+      if (Constants.USE_FTCONTROL_DASHBOARD) {
+         CoreLinearOpMode.dashboard.graph("currentX", currentPose.x);
+         CoreLinearOpMode.dashboard.graph("curveX", closestCurvePoint.x);
+
+         CoreLinearOpMode.dashboard.graph("currentY", currentPose.y);
+         CoreLinearOpMode.dashboard.graph("curveY", closestCurvePoint.y);
+
+         CoreLinearOpMode.dashboard.graph("hdgError(deg)", Math.toDegrees(translationError.heading));
+      }
 
       return translationError;
    }

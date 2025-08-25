@@ -3,6 +3,8 @@ package org.hexnibble.corelib.opmodes;
 import static org.hexnibble.corelib.wrappers.controller.ButtonWrapper.BUTTON_STATE.*;
 import static org.hexnibble.corelib.wrappers.controller.ControllerWrapper.ANALOG_STICK.*;
 
+import com.bylazar.ftcontrol.panels.Panels;
+import com.bylazar.ftcontrol.panels.integration.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.hexnibble.corelib.commands.rc.RCController;
@@ -50,6 +52,9 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
 //  protected Follower pedroFollower;
 //  protected Pose startingPedroPose;
 
+  // FTControl
+  public static TelemetryManager dashboard;
+
   // Loop Monitoring
   protected long loopCounter = 0L;
   protected long minLoopTime_ms = 1000L;
@@ -60,20 +65,6 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   public static Timer OpModeRunTimer = new Timer();
 
   protected String className = this.getClass().getSimpleName();
-
-  public CoreLinearOpMode(OP_MODE_TYPE opModeType) {
-    Msg.log("\n\n" + className, "CoreLinearOpMode", "***** Starting new OpMode *****");
-    this.opModeType = opModeType;
-
-    if (this.opModeType == OP_MODE_TYPE.AUTO) {
-      Msg.log(className, "Constructor", "AUTO OpMode so clearing robot");
-      robot = null;
-    }
-
-    Msg.log(className, "Constructor", "Reading config file " + configFileName);
-    configFile = new ConfigFile(configFileName);
-    configFile.readFromFile();
-  }
 
   public CoreLinearOpMode(OP_MODE_TYPE opModeType, ConfigFile configFile, Constants constants) {
     Msg.log("\n\n" + className, "", "***** Starting new OpMode *****");
@@ -87,7 +78,17 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     Msg.log(className, "Constructor", "Reading config file " + configFileName);
     this.configFile = configFile;
     this.configFile.readFromFile();
+
+    if (Constants.USE_FTCONTROL_DASHBOARD) {
+      Msg.log(className, "Constructor", "Starting FTControl dashboard");
+      dashboard = Panels.getTelemetry();
+    }
   }
+
+  public CoreLinearOpMode(OP_MODE_TYPE opModeType) {
+    this(opModeType, new ConfigFile(configFileName), null);
+  }
+
 
   // region ** Main Functions **
   @Override
@@ -522,6 +523,9 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     addTelemetryBody();
     addLoopTimeInfoToTelemetry(currentLoopTime_ms);
     telemetry.update();
+
+    dashboard.debug("This is a test for dashboard telemetry.");
+    dashboard.update();
   }
 
   /** Add initial lines to telemetry. */

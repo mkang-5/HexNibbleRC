@@ -67,8 +67,9 @@ public class Constants {
 
 
   public static boolean USE_ROAD_RUNNER = false;
-
   public static boolean USE_PEDRO_PATHING = false;
+
+  public static boolean USE_FTCONTROL_DASHBOARD = false;
 
   /*
       public static void setConstants(Class<?> autonomousConstants) {
