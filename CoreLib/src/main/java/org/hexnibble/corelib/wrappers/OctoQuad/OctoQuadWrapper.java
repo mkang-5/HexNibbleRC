@@ -2,17 +2,15 @@ package org.hexnibble.corelib.wrappers.OctoQuad;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
-//import org.hexnibble.corelib.wrappers.sensor.IMUIface;
+import org.hexnibble.corelib.robot.OdometryIface;
 
-//
-//import com.qualcomm.robotcore.hardware.HardwareMap;
-//
-//public class OctoQuadWrapper implements IMUIface {
-public class OctoQuadWrapper {
+public class OctoQuadWrapper implements OdometryIface {
     private double currentIMUHeadingDegrees = 0.0;
     OctoQuadFWv3 oq;
+
+    int LR_odoWheelPort;
+    int FB_odoWheelPort;
 
     // Data structure which will store the localizer data read from the OctoQuad
     OctoQuadFWv3.LocalizerDataBlock localizerData;
@@ -32,6 +30,8 @@ public class OctoQuadWrapper {
         oq = hwMap.get(OctoQuadFWv3.class, oqDeviceName);
         localizerData = new OctoQuadFWv3.LocalizerDataBlock();
         encoderData = new OctoQuadFWv3.EncoderDataBlock();
+        this.LR_odoWheelPort = LR_odoWheelPort;
+        this.FB_odoWheelPort = FB_odoWheelPort;
 
         oq.resetEverything();
 
@@ -62,15 +62,66 @@ public class OctoQuadWrapper {
     }
 
     /**
-     * Set the localizer position (alliance-centric CF).
-     * @param X_mm
-     * @param Y_mm
-     * @param headingRad
+     * Reset odometry wheel encoders and pose
      */
-    public void setLocalizerPose(int X_mm, int Y_mm, float headingRad) {
-        // Convert to the OctoQuad coordinate system (+x = forward; +y = left)
-        oq.setLocalizerPose(Y_mm, -X_mm, headingRad);
+    @Override
+    public void resetEncodersAndPose() {
+        oq.resetSinglePosition(LR_odoWheelPort);
+        oq.resetSinglePosition(FB_odoWheelPort);
+        oq.resetLocalizerAndCalibrateIMU();
     }
+
+    /**
+     * Set current pose (alliance-centric CF).
+     *
+     * @param newPose Alliance-centric X, Y coordinates (mm) and alliance-centric heading (radians)
+     */
+    @Override
+    public void setPoseEstimate(Pose2D newPose) {
+        // Convert to the OctoQuad coordinate system (+x = forward; +y = left)
+        oq.setLocalizerPose((int) newPose.y, -(int) newPose.x, (float) newPose.heading);
+    }
+
+    /**
+     * Read both localizer (pose, including IMU) and encoder data.
+     */
+    @Override
+    public void updateOdometry(double IMUHeadingDegrees) {
+        OctoQuadFWv3.LocalizerDataBlock tempLocalizerData = new OctoQuadFWv3.LocalizerDataBlock();
+        OctoQuadFWv3.EncoderDataBlock tempEncoderData = new OctoQuadFWv3.EncoderDataBlock();
+
+        oq.readLocalizerDataAndAllEncoderData(tempLocalizerData, tempEncoderData);
+        if (tempLocalizerData.crcOk) {
+            localizerData = tempLocalizerData;
+            currentIMUHeadingDegrees = Math.toDegrees(localizerData.heading_rad);
+        }
+        if (tempEncoderData.crcOk) {
+            encoderData = tempEncoderData;
+        }
+    }
+
+    /**
+     * Get the current alliance-centric pose.
+     *
+     * @return Alliance CF pose. Heading is IMU-style in radians.
+     */
+    @Override
+    public Pose2D getCurrentPose() {
+        // Convert OctoQuad pose to our pose
+        return new Pose2D(-localizerData.posY_mm, localizerData.posX_mm, localizerData.heading_rad);
+    }
+
+    /**
+     * Get the current alliance-centric IMU heading.
+     *
+     * @return Alliance CF IMU heading (degrees).
+     */
+    @Override
+    public double getIMUHeadingDegrees() {
+        return currentIMUHeadingDegrees;
+    }
+
+
 
     public void setLocalizerHeading(float headingRad) {
         oq.setLocalizerHeading(headingRad);
@@ -93,20 +144,12 @@ public class OctoQuadWrapper {
         return localizerData.crcOk;
     }
 
-    /**
-     *
-     * @return Alliance CF pose. Heading is IMU-style in radians.
-     */
-    public Pose2D getCurrentPose() {
-        return new Pose2D(-localizerData.posY_mm, localizerData.posX_mm, localizerData.heading_rad);
-    }
-
     public Pose2D getCurrentPoseVelocity() {
         return new Pose2D(-localizerData.velY_mmS, localizerData.velX_mmS, localizerData.velHeading_radS);
     }
 
     /**
-     * This function should be called each OpMode loop to read pose info from the OctoQuad
+     * This function can be called each OpMode loop to read only encoder info from the OctoQuad
      */
     public void readEncoderData() {
         OctoQuadFWv3.EncoderDataBlock tempEncoderData = new OctoQuadFWv3.EncoderDataBlock();
@@ -121,48 +164,12 @@ public class OctoQuadWrapper {
         return encoderData.crcOk;
     }
 
-    /**
-     * Read both localizer (pose, including IMU) and encoder data.
-     */
-    public void readLocalizerAndEncoderData() {
-        OctoQuadFWv3.LocalizerDataBlock tempLocalizerData = new OctoQuadFWv3.LocalizerDataBlock();
-        OctoQuadFWv3.EncoderDataBlock tempEncoderData = new OctoQuadFWv3.EncoderDataBlock();
-
-        oq.readLocalizerDataAndAllEncoderData(tempLocalizerData, tempEncoderData);
-        if (tempLocalizerData.crcOk) {
-            localizerData = tempLocalizerData;
-            currentIMUHeadingDegrees = Math.toDegrees(localizerData.heading_rad);
-        }
-        if (tempEncoderData.crcOk) {
-            encoderData = tempEncoderData;
-        }
-    }
-
-
-    public void resetIMUHeading() {
-        oq.resetLocalizerAndCalibrateIMU();
-    }
-
-    /**
-     * This is similar to readLocalizerAndEncoderData but returns the IMU heading.
-     * @return IMU Heading (degrees)
-     */
-
-    public double readIMUHeading() {
-        readLocalizerAndEncoderData();
-
-        return currentIMUHeadingDegrees;
-    }
-
-
-    public double getStoredIMUHeadingDegrees() {
-        return currentIMUHeadingDegrees;
-    }
-
     public OctoQuadFWv3.LocalizerStatus getLocalizerStatus() {
         return oq.getLocalizerStatus();
     }
 }
+
+
 
 
 

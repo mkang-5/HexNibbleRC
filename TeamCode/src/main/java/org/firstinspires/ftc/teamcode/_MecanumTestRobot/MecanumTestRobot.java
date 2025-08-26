@@ -115,57 +115,57 @@ public class MecanumTestRobot extends CoreRobot {
 //        return oq.getStoredIMUHeadingDegrees();
 //    }
     // endregion ** IMU Functions **
-
-    @Override
-    public void processCommands() {
-        boolean sendDriveTrainCommand = false;
-
-        // Update the caches for both the control hub and expansion hub (if it was detected).
-        bulkReadControlHub();
-//        bulkReadExpansionHub();
-
-        // Update odometry if being used. This needs to be done before any robot commands are processed
-        // to have a fresh pose available for use.
-        // Also read IMU to get heading if 3-wheel odometry is not being used
-        double IMUHeading;
-        if (oq != null) {
-            oq.readLocalizerData();
-
-            // Calculate heading offset for alliance/field-centric CF if needed
-//            if (fieldCentricDrive) {
-//                    drivetrain.setCurrentIMUHeading(oq.getStoredIMUHeadingDegrees());
-                IMUHeading = oq.getStoredIMUHeadingDegrees();
+//
+//    @Override
+//    public void processCommands() {
+//        boolean sendDriveTrainCommand = false;
+//
+//        // Update the caches for both the control hub and expansion hub (if it was detected).
+//        bulkReadControlHub();
+////        bulkReadExpansionHub();
+//
+//        // Update odometry if being used. This needs to be done before any robot commands are processed
+//        // to have a fresh pose available for use.
+//        // Also read IMU to get heading if 3-wheel odometry is not being used
+//        double IMUHeading;
+//        if (oq != null) {
+//            oq.readLocalizerData();
+//
+//            // Calculate heading offset for alliance/field-centric CF if needed
+////            if (fieldCentricDrive) {
+////                    drivetrain.setCurrentIMUHeading(oq.getStoredIMUHeadingDegrees());
+//                IMUHeading = oq.getStoredIMUHeadingDegrees();
+////            }
+//        }
+//        else {
+//            // Update odometry if being used. This needs to be done before any robot commands are processed
+//            // to have a fresh pose available for use.
+//            // Also read IMU to get heading if 3-wheel odometry is not being used
+//            if (odometry != null) {
+//                if (odometry instanceof TwoWheelOdometry) {
+//                    IMUHeading = refreshIMUHeading();
+//                    odometry.updateOdometry(IMUHeading); // Update cumulative translation movements
+//                }
+//                else {
+//                    odometry.updateOdometry(Double.NaN); // Update cumulative translation movements
+//                    IMUHeading = Math.toDegrees(odometry.getPoseEstimate().heading);
+//                }
 //            }
-        }
-        else {
-            // Update odometry if being used. This needs to be done before any robot commands are processed
-            // to have a fresh pose available for use.
-            // Also read IMU to get heading if 3-wheel odometry is not being used
-            if (odometry != null) {
-                if (odometry instanceof TwoWheelOdometry) {
-                    IMUHeading = refreshIMUHeading();
-                    odometry.updateOdometry(IMUHeading); // Update cumulative translation movements
-                }
-                else {
-                    odometry.updateOdometry(Double.NaN); // Update cumulative translation movements
-                    IMUHeading = Math.toDegrees(odometry.getPoseEstimate().heading);
-                }
-            }
-            else {
-                IMUHeading = refreshIMUHeading();
-            }
-        }
-
-        // Send updated IMU heading to drivetrain
-        if (drivetrain != null) {
-            // Calculate heading offset for alliance/field-centric CF if needed
-            if (fieldCentricDrive) {
-                drivetrain.setCurrentIMUHeading(IMUHeading);
-            }
-        }
-
-        robotSystemList.values().forEach(CoreRobotSystem::processCommands);
-        super.processCommands();
-//        drivetrain.processCommands();
-    }
+//            else {
+//                IMUHeading = refreshIMUHeading();
+//            }
+//        }
+//
+//        // Send updated IMU heading to drivetrain
+//        if (drivetrain != null) {
+//            // Calculate heading offset for alliance/field-centric CF if needed
+//            if (fieldCentricDrive) {
+//                drivetrain.setCurrentIMUHeading(IMUHeading);
+//            }
+//        }
+//
+//        robotSystemList.values().forEach(CoreRobotSystem::processCommands);
+//        super.processCommands();
+////        drivetrain.processCommands();
+//    }
 }

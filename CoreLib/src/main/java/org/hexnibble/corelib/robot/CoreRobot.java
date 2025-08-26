@@ -135,7 +135,8 @@ public class CoreRobot extends CoreRobotSystem {
   protected final int TARGET_POSITION_TOLERANCE = 5;
 
   // Odometry
-  protected BaseOdometry odometry;
+//  protected BaseOdometry odometry;
+  protected OdometryIface odometry;
 
   // Motors and Servos
   public enum MOTOR_MECHANISM_TYPE {
@@ -370,7 +371,7 @@ public class CoreRobot extends CoreRobotSystem {
   public void resetIMUHeading() {
     IMU.resetIMUHeading();
     if (odometry != null) {
-      odometry.resetHeading();
+      odometry.resetEncodersAndPose();
     }
   }
 
@@ -422,7 +423,7 @@ public class CoreRobot extends CoreRobotSystem {
    * @return Pose estimate (alliance CF), with angle in radians.
    */
   public Pose2D getRobotPoseEstimate() {
-    return odometry.getPoseEstimate();
+    return odometry.getCurrentPose();
   }
 
   /**
@@ -445,9 +446,9 @@ public class CoreRobot extends CoreRobotSystem {
     }
   }
 
-  public void resetOdometryEncoders() {
+  public void resetOdometryEncodersAndPose() {
     if (odometry != null) {
-      odometry.resetEncoders();
+      odometry.resetEncodersAndPose();
     }
   }
 
@@ -1058,7 +1059,7 @@ public class CoreRobot extends CoreRobotSystem {
 
     // Update odometry if being used. This needs to be done before any robot commands are processed
     // to have a fresh pose available for use.
-    // Also read IMU to get heading if 3-wheel odometry is not being used
+    // For 2-wheel odometry, the IMU is read first
     double IMUHeading;
     if (odometry != null) {
       if (odometry instanceof TwoWheelOdometry) {
@@ -1067,7 +1068,7 @@ public class CoreRobot extends CoreRobotSystem {
       }
       else {
         odometry.updateOdometry(Double.NaN); // Update cumulative translation movements
-        IMUHeading = Math.toDegrees(odometry.getPoseEstimate().heading);
+        IMUHeading = odometry.getIMUHeadingDegrees();
       }
     }
     else {

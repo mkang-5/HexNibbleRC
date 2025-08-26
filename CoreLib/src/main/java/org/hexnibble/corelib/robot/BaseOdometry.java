@@ -8,9 +8,10 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.misc.Vector2D;
+import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
 import org.hexnibble.corelib.wrappers.motor.WheelMotor;
 
-public abstract class BaseOdometry {
+public abstract class BaseOdometry implements OdometryIface {
   protected List<WheelMotor> odometryEncoderList;
 
   protected List<Double> previousEncoderPositionList;
@@ -68,41 +69,23 @@ public abstract class BaseOdometry {
     return lastEncoderPositionReadTime_ms;
   }
 
-  /** Reset odometry wheel encoders
-   * This will also reset the current pose.
+  /** Reset odometry wheel encoders and pose
    */
-  public void resetEncoders() {
-    odometryEncoderList.forEach(wheelMotor -> wheelMotor.resetEncoder());
+  @Override
+  public void resetEncodersAndPose() {
+    odometryEncoderList.forEach(BaseMotorWrapper::resetEncoder);
+    previousEncoderPositionList = List.of();
+    previousIMUHeadingRadians = Double.NaN;
     setPoseEstimate(new Pose2D(0.0, 0.0, 0.0));
   }
 
-  public void resetHeading() {
-    setPoseEstimate(new Pose2D(0.0, 0.0, 0.0));
-  }
-
   /**
-   * Get current pose estimate in alliance CF.
+   * Set current pose (alliance-centric CF).
+   * This will reset the last delta pose and the last updated time to 0.
    *
-   * @return Pose estimate (alliance CF), with angle in radians.
+   * @param newPose Alliance-centric X, Y coordinates (mm) and alliance-centric heading (radians)
    */
-  public Pose2D getPoseEstimate() {
-    return cumulativeAllianceCentricPose;
-  }
-
-  /**
-   * Get the most recent delta pose estimate in alliance CF.
-   *
-   * @return Most recent delta pose estimate (alliance CF), with angle in radians.
-   */
-  //    public Pose2D getLastDeltaPoseEstimate() {
-  //        return deltaAllianceCentricPose;
-  //    }
-
-  /**
-   * Set current pose. This will reset the last delta pose and the last updated time to 0.
-   *
-   * @param newPose Alliance POV, with angle in radians
-   */
+  @Override
   public void setPoseEstimate(Pose2D newPose) {
     previousEncoderPositionList = List.of();
     previousIMUHeadingRadians = Double.NaN;
@@ -113,12 +96,14 @@ public abstract class BaseOdometry {
   }
 
   /**
-   * Update odometry with new encoder values. This function should be called each time through the
-   * control loop to keep updating the odometry.
+   * Get the current alliance-centric pose.
    *
-   * @param IMUHeadingDegrees This is only used for 2-wheel odometry. It is ignored for 3-wheel.
+   * @return Alliance CF pose. Heading is IMU-style in radians.
    */
-  public abstract void updateOdometry(double IMUHeadingDegrees);
+  @Override
+  public Pose2D getCurrentPose() {
+    return cumulativeAllianceCentricPose;
+  }
 
   /**
    * Calculates the change in pose since the last update, in robot-centric POV. Derived from
@@ -183,34 +168,14 @@ public abstract class BaseOdometry {
         Field.enforceIMUHeadingRangeRadians(
             cumulativeAllianceCentricPose.heading + fieldPoseDelta.heading);
   }
-  /*    protected Pose2D updatePoseFromCumulativeOdometry(Pose2D fieldPose, Pose2D deltaPose2D) {
-          double dtheta = deltaPose2D.heading;
 
-          double sinTerm;
-          double cosTerm;
-
-          if (Math.abs(dtheta) < 0.0000001) {        // epsilonEquals
-              sinTerm = 1.0 - (dtheta * dtheta / 6.0);
-              cosTerm = dtheta / 2.0;
-          }
-          else {
-              sinTerm = Math.sin(dtheta) / dtheta;
-              cosTerm = (1.0 - Math.cos(dtheta)) / dtheta;
-          }
-
-          // RoadRunner Version
-          Vector2D fieldPositionDelta = new Vector2D(
-                  sinTerm * deltaPose2D.x - cosTerm * deltaPose2D.y,
-                  cosTerm * deltaPose2D.x + sinTerm * deltaPose2D.y
-          );
-
-          Pose2D fieldPoseDelta = new Pose2D(fieldPositionDelta.rotateByAngleRadians(fieldPose.heading), deltaPose2D.heading);
-
-          return new Pose2D(
-                  fieldPose.x + fieldPoseDelta.x,
-                  fieldPose.y + fieldPoseDelta.y,
-                  Field.enforceIMUHeadingRangeRadians(fieldPose.heading + fieldPoseDelta.heading)
-          );
-      }
-  */
+  /**
+   * Get the current alliance-centric IMU heading.
+   *
+   * @return Alliance CF IMU heading (degrees).
+   */
+  @Override
+  public double getIMUHeadingDegrees() {
+    return Math.toDegrees(cumulativeAllianceCentricPose.heading);
+  }
 }
