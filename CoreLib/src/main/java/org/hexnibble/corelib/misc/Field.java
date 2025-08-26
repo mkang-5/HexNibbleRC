@@ -48,7 +48,7 @@ public final class Field {
 //        polar.theta = DEG_180_IN_RADS; // 180 degrees
 //      }
 //    }
-    else { // Diagonal movements
+    else {    // Other movements
       polar.theta = Math.atan(Y / X);
 
       if (X < 0.0) {

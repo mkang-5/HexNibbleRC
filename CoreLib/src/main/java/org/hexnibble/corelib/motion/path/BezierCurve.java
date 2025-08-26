@@ -92,46 +92,63 @@ public class BezierCurve extends CorePath {
       double pathLengthRemaining = Math.min(getRemainingCurveLength(currentT), 100.0);
 
       Vector2D tangentAtClosestPoint = getTangent(currentT);
+      double tangentPolarHeadingRadians = tangentAtClosestPoint.getPolarHeadingRadians();
 
-      double slope = tangentAtClosestPoint.y / tangentAtClosestPoint.x;
+//
+//      double slope = tangentAtClosestPoint.y / tangentAtClosestPoint.x;
+//      double theta = Math.atan(slope);
+//
+//      if (tangentAtClosestPoint.y > 0.0) {
+//         if (slope < 0.0) {
+//            theta += Math.PI;
+//         }
+//      }
+//      else {
+//         if (slope > 0.0) {
+//            theta += Math.PI;
+//         }
+//      }
 
-      double theta = Math.atan(slope);
-
-      if (tangentAtClosestPoint.y > 0.0) {
-         if (slope < 0.0) {
-            theta += Math.PI;
-         }
-      }
-      else {
-         if (slope > 0.0) {
-            theta += Math.PI;
-         }
-      }
-
-      double pathX = pathLengthRemaining * Math.cos(theta);
-      double pathY = pathLengthRemaining * Math.sin(theta);
+      double pathX = pathLengthRemaining * Math.cos(tangentPolarHeadingRadians);
+      double pathY = pathLengthRemaining * Math.sin(tangentPolarHeadingRadians);
 
       Msg.log(getClass().getSimpleName(), "getPoseError", "currentX=" + currentPose.x + ", curvePtX=" + closestCurvePoint.x + ", pathRemainingX=" + pathX
-         + "\ncurrentY=" + currentPose.y + ", curvePtY=" + closestCurvePoint.y + ", pathRemainingY=" + pathY + ", theta" + Math.toDegrees(theta));
+         + "\ncurrentY=" + currentPose.y + ", curvePtY=" + closestCurvePoint.y + ", pathRemainingY=" + pathY + ", theta" + Math.toDegrees(tangentPolarHeadingRadians));
 
-      double xTerm, yTerm;
-         xTerm = (closestCurvePoint.x - currentPose.x);
-         yTerm = (closestCurvePoint.y - currentPose.y);
+      double xTerm = (closestCurvePoint.x - currentPose.x);
+      double yTerm = (closestCurvePoint.y - currentPose.y);
+
+      double targetIMUHeadingRadians;
+      switch (headingInterpolation) {
+         case FIXED -> {
+            targetIMUHeadingRadians = initialHeading;
+         }
+         case LINEAR -> {
+            targetIMUHeadingRadians = Field.addRadiansToIMUHeading(initialHeading, (currentT * (finalHeading - initialHeading)));
+         }
+         case TANGENT -> {
+            targetIMUHeadingRadians = Field.enforceIMUHeadingRangeRadians(tangentPolarHeadingRadians + Math.PI/2.0);
+         }
+         default -> throw new IllegalStateException("Unexpected value: " + headingInterpolation);
+      }
 
       Pose2D translationError = new Pose2D(new Vector2D(
             xTerm + pathX, yTerm + pathY),
-            Field.addRadiansToIMUHeading(getHeading(currentT), -currentPose.heading)
+            Field.addRadiansToIMUHeading(targetIMUHeadingRadians, -currentPose.heading)
       );
 
       Msg.log(getClass().getSimpleName(), "getPoseError", "xError=" + translationError.x + ", yError=" + translationError.y + ", hdgError(deg)=" + Math.toDegrees(translationError.heading));
 
       if (Constants.USE_FTCONTROL_DASHBOARD) {
+         Msg.log(getClass().getSimpleName(), "getPoseError", "Sending info to dashboard");
+         CoreLinearOpMode.dashboard.debug("This is a test for dashboard telemetry from BezierCurve.");
          CoreLinearOpMode.dashboard.graph("currentX", currentPose.x);
          CoreLinearOpMode.dashboard.graph("curveX", closestCurvePoint.x);
 
          CoreLinearOpMode.dashboard.graph("currentY", currentPose.y);
          CoreLinearOpMode.dashboard.graph("curveY", closestCurvePoint.y);
 
+         CoreLinearOpMode.dashboard.graph("currentHdg(deg)", Math.toDegrees(currentPose.heading));
          CoreLinearOpMode.dashboard.graph("hdgError(deg)", Math.toDegrees(translationError.heading));
       }
 
@@ -207,18 +224,6 @@ public class BezierCurve extends CorePath {
       return point;
    }
 
-   protected double getHeading(double t) {
-      switch (headingInterpolation) {
-         case FIXED -> {
-            return initialHeading;
-         }
-         case LINEAR -> {
-            return Field.addRadiansToIMUHeading(initialHeading, (t * (finalHeading - initialHeading)));
-         }
-         default -> throw new IllegalStateException("Unexpected value: " + headingInterpolation);
-      }
-   }
-
    public Vector2D getTangent(double t) {
       t = Math.clamp(t, 0, 1);
       double x = 0.0;
@@ -231,10 +236,7 @@ public class BezierCurve extends CorePath {
          y += term * (controlPoints.get(i + 1).y - controlPoints.get(i).y);
       }
 
-      Vector2D tangentVector = new Vector2D(x, y);
-//      Msg.log(getClass().getSimpleName(), "getTangent", "Tangent vector at t=" + t + " is " + tangentVector);
-
-      return tangentVector;
+      return new Vector2D(x, y);
    }
 
    /**

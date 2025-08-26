@@ -263,25 +263,28 @@ public class BaseMotorWrapper {
   }
 
   /**
-   * Set the motor power, but will do so only if the requested power exceeds the threshold
-   * difference from the current power, unless the request is for 0.
-   * This function will also clip motor power if it exceeds the range -1.0 to +1.0
+   * Set the motor power, but first clamp motor power to be between -1.0 - +1.0.
+   * If clamping is not desired, use setPowerNoClamping.
    *
    * @param power Requested motor power
    */
   public void setPower(double power) {
-    // Range check
-    if (power > 1.0) {
-      power = 1.0;
-    }
-    else if (power < -1.0) {
-      power = -1.0;
-    }
-
-    setPowerNoClamping(power);
+    setPowerNoClamping(Math.clamp(power, -1.0, 1.0));
   }
 
+  /**
+   * Set the motor power without clamping. A motor command will only be sent if the requested power
+   * exceeds the threshold, and if the difference from the current power also exceeds the threshold,
+   * unless the request is for 0.
+   * If clamping is desired, use setPower.
+   *
+   * @param power Requested motor power
+   */
   public void setPowerNoClamping(double power) {
+    if (Math.abs(power) < Constants.MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND) {
+      power = 0.0;
+    }
+
     if (((power == 0.0) && (this.power != 0.0))
           || (Math.abs(power - this.power) > Constants.MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND)) {
 
@@ -290,7 +293,7 @@ public class BaseMotorWrapper {
     }
   }
 
-  /* CURRENT FUNCTIONS */
+  //region ** Current Functions **
   public double getMotorCurrent(CurrentUnit currentUnit) {
     return motor.getCurrent(currentUnit);
   }
@@ -310,9 +313,9 @@ public class BaseMotorWrapper {
   public double getMotorPower() {
     return motor.getPower();
   }
+  //endregion ** Current Functions **
 
-  /* POSITION FUNCTIONS */
-
+  //region ** Position Functions **
   /**
    * Query the encoder for the current position (in counts)
    *
@@ -331,11 +334,6 @@ public class BaseMotorWrapper {
       else {
         return -motor.getCurrentPosition();
       }
-
-
-//      return (encoderDirection == DcMotorSimple.Direction.FORWARD)
-//          ? motor.getCurrentPosition()
-//          : -motor.getCurrentPosition();
     }
   }
 
@@ -363,9 +361,9 @@ public class BaseMotorWrapper {
   public void setTargetPositionTolerance(int tolerance) {
     motor.setTargetPositionTolerance(tolerance);
   }
+  //endregion ** Position Functions **
 
-  /* Velocity Functions */
-
+  //region ** Velocity Functions **
   /**
    * Obtain the current velocity in rpm
    *
@@ -405,6 +403,7 @@ public class BaseMotorWrapper {
               && (Math.abs(targetVelocityRPM - currentVelocityRPM)) <= targetVelocityToleranceRPM;
     }
   }
+  //endregion ** Velocity Functions **
 
   public DcMotor.Direction getRunDirection() {
     return runDirection;

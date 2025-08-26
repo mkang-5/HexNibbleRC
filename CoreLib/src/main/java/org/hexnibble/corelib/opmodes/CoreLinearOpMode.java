@@ -59,9 +59,12 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   protected long loopCounter = 0L;
   protected long minLoopTime_ms = 1000L;
   protected long maxLoopTime_ms = 0L;
-  protected float averageLoopTime_ms = 0.0f;
+  protected float averageActualLoopTime_ms = 0L;
+  protected float averageDesiredLoopTime_ms = 0.0f;
   private long currentLoopTime_ms = 0L;
+  protected long actualElapsedLoopTime_ms = 0L;
   protected long prevElapsedTime_ms = 0L;
+  protected boolean firstLoopTimeCheck;
   public static Timer OpModeRunTimer = new Timer();
 
   protected String className = this.getClass().getSimpleName();
@@ -80,7 +83,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     this.configFile.readFromFile();
 
     if (Constants.USE_FTCONTROL_DASHBOARD) {
-      Msg.log(className, "Constructor", "Starting FTControl dashboard");
+      Msg.log(className, "Constructor", "Using FTControl dashboard");
       dashboard = Panels.getTelemetry();
     }
   }
@@ -116,7 +119,6 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
           if (!isStopRequested()) {
             createTelemetryMessageForEachLoop();
           }
-//        processCommands();
         }
       }
     }
@@ -217,9 +219,10 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
           "Control Hub Bulk Cache Mode=" + robot.getHubBulkCachingMode(CoreRobot.HUB_TYPE.CONTROL_HUB)
               + ", Expansion Hub Bulk Cache Mode=" + robot.getHubBulkCachingMode(CoreRobot.HUB_TYPE.EXPANSION_HUB));
     }
-    Msg.log(className, "onStopOpMode", "Avg Loop Time (ms)=" + averageLoopTime_ms
-            + ", Min=" + minLoopTime_ms
-            + ", Max=" + maxLoopTime_ms);
+    Msg.log(className, "onStopOpMode", "Avg Actual/Desired Loop Time (ms)="
+          + averageActualLoopTime_ms + "/" + averageDesiredLoopTime_ms
+          + ", Min=" + minLoopTime_ms
+          + ", Max=" + maxLoopTime_ms);
   }
   // endregion ** Main Functions **
 
@@ -479,11 +482,12 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   protected void initializeLoopTimer() {
     loopCounter = 1;
     prevElapsedTime_ms = OpModeRunTimer.getElapsedTime(Timer.TimerUnit.ms);
+    actualElapsedLoopTime_ms = 0L;
+    firstLoopTimeCheck = true;
   }
 
   /**
    * Calculate the time taken for the current loop (since the last time this function was called).
-   * Call this function towards the end of each loop.
    *
    * @return True/False whether the loop time has met the threshold minimum loop time
    */
@@ -491,6 +495,12 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     final long currentElapsedTime_ms = OpModeRunTimer.getElapsedTime(Timer.TimerUnit.ms);
 
     currentLoopTime_ms = (currentElapsedTime_ms - prevElapsedTime_ms);
+
+    // Keep track of the actual loop time
+    if (firstLoopTimeCheck) {
+      actualElapsedLoopTime_ms += currentLoopTime_ms;
+      firstLoopTimeCheck = false;
+    }
 
     if (currentLoopTime_ms > Constants.MINIMUM_OP_MODE_LOOP_TIME_MS) {
       if (currentLoopTime_ms > Constants.LOOP_TIME_THRESHOLD_FOR_LOGGING_MS) {
@@ -507,10 +517,13 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
         minLoopTime_ms = currentLoopTime_ms;
       }
 
-      averageLoopTime_ms = (float) currentElapsedTime_ms / loopCounter;
+      averageActualLoopTime_ms = (float) actualElapsedLoopTime_ms / loopCounter;
+      averageDesiredLoopTime_ms = (float) currentElapsedTime_ms / loopCounter;
 
       loopCounter += 1;
       prevElapsedTime_ms = currentElapsedTime_ms;
+
+      firstLoopTimeCheck = true;
       return true;
     }
     else return false;
@@ -524,7 +537,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     addLoopTimeInfoToTelemetry(currentLoopTime_ms);
     telemetry.update();
 
-    dashboard.debug("This is a test for dashboard telemetry.");
+//    dashboard.debug("This is a test for dashboard telemetry.");
     dashboard.update();
   }
 
@@ -571,7 +584,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
 
   /** Report loop times in telemetry. */
   private void addLoopTimeInfoToTelemetry(final long currentLoopTime_ms) {
-    telemetry.addData("\nAvg Time per Loop (ms):", "%.4f", averageLoopTime_ms);
+    telemetry.addData("\nAvg actual/desired loop time (ms):", "%.1f / %.1f", averageActualLoopTime_ms, averageDesiredLoopTime_ms);
     telemetry.addLine("Last loop time (ms): " + currentLoopTime_ms);
     telemetry.addLine("Min/Max Loop Time (ms): " + minLoopTime_ms + " / " + maxLoopTime_ms);
     telemetry.addLine();

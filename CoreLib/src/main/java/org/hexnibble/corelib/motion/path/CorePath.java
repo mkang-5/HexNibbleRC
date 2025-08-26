@@ -16,7 +16,7 @@ public abstract class CorePath
     }
 
     public enum HEADING_INTERPOLATION {
-        FIXED, LINEAR
+        FIXED, LINEAR, TANGENT
     }
     protected HEADING_INTERPOLATION headingInterpolation = HEADING_INTERPOLATION.FIXED;
 
