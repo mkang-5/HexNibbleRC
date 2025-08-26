@@ -4,8 +4,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.robot.OdometryIface;
+import org.hexnibble.corelib.wrappers.sensor.IMUIface;
 
-public class OctoQuadWrapper implements OdometryIface {
+import java.util.ArrayList;
+
+public class OctoQuadWrapper implements IMUIface, OdometryIface {
     private double currentIMUHeadingDegrees = 0.0;
     OctoQuadFWv3 oq;
 
@@ -16,8 +19,8 @@ public class OctoQuadWrapper implements OdometryIface {
     OctoQuadFWv3.LocalizerDataBlock localizerData;
     OctoQuadFWv3.EncoderDataBlock encoderData;
 
-    private static final float goBILDA_SWINGARM_POD = 13.26291192f; //ticks-per-mm for the goBILDA Swingarm Pod
-    private static final float goBILDA_4_BAR_POD    = 19.89436789f; //ticks-per-mm for the goBILDA 4-Bar Pod
+    private static final float goBILDA_SWINGARM_POD_COUNTS_PER_MM = 13.26291192f; //ticks-per-mm for the goBILDA Swingarm Pod
+    private static final float goBILDA_4_BAR_POD_COUNTS_PER_MM = 19.89436789f; //ticks-per-mm for the goBILDA 4-Bar Pod
 
     /**
      * Note that this is different from
@@ -46,8 +49,8 @@ public class OctoQuadWrapper implements OdometryIface {
         oq.setSingleEncoderDirection(FB_odoWheelPort, FB_odoWheelDirection);
         oq.setLocalizerPortX(FB_odoWheelPort);
 
-        oq.setLocalizerCountsPerMM_X(goBILDA_4_BAR_POD);
-        oq.setLocalizerCountsPerMM_Y(goBILDA_4_BAR_POD);
+        oq.setLocalizerCountsPerMM_X(goBILDA_4_BAR_POD_COUNTS_PER_MM);
+        oq.setLocalizerCountsPerMM_Y(goBILDA_4_BAR_POD_COUNTS_PER_MM);
         oq.setLocalizerTcpOffsetMM_X(tcpOffsetY_mm);
         oq.setLocalizerTcpOffsetMM_Y(-tcpOffsetX_mm);
         oq.setLocalizerImuHeadingScalar(1.0f);
@@ -60,6 +63,29 @@ public class OctoQuadWrapper implements OdometryIface {
         // for that you need to look at the status returned by getLocalizerStatus()
         oq.resetLocalizerAndCalibrateIMU();
     }
+
+    // region IMUIface Functions
+    @Override
+    public void resetIMUHeading() {
+        resetEncodersAndPose();
+    }
+
+    /**
+     * This function will not refresh the IMU for the OctoQuad. It will only read the stored heading.
+     * To refresh, use updateOdometry()
+     * @return Stored IMU heading (degrees)
+     */
+    @Override
+    public double refreshIMUHeading() {
+        return getIMUHeadingDegrees();
+    }
+
+    @Override
+    public double getStoredIMUHeadingDegrees() {
+        return getIMUHeadingDegrees();
+    }
+    // endregion IMUIface Functions
+
 
     /**
      * Reset odometry wheel encoders and pose
@@ -121,7 +147,29 @@ public class OctoQuadWrapper implements OdometryIface {
         return currentIMUHeadingDegrees;
     }
 
+    /**
+     * Obtain encoder counts as a list
+     * @return List of encoder counts. LR encoder is index 0. FB encoder is index 1.
+     */
+    @Override
+    public ArrayList<Integer> getOdometryEncoderCounts() {
+        ArrayList<Integer> positions = new ArrayList<>(2);
+        positions.set(0, encoderData.positions[LR_odoWheelPort]);
+        positions.set(0, encoderData.positions[FB_odoWheelPort]);
+        return positions;
+    }
 
+    /**
+     * Retrieve the encoder positions (in mm).
+     *
+     * @return List of encoder positions
+     */
+    public ArrayList<Double> getOdometryEncoderPositions_mm() {
+        ArrayList<Double> positions = new ArrayList<>(2);
+        positions.set(0, encoderData.positions[LR_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM);
+        positions.set(0, encoderData.positions[FB_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM);
+        return positions;
+    }
 
     public void setLocalizerHeading(float headingRad) {
         oq.setLocalizerHeading(headingRad);

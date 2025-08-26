@@ -50,7 +50,7 @@ public class ThreeWheelOdometry extends BaseOdometry {
    */
   @Override
   public void updateOdometry(double IMUHeadingDegrees) {
-    ArrayList<Double> currentEncoderPositionList = getEncoderPositionList_mm();
+    ArrayList<Double> currentEncoderPositionList = getOdometryEncoderPositions_mm();
 
     ArrayList<Double> deltaPositionList =
         new ArrayList<>(); // List to store the changes of each wheel since the last update

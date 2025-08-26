@@ -36,31 +36,6 @@ public abstract class BaseOdometry implements OdometryIface {
   }
 
   /**
-   * Retrieve the encoder positions (in mm).
-   *
-   * @return List of encoder positions
-   */
-  protected ArrayList<Double> getEncoderPositionList_mm() {
-    ArrayList<Double> odometryEncoderPositionList = new ArrayList<>();
-
-    odometryEncoderList.forEach(
-        wheelMotor -> odometryEncoderPositionList.add(wheelMotor.getCurrentPosition_mm()));
-    lastEncoderPositionReadTime_ms = System.currentTimeMillis();
-
-    return odometryEncoderPositionList;
-  }
-
-  public ArrayList<Integer> getEncoderCounts() {
-    ArrayList<Integer> odometryEncoderCounts = new ArrayList<>();
-
-    odometryEncoderList.forEach(
-          wheelMotor -> odometryEncoderCounts.add(wheelMotor.getCurrentPosition())
-    );
-
-    return odometryEncoderCounts;
-  }
-
-  /**
    * Retrieve the last time the encoder positions were read (system ms)
    *
    * @return Last encoder read time, in ms
@@ -177,5 +152,36 @@ public abstract class BaseOdometry implements OdometryIface {
   @Override
   public double getIMUHeadingDegrees() {
     return Math.toDegrees(cumulativeAllianceCentricPose.heading);
+  }
+
+  /**
+   * Obtain encoder counts as a list
+   * @return List of encoder counts
+   */
+  @Override
+  public ArrayList<Integer> getOdometryEncoderCounts() {
+    ArrayList<Integer> odometryEncoderCounts = new ArrayList<>();
+
+    odometryEncoderList.forEach(
+          wheelMotor -> odometryEncoderCounts.add(wheelMotor.getCurrentPosition())
+    );
+
+    return odometryEncoderCounts;
+  }
+
+
+  /**
+   * Retrieve the encoder positions (in mm).
+   *
+   * @return List of encoder positions
+   */
+  public ArrayList<Double> getOdometryEncoderPositions_mm() {
+    ArrayList<Double> odometryEncoderPositionList = new ArrayList<>();
+
+    odometryEncoderList.forEach(
+          wheelMotor -> odometryEncoderPositionList.add(wheelMotor.getCurrentPosition_mm()));
+    lastEncoderPositionReadTime_ms = System.currentTimeMillis();
+
+    return odometryEncoderPositionList;
   }
 }

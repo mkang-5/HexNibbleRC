@@ -2,6 +2,8 @@ package org.hexnibble.corelib.robot;
 
 import org.hexnibble.corelib.misc.Pose2D;
 
+import java.util.ArrayList;
+
 public interface OdometryIface {
 
    /**
@@ -38,4 +40,17 @@ public interface OdometryIface {
     * @return Alliance CF IMU heading (degrees).
     */
    double getIMUHeadingDegrees();
+
+   /**
+    * Obtain encoder counts as a list
+    * @return List of encoder counts
+    */
+   ArrayList<Integer> getOdometryEncoderCounts();
+
+   /**
+    * Obtain encoder positions (in mm) as a list.
+    *
+    * @return List of encoder positions (mm)
+    */
+   ArrayList<Double> getOdometryEncoderPositions_mm();
 }

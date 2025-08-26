@@ -26,6 +26,7 @@ import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
+import org.hexnibble.corelib.wrappers.sensor.IMUIface;
 import org.hexnibble.corelib.wrappers.sensor.IMUWrapper;
 
 // region ** Hub Ports **
@@ -122,8 +123,8 @@ public class CoreRobot extends CoreRobotSystem {
   // when defining orientation.
   // Beginning Sept 2022, Bosch BHI260AP were used.
   protected String IMU_NAME = "imu";
-  protected IMUWrapper IMU;
-//  protected IMUIface IMU;
+//  protected IMUWrapper IMU;
+  protected IMUIface IMU;
   // endregion ** IMU Parameters **
 
   // Drivetrain
@@ -403,7 +404,7 @@ public class CoreRobot extends CoreRobotSystem {
    */
   public ArrayList<Double> getOdometryEncoderPositions_mm() {
     if (odometry != null) {
-      return odometry.getEncoderPositionList_mm();
+      return odometry.getOdometryEncoderPositions_mm();
     } else {
       return null;
     }
@@ -411,7 +412,7 @@ public class CoreRobot extends CoreRobotSystem {
 
   public ArrayList<Integer> getOdometryEncoderCounts() {
     if (odometry != null) {
-      return odometry.getEncoderCounts();
+      return odometry.getOdometryEncoderCounts();
     } else {
       return null;
     }
@@ -431,9 +432,9 @@ public class CoreRobot extends CoreRobotSystem {
    *
    * @return Last encoder read time, in ms
    */
-  public long getLastPoseEstimateTime() {
-    return odometry.getLastEncoderReadTime_ms();
-  }
+//  public long getLastPoseEstimateTime() {
+//    return odometry.getLastEncoderReadTime_ms();
+//  }
 
   /**
    * Set the current estimated alliance-centric pose.

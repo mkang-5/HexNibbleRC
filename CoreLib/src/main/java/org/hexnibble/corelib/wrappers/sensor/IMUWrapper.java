@@ -7,8 +7,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.hexnibble.corelib.misc.Msg;
 
-//public class IMUWrapper extends CoreSensorWrapper<IMU> implements IMUIface {
-public class IMUWrapper extends CoreSensorWrapper<IMU> {
+public class IMUWrapper extends CoreSensorWrapper<IMU> implements IMUIface {
+//public class IMUWrapper extends CoreSensorWrapper<IMU> {
   private double currentIMUHeadingDegrees = 0.0;
 
   public IMUWrapper(
@@ -31,6 +31,7 @@ public class IMUWrapper extends CoreSensorWrapper<IMU> {
   }
 
   /** Reset the IMU heading (yaw). */
+  @Override
   public void resetIMUHeading() {
     Msg.log(getClass().getSimpleName(), "resetIMUHeading", "Resetting IMU yaw/heading.");
     sensor.resetYaw();
@@ -47,6 +48,7 @@ public class IMUWrapper extends CoreSensorWrapper<IMU> {
    *
    * @return The newly read IMU Heading
    */
+  @Override
   public double refreshIMUHeading() {
     YawPitchRollAngles angles = sensor.getRobotYawPitchRollAngles();
     currentIMUHeadingDegrees = angles.getYaw(AngleUnit.DEGREES);
@@ -54,6 +56,7 @@ public class IMUWrapper extends CoreSensorWrapper<IMU> {
     return currentIMUHeadingDegrees;
   }
 
+  @Override
   public double getStoredIMUHeadingDegrees() {
     return currentIMUHeadingDegrees;
   }

@@ -59,7 +59,7 @@ public class TwoWheelOdometry extends BaseOdometry {
   public void updateOdometry(double IMUHeadingDegrees) {
 //    Msg.log(getClass().getSimpleName(), "updateOdometry", "IMUHeadingDegrees=" + IMUHeadingDegrees + ", cumPose=" + cumulativeAllianceCentricPose.x + ", " + cumulativeAllianceCentricPose.y + ", " + cumulativeAllianceCentricPose.heading);
 
-    ArrayList<Double> currentEncoderPositionList = getEncoderPositionList_mm();
+    ArrayList<Double> currentEncoderPositionList = getOdometryEncoderPositions_mm();
     ArrayList<Double> deltaPositionList =
         new ArrayList<>(); // List to store the changes of each wheel and heading since the last
     // update
