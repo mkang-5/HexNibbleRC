@@ -20,8 +20,11 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
     OctoQuadFWv3.LocalizerDataBlock localizerData;
     OctoQuadFWv3.EncoderDataBlock encoderData;
 
-    private static final float goBILDA_SWINGARM_POD_COUNTS_PER_MM = 13.26291192f; //ticks-per-mm for the goBILDA Swingarm Pod
-    private static final float goBILDA_4_BAR_POD_COUNTS_PER_MM = 19.89436789f; //ticks-per-mm for the goBILDA 4-Bar Pod
+//    private static final float goBILDA_SWINGARM_POD_COUNTS_PER_MM = 13.26291192f; //ticks-per-mm for the goBILDA Swingarm Pod
+//    private static final float goBILDA_4_BAR_POD_COUNTS_PER_MM = 19.89436789f; //ticks-per-mm for the goBILDA 4-Bar Pod
+
+    private static final float goBILDA_4_BAR_POD_COUNTS_PER_MM_X = 19.950f;     // Counts/mm in our X direction
+    private static final float goBILDA_4_BAR_POD_COUNTS_PER_MM_Y = 20.0585f;    // Counts/mm in our Y direction
 
     private final String className = getClass().getSimpleName();
 
@@ -58,13 +61,13 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
             oq.setSingleEncoderDirection(LR_odoWheelPort, OctoQuadFWv3.EncoderDirection.FORWARD);
         }
         oq.setLocalizerPortY(LR_odoWheelPort);
-        oq.setLocalizerCountsPerMM_Y(goBILDA_4_BAR_POD_COUNTS_PER_MM);
+        oq.setLocalizerCountsPerMM_Y(goBILDA_4_BAR_POD_COUNTS_PER_MM_X);
         oq.setLocalizerTcpOffsetMM_Y(-tcpOffsetX_mm);
 
         // For FB directions, the OctoQuad uses +X forward.
         oq.setSingleEncoderDirection(FB_odoWheelPort, FB_odoWheelDirection);
         oq.setLocalizerPortX(FB_odoWheelPort);
-        oq.setLocalizerCountsPerMM_X(goBILDA_4_BAR_POD_COUNTS_PER_MM);
+        oq.setLocalizerCountsPerMM_X(goBILDA_4_BAR_POD_COUNTS_PER_MM_Y);
         oq.setLocalizerTcpOffsetMM_X(tcpOffsetY_mm);
 
         oq.setLocalizerImuHeadingScalar(1.0f);
@@ -187,8 +190,8 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
      */
     public ArrayList<Double> getOdometryEncoderPositions_mm() {
         ArrayList<Double> positions = new ArrayList<>(2);
-        positions.add(encoderData.positions[LR_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM);
-        positions.add(encoderData.positions[FB_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM);
+        positions.add(encoderData.positions[LR_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM_X);
+        positions.add(encoderData.positions[FB_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM_Y);
         return positions;
     }
 
