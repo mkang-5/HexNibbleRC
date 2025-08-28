@@ -14,158 +14,98 @@ import org.hexnibble.corelib.robot_system.CoreRobotSystem;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadWrapper;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
+import org.hexnibble.corelib.wrappers.sensor.IMUIface;
 import org.hexnibble.corelib.wrappers.sensor.IMUWrapper;
 
 import java.util.Arrays;
 
 public class MecanumTestRobot extends CoreRobot {
-    private OctoQuadWrapper oq;
     public MecanumTestRobot(HardwareMap hwMap) {
         super(hwMap, "MecanumTestRobot");
     }
 
     @Override
     public void initializeSystem() {
-//        oq = new OctoQuadWrapper(hwMap, "OctoQuad", 0, OctoQuadFWv3.EncoderDirection.REVERSE,
-//                1, OctoQuadFWv3.EncoderDirection.FORWARD,
-//                -141.9f, 0.0f);
+        boolean useOQ = true;
+        if (useOQ) {
+            // Create drivetrain object
+            drivetrain = new MecanumDrivetrain(hwMap,
+                  "LFMotor", DcMotor.Direction.REVERSE,
+                  BaseMotorWrapper.ENCODER.INTERNAL, DcMotorSimple.Direction.REVERSE,
 
-        IMU = new IMUWrapper(hwMap, IMU_NAME, CH_LOGO_FACING_DIRECTION, CH_USB_FACING_DIRECTION);
+                  "RFMotor", DcMotor.Direction.FORWARD,
+                  BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
+                  "LBMotor", DcMotor.Direction.REVERSE,
+                  BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
 
-        // Create drivetrain object
-        drivetrain =
-//                new MecanumDrivetrain(hwMap,
-//                        "LFMotor", DcMotor.Direction.REVERSE,
-//                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
-//                        "RFMotor", DcMotor.Direction.FORWARD,
-//                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
-//                        "LBMotor", DcMotor.Direction.REVERSE,
-//                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
-//                        "RBMotor", DcMotor.Direction.FORWARD,
-//                        BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
-//                        BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_435, DcMotor.RunMode.RUN_WITHOUT_ENCODER,
-//                        1.0, TARGET_POSITION_TOLERANCE, 48.0);
+                  "RBMotor", DcMotor.Direction.FORWARD,
+                  BaseMotorWrapper.ENCODER.INTERNAL, DcMotorSimple.Direction.FORWARD,
 
-                new MecanumDrivetrain(hwMap,
-                      "LFMotor", DcMotor.Direction.REVERSE,
-                      BaseMotorWrapper.ENCODER.GO_BILDA_ODOPOD, DcMotorSimple.Direction.REVERSE,
+                  BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_435, DcMotor.RunMode.RUN_WITHOUT_ENCODER,
+                  1.0, TARGET_POSITION_TOLERANCE, 48.0);
 
-                      "RFMotor", DcMotor.Direction.FORWARD,
-                      BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
-                      "LBMotor", DcMotor.Direction.REVERSE,
-                      BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
+            Msg.logIfDebug(className, "initializeSystem", "Creating OctoQuad odometry object.");
+            odometry = new OctoQuadWrapper(hwMap, "OctoQuad", 0, OctoQuadFWv3.EncoderDirection.FORWARD,
+                1, OctoQuadFWv3.EncoderDirection.FORWARD,
+                -141.9f, 0.0f);
 
-                      "RBMotor", DcMotor.Direction.FORWARD,
-                      BaseMotorWrapper.ENCODER.GO_BILDA_ODOPOD, DcMotorSimple.Direction.REVERSE,
+            IMU = (IMUIface) odometry;
+        }
+        else {
+            // Create drivetrain object
+            drivetrain = new MecanumDrivetrain(hwMap,
+                  "LFMotor", DcMotor.Direction.REVERSE,
+                  BaseMotorWrapper.ENCODER.GO_BILDA_ODOPOD, DcMotorSimple.Direction.REVERSE,
 
-                      BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_435, DcMotor.RunMode.RUN_WITHOUT_ENCODER,
-                      1.0, TARGET_POSITION_TOLERANCE, 48.0);
+                  "RFMotor", DcMotor.Direction.FORWARD,
+                  BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.FORWARD,
+                  "LBMotor", DcMotor.Direction.REVERSE,
+                  BaseMotorWrapper.ENCODER.INTERNAL, DcMotor.Direction.REVERSE,
+
+                  "RBMotor", DcMotor.Direction.FORWARD,
+                  BaseMotorWrapper.ENCODER.GO_BILDA_ODOPOD, DcMotorSimple.Direction.REVERSE,
+
+                  BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_435, DcMotor.RunMode.RUN_WITHOUT_ENCODER,
+                  1.0, TARGET_POSITION_TOLERANCE, 48.0);
+
+            // Create odometry object
+            Msg.logIfDebug(className, "initializeSystem", "Creating odometry object.");
+            odometry = new TwoWheelOdometry(
+                Arrays.asList(
+                      new Pose2D(
+                            -141.9,
+                            0.0,
+                            Math.PI / 2.0), // Location of LR odometry wheel - x movements
+                      new Pose2D(
+                            141.9,
+                            0.0,
+                            0.0) // Location of FB odometry wheel - y movements
+                ),
+                Arrays.asList(
+                      drivetrain.getWheelMotorObject(
+                            MecanumDrivetrain.WHEEL_MODULE_NAME.LF), // LR odometry wheel (x movements)
+                      drivetrain.getWheelMotorObject(
+                            MecanumDrivetrain.WHEEL_MODULE_NAME.RB) // FB odometry wheel (y movements)
+                ));
+
+            IMU = new IMUWrapper(hwMap, IMU_NAME, CH_LOGO_FACING_DIRECTION, CH_USB_FACING_DIRECTION);
+        }
+
 
         addRobotSystemToList("Drivetrain", drivetrain);
-
-        // Create odometry object
-        Msg.logIfDebug(className, "initializeSystem", "Creating odometry object.");
-        odometry =
-              new TwoWheelOdometry(
-                    Arrays.asList(
-                          new Pose2D(
-                                -141.9,
-                                0.0,
-                                Math.PI / 2.0), // Location of LR odometry wheel - x movements
-                          new Pose2D(
-                                141.9,
-                                0.0,
-                                0.0) // Location of FB odometry wheel - y movements
-                    ),
-                    Arrays.asList(
-                          drivetrain.getWheelMotorObject(
-                                MecanumDrivetrain.WHEEL_MODULE_NAME.LF), // LR odometry wheel (x movements)
-                          drivetrain.getWheelMotorObject(
-                                MecanumDrivetrain.WHEEL_MODULE_NAME.RB) // FB odometry wheel (y movements)
-                    ));
 
         robotSystemList.values().forEach(CoreRobotSystem::initializeSystem);
     }
 
 //    public Pose2D getCurrentPose() {
-//        return oq.getCurrentPose();
+//        return ((OctoQuadWrapper) odometry).getCurrentPose();
 //    }
 
     public Pose2D getCurrentPoseVelocity() {
-        return oq.getCurrentPoseVelocity();
+        return ((OctoQuadWrapper) odometry).getCurrentPoseVelocity();
     }
 
     public OctoQuadFWv3.LocalizerStatus getOQStatus() {
-        return oq.getLocalizerStatus();
+        return ((OctoQuadWrapper) odometry).getLocalizerStatus();
     }
-
-    // region ** IMU Functions **
-    /** Reset the IMU heading (yaw) on the Octoquad. */
-//    @Override
-//    public void resetIMUHeading() {
-//        oq.resetIMUHeading();
-//    }
-//    @Override
-//    public double refreshIMUHeading() {
-//        return oq.readIMUHeading();
-//    }
-//
-//    @Override
-//    public double getStoredIMUHeadingDegrees() {
-//        return oq.getStoredIMUHeadingDegrees();
-//    }
-    // endregion ** IMU Functions **
-//
-//    @Override
-//    public void processCommands() {
-//        boolean sendDriveTrainCommand = false;
-//
-//        // Update the caches for both the control hub and expansion hub (if it was detected).
-//        bulkReadControlHub();
-////        bulkReadExpansionHub();
-//
-//        // Update odometry if being used. This needs to be done before any robot commands are processed
-//        // to have a fresh pose available for use.
-//        // Also read IMU to get heading if 3-wheel odometry is not being used
-//        double IMUHeading;
-//        if (oq != null) {
-//            oq.readLocalizerData();
-//
-//            // Calculate heading offset for alliance/field-centric CF if needed
-////            if (fieldCentricDrive) {
-////                    drivetrain.setCurrentIMUHeading(oq.getStoredIMUHeadingDegrees());
-//                IMUHeading = oq.getStoredIMUHeadingDegrees();
-////            }
-//        }
-//        else {
-//            // Update odometry if being used. This needs to be done before any robot commands are processed
-//            // to have a fresh pose available for use.
-//            // Also read IMU to get heading if 3-wheel odometry is not being used
-//            if (odometry != null) {
-//                if (odometry instanceof TwoWheelOdometry) {
-//                    IMUHeading = refreshIMUHeading();
-//                    odometry.updateOdometry(IMUHeading); // Update cumulative translation movements
-//                }
-//                else {
-//                    odometry.updateOdometry(Double.NaN); // Update cumulative translation movements
-//                    IMUHeading = Math.toDegrees(odometry.getPoseEstimate().heading);
-//                }
-//            }
-//            else {
-//                IMUHeading = refreshIMUHeading();
-//            }
-//        }
-//
-//        // Send updated IMU heading to drivetrain
-//        if (drivetrain != null) {
-//            // Calculate heading offset for alliance/field-centric CF if needed
-//            if (fieldCentricDrive) {
-//                drivetrain.setCurrentIMUHeading(IMUHeading);
-//            }
-//        }
-//
-//        robotSystemList.values().forEach(CoreRobotSystem::processCommands);
-//        super.processCommands();
-////        drivetrain.processCommands();
-//    }
 }

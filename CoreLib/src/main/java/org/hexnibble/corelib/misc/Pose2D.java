@@ -31,7 +31,7 @@ public class Pose2D {
   }
 
   public String toString() {
-    return "x=" + x + ", y=" + y + "hdg (deg)=" + Math.toDegrees(heading);
+    return "x=" + x + ", y=" + y + ", hdg (deg)=" + Math.toDegrees(heading);
   }
 
   public Vector2D getCoordsAsVector() {

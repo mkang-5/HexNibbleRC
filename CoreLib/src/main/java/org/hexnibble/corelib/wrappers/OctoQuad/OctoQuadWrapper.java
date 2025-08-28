@@ -2,6 +2,7 @@ package org.hexnibble.corelib.wrappers.OctoQuad;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.robot.OdometryIface;
 import org.hexnibble.corelib.wrappers.sensor.IMUIface;
@@ -22,40 +23,53 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
     private static final float goBILDA_SWINGARM_POD_COUNTS_PER_MM = 13.26291192f; //ticks-per-mm for the goBILDA Swingarm Pod
     private static final float goBILDA_4_BAR_POD_COUNTS_PER_MM = 19.89436789f; //ticks-per-mm for the goBILDA 4-Bar Pod
 
+    private final String className = getClass().getSimpleName();
+
     /**
-     * Note that this is different from
-     * our coordinate system.
+     * Constructor for OctoQuadWrapper.
+     * Although the OctoQuad uses a different robot-centric coordinate system than we do
+     * (where +X is forward, +Y is left, and +Heading is CCW spin), use values relative to our
+     * robot-centric coordinate system for this constructor. They will be appropriately converted.
+     *
+     * @param LR_odoWheelDirection Direction of the LR encoder (+ is positive X/horizontal axis)
      */
     public OctoQuadWrapper(HardwareMap hwMap, String oqDeviceName,
                            int LR_odoWheelPort, OctoQuadFWv3.EncoderDirection LR_odoWheelDirection,
                            int FB_odoWheelPort, OctoQuadFWv3.EncoderDirection FB_odoWheelDirection,
                            float tcpOffsetX_mm, float tcpOffsetY_mm) {
         oq = hwMap.get(OctoQuadFWv3.class, oqDeviceName);
-        localizerData = new OctoQuadFWv3.LocalizerDataBlock();
-        encoderData = new OctoQuadFWv3.EncoderDataBlock();
-        this.LR_odoWheelPort = LR_odoWheelPort;
-        this.FB_odoWheelPort = FB_odoWheelPort;
-
         oq.resetEverything();
 
-        // The OctoQuad uses +X to represent forward and +Y to the left.
+        localizerData = new OctoQuadFWv3.LocalizerDataBlock();
+        encoderData = new OctoQuadFWv3.EncoderDataBlock();
+
+        this.LR_odoWheelPort = LR_odoWheelPort;     // For LR directions, the OctoQuad uses +Y to the left.
+        this.FB_odoWheelPort = FB_odoWheelPort;     // For FB directions, the OctoQuad uses +X forward.
+
         // Configure a whole bunch of parameters for the absolute localizer
         // --> Read the quick start guide for an explanation of these!!
-        // IMPORTANT: these parameter changes will not take effect until
-        // the localizer is reset!
-        oq.setSingleEncoderDirection(LR_odoWheelPort, LR_odoWheelDirection);
-        oq.setLocalizerPortY(LR_odoWheelPort);
+        // IMPORTANT: these parameter changes will not take effect until the localizer is reset!
 
+        // For LR directions, the OctoQuad uses +Y to the left.
+        if (LR_odoWheelDirection == OctoQuadFWv3.EncoderDirection.FORWARD) {
+            oq.setSingleEncoderDirection(LR_odoWheelPort, OctoQuadFWv3.EncoderDirection.REVERSE);
+        }
+        else {
+            oq.setSingleEncoderDirection(LR_odoWheelPort, OctoQuadFWv3.EncoderDirection.FORWARD);
+        }
+        oq.setLocalizerPortY(LR_odoWheelPort);
+        oq.setLocalizerCountsPerMM_Y(goBILDA_4_BAR_POD_COUNTS_PER_MM);
+        oq.setLocalizerTcpOffsetMM_Y(-tcpOffsetX_mm);
+
+        // For FB directions, the OctoQuad uses +X forward.
         oq.setSingleEncoderDirection(FB_odoWheelPort, FB_odoWheelDirection);
         oq.setLocalizerPortX(FB_odoWheelPort);
-
         oq.setLocalizerCountsPerMM_X(goBILDA_4_BAR_POD_COUNTS_PER_MM);
-        oq.setLocalizerCountsPerMM_Y(goBILDA_4_BAR_POD_COUNTS_PER_MM);
         oq.setLocalizerTcpOffsetMM_X(tcpOffsetY_mm);
-        oq.setLocalizerTcpOffsetMM_Y(-tcpOffsetX_mm);
+
         oq.setLocalizerImuHeadingScalar(1.0f);
 
-        oq.setLocalizerVelocityIntervalMS(20);
+        oq.setLocalizerVelocityIntervalMS(15);
         oq.setI2cRecoveryMode(OctoQuadFWv3.I2cRecoveryMode.MODE_1_PERIPH_RST_ON_FRAME_ERR);
 
         // Reset the localizer pose to (0, 0, 0) and calibrate IMU, using the settings above.
@@ -121,8 +135,15 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
             localizerData = tempLocalizerData;
             currentIMUHeadingDegrees = Math.toDegrees(localizerData.heading_rad);
         }
+        else {
+            Msg.log(className, "updateOdometry", "OQ CRC error - localizer data");
+        }
+
         if (tempEncoderData.crcOk) {
             encoderData = tempEncoderData;
+        }
+        else {
+            Msg.log(className, "updateOdometry", "OQ CRC error - encoder data");
         }
     }
 
@@ -154,8 +175,8 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
     @Override
     public ArrayList<Integer> getOdometryEncoderCounts() {
         ArrayList<Integer> positions = new ArrayList<>(2);
-        positions.set(0, encoderData.positions[LR_odoWheelPort]);
-        positions.set(0, encoderData.positions[FB_odoWheelPort]);
+        positions.add(encoderData.positions[LR_odoWheelPort]);
+        positions.add(encoderData.positions[FB_odoWheelPort]);
         return positions;
     }
 
@@ -166,8 +187,8 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
      */
     public ArrayList<Double> getOdometryEncoderPositions_mm() {
         ArrayList<Double> positions = new ArrayList<>(2);
-        positions.set(0, encoderData.positions[LR_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM);
-        positions.set(0, encoderData.positions[FB_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM);
+        positions.add(encoderData.positions[LR_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM);
+        positions.add(encoderData.positions[FB_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM);
         return positions;
     }
 

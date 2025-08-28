@@ -561,9 +561,8 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
       // Add odometry pose info
       Pose2D pose = robot.getRobotPoseEstimate();
       if (pose != null) {
-        Pose2D fieldCFPose =
-            Pose2D.convertAllianceCFAbsoluteToFieldCFAbsolute(
-                pose, AllianceInfo.getAllianceColor());
+        Pose2D fieldCFPose = Pose2D.convertAllianceCFAbsoluteToFieldCFAbsolute(
+            pose, AllianceInfo.getAllianceColor());
 
         telemetry.addData("Robot Pose: Field CF x (mm)=", "%.2f", fieldCFPose.x);
         telemetry.addData("Robot Pose: Field CF y (mm)=", "%.2f", fieldCFPose.y);
@@ -575,6 +574,9 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
         telemetry.addData(
             "Robot Pose: Alliance CF hdg (deg)=", "%.2f", Math.toDegrees(pose.heading));
 
+
+        // Display odometry encoder counts for debugging.
+        // Make sure this is commented out if not needed since it does add overhead.
         ArrayList<Integer> encoderCountList = robot.getOdometryEncoderCounts();
         telemetry.addLine("Odo Encoder Count: x=" + encoderCountList.get(0));
         telemetry.addLine("Odo Encoder Count: y=" + encoderCountList.get(1));
