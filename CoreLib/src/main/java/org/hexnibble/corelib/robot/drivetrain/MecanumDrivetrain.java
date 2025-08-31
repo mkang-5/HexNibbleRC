@@ -322,17 +322,17 @@ public class MecanumDrivetrain extends BaseDrivetrain
   }
 
   private void setMotorPowers(MotorPowerSettings targetMPowers) {
-    moduleLeftFront.setMotorPowerNoClamping(targetMPowers.LF);
-    moduleRightFront.setMotorPowerNoClamping(targetMPowers.RF);
-    moduleLeftBack.setMotorPowerNoClamping(targetMPowers.LB);
-    moduleRightBack.setMotorPowerNoClamping(targetMPowers.RB);
+    moduleLeftFront.setMotorPower(targetMPowers.LF);
+    moduleRightFront.setMotorPower(targetMPowers.RF);
+    moduleLeftBack.setMotorPower(targetMPowers.LB);
+    moduleRightBack.setMotorPower(targetMPowers.RB);
   }
 
   public void setMotorPowers(double LF, double RF, double LB, double RB) {
-    moduleLeftFront.setMotorPowerNoClamping(LF);
-    moduleRightFront.setMotorPowerNoClamping(RF);
-    moduleLeftBack.setMotorPowerNoClamping(LB);
-    moduleRightBack.setMotorPowerNoClamping(RB);
+    moduleLeftFront.setMotorPower(LF);
+    moduleRightFront.setMotorPower(RF);
+    moduleLeftBack.setMotorPower(LB);
+    moduleRightBack.setMotorPower(RB);
   }
 
   public void setMotorRunMode(WHEEL_MODULE_NAME moduleName, DcMotor.RunMode runMode) {

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.hexnibble.corelib.commands.rc.mechanisms.FlywheelRC;
 import org.hexnibble.corelib.misc.Constants;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
@@ -11,16 +12,20 @@ import org.hexnibble.corelib.robot.CoreRobot;
 import org.hexnibble.corelib.robot.TwoWheelOdometry;
 import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
+import org.hexnibble.corelib.robot_system.FlyWheelSystem;
 import org.hexnibble.corelib.robot_system.NewCoreRobotSystem;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadWrapper;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
+import org.hexnibble.corelib.wrappers.motor.WheelMotor;
 import org.hexnibble.corelib.wrappers.sensor.IMUIface;
 import org.hexnibble.corelib.wrappers.sensor.IMUWrapper;
 
 import java.util.Arrays;
 
 public class MecanumTestRobot extends CoreRobot {
+    private FlyWheelSystem flyWheelSystem;
+
     public MecanumTestRobot(HardwareMap hwMap) {
         super(hwMap, "MecanumTestRobot");
     }
@@ -28,6 +33,7 @@ public class MecanumTestRobot extends CoreRobot {
     @Override
     public void initializeSystem() {
         boolean useOQ = true;
+
         if (useOQ) {
             // Create drivetrain object
             drivetrain = new MecanumDrivetrain(hwMap,
@@ -92,15 +98,23 @@ public class MecanumTestRobot extends CoreRobot {
             IMU = new IMUWrapper(hwMap, IMU_NAME, CH_LOGO_FACING_DIRECTION, CH_USB_FACING_DIRECTION);
         }
 
+        WheelMotor wheelMotor1 = new WheelMotor(hwMap, "FlyWheel1",
+              BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_6000, DcMotorSimple.Direction.REVERSE,
+              DcMotor.RunMode.RUN_WITHOUT_ENCODER,
+              BaseMotorWrapper.ENCODER.INTERNAL, DcMotorSimple.Direction.REVERSE,
+              1.0, 48.0);
+        WheelMotor wheelMotor2 = new WheelMotor(hwMap, "FlyWheel2",
+              BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_6000, DcMotorSimple.Direction.FORWARD,
+              DcMotor.RunMode.RUN_WITHOUT_ENCODER,
+              BaseMotorWrapper.ENCODER.INTERNAL, DcMotorSimple.Direction.FORWARD,
+              1.0, 48.0);
+        flyWheelSystem = new FlyWheelSystem(hwMap, "FlyWheelSystem", wheelMotor1, wheelMotor2);
 
         addRobotSystemToList("Drivetrain", drivetrain);
+        addRobotSystemToList("FlyWheelSystem", flyWheelSystem);
 
         robotSystemList.values().forEach(NewCoreRobotSystem::initializeSystem);
     }
-
-//    public Pose2D getCurrentPose() {
-//        return ((OctoQuadWrapper) odometry).getCurrentPose();
-//    }
 
     public Pose2D getCurrentPoseVelocity() {
         return ((OctoQuadWrapper) odometry).getCurrentPoseVelocity();
@@ -108,5 +122,18 @@ public class MecanumTestRobot extends CoreRobot {
 
     public OctoQuadFWv3.LocalizerStatus getOQStatus() {
         return ((OctoQuadWrapper) odometry).getLocalizerStatus();
+    }
+
+    public boolean isFlyWheelActive() {
+        return !(flyWheelSystem.getTargetVelocityRPM() == 0);
+    }
+
+    public void turnOffFlyWheel() {
+        Msg.log(getClass().getSimpleName(), "turnOffFlyWheel", "Turning off FlyWheel");
+        flyWheelSystem.setTargetVelocityRPM(0);
+    }
+
+    public FlywheelRC qFlyWheel(int targetRPM) {
+        return new FlywheelRC(flyWheelSystem, this::getEHubBulkReadTimeDelta, targetRPM);
     }
 }

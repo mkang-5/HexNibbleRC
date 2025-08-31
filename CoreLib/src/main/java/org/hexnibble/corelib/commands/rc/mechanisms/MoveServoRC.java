@@ -1,9 +1,9 @@
 package org.hexnibble.corelib.commands.rc.mechanisms;
 
-import org.hexnibble.corelib.commands.rc.deprecated.kotlin.RCk;
+import org.hexnibble.corelib.commands.rc.RC;
 import org.hexnibble.corelib.wrappers.servo.RegularServo;
 
-public class MoveServoRCJ extends RCk {
+public class MoveServoRC extends RC {
   private final RegularServo servo;
   private final double targetServoLocation;
 
@@ -22,7 +22,7 @@ public class MoveServoRCJ extends RCk {
    * @param unit Specify whether sending servo to a position or specific degree
    * @param delayAfterMovement_ms Delay after moving the servo to the target position
    */
-  public MoveServoRCJ(
+  public MoveServoRC(
       String servoName,
       RegularServo servo,
       double targetServoLocation,
@@ -41,7 +41,7 @@ public class MoveServoRCJ extends RCk {
    * @param targetServoPositionDegrees Target degree value to send servo to
    * @param delayAfterMovement_ms Delay after moving the servo to the target position
    */
-  public MoveServoRCJ(
+  public MoveServoRC(
       String servoName,
       RegularServo servo,
       double targetServoPositionDegrees,

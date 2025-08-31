@@ -159,10 +159,10 @@ public class SwerveDrivetrain extends BaseDrivetrain {
 //   }
 
    private void setMotorPowers(MotorPowerSettings targetMPowers) {
-      moduleLeftFront.setMotorPowerNoClamping(targetMPowers.LF);
-      moduleRightFront.setMotorPowerNoClamping(targetMPowers.RF);
-      moduleLeftBack.setMotorPowerNoClamping(targetMPowers.LB);
-      moduleRightBack.setMotorPowerNoClamping(targetMPowers.RB);
+      moduleLeftFront.setMotorPower(targetMPowers.LF);
+      moduleRightFront.setMotorPower(targetMPowers.RF);
+      moduleLeftBack.setMotorPower(targetMPowers.LB);
+      moduleRightBack.setMotorPower(targetMPowers.RB);
    }
 
    /** Brake drivetrain by setting all motors to 0 power. */

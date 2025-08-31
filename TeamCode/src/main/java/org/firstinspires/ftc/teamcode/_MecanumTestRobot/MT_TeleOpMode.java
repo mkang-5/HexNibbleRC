@@ -5,6 +5,7 @@ import static org.hexnibble.corelib.wrappers.controller.ButtonWrapper.BUTTON_STA
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.hexnibble.corelib.commands.rc.mechanisms.FlywheelRC;
 import org.hexnibble.corelib.motion.path.CorePath;
 import org.hexnibble.corelib.opmodes.CoreLinearOpMode;
 import org.hexnibble.corelib.robot.CoreRobot;
@@ -73,6 +74,15 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
         controller1.addActiveButtonGroup(
               new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_right, NEWLY_PRESSED, ControllerWrapper.OPTION_SHIFT,
                     () -> r.drivetrain.qTestCurveRight(rcController, r.getRobotPoseEstimate()))
+        );
+        controller1.addActiveButtonGroup(
+              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.cross,
+                    () -> {
+                        if (r.isFlyWheelActive()) {
+                            r.turnOffFlyWheel();
+                        }
+                        else rcController.qRC(r.qFlyWheel(5000));
+                    })
         );
 
 

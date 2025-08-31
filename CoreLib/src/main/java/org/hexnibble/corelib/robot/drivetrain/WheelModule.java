@@ -38,10 +38,6 @@ public class WheelModule {
       motor.setPower(power);
    }
 
-   public void setMotorPowerNoClamping(double power) {
-      motor.setPowerNoClamping(power);
-   }
-
    public double getMotorPower() {
       return motor.getMotorPower();
    }

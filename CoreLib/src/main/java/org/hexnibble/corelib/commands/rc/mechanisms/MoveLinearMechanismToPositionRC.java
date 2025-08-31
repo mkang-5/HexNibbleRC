@@ -1,12 +1,11 @@
 package org.hexnibble.corelib.commands.rc.mechanisms;
 
-import org.hexnibble.corelib.commands.rc.deprecated.kotlin.RCk;
+import org.hexnibble.corelib.commands.rc.RC;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Timer;
 import org.hexnibble.corelib.robot_system.LinearMechanism;
 
-@Deprecated(since = "5/25/25", forRemoval = true)
-public class MoveLinearMechanismToPositionRCJ extends RCk {
+public class MoveLinearMechanismToPositionRC extends RC {
   LinearMechanism linearMechanism;
   double targetPosition_mm;
   //    boolean setPowerToZeroWhenRetracted;
@@ -15,7 +14,7 @@ public class MoveLinearMechanismToPositionRCJ extends RCk {
   // the duration of this particular command
   private boolean encoderOffsetReset;
 
-  public MoveLinearMechanismToPositionRCJ(
+  public MoveLinearMechanismToPositionRC(
       String commandID,
       LinearMechanism mechanism,
       double targetPosition_mm,
@@ -28,7 +27,7 @@ public class MoveLinearMechanismToPositionRCJ extends RCk {
     this.encoderOffsetReset = false;
   }
 
-  public MoveLinearMechanismToPositionRCJ(
+  public MoveLinearMechanismToPositionRC(
       String commandID, LinearMechanism mechanism, double targetPosition_mm) {
     this(commandID, mechanism, targetPosition_mm, -1);
   }
@@ -76,7 +75,7 @@ public class MoveLinearMechanismToPositionRCJ extends RCk {
       //            Msg.log(getClass().getSimpleName(), "processCommand",
       //                    commandID + " returning true");
 
-      setCommandStatus(COMMAND_STATUSES.COMMAND_SUCCESSFULLY_COMPLETED);
+      setCommandStatus(COMMAND_STATUS.COMMAND_SUCCESSFULLY_COMPLETED);
     }
   }
 

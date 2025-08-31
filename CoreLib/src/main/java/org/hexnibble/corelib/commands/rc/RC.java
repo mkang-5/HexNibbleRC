@@ -27,6 +27,7 @@ public abstract class RC {
   protected CONFLICT_BEHAVIOR conflictBehavior;
 
   protected boolean commandHasStarted;
+  protected boolean commandHasEnded;
   protected final boolean logCommandStart;
 
   // Functions to run on start, failed, and complete
@@ -50,6 +51,7 @@ public abstract class RC {
 
     this.commandStatus = COMMAND_STATUS.COMMAND_CREATED;
     this.commandHasStarted = false;
+    this.commandHasEnded = false;
     this.logCommandStart = logCommandStart;
   }
 
@@ -142,6 +144,8 @@ public abstract class RC {
    */
   protected void onStartCommand() {}
 
+  protected void onCompleteCommand() {}
+
   public final String getCommandID() {
     return commandID;
   }
@@ -151,7 +155,7 @@ public abstract class RC {
    * @param maxCommandDuration_ms Maximum command duration (ms)
    */
   protected void setMaxCommandDurationMs(int maxCommandDuration_ms) {
-
+    this.maxCommandDuration_ms = maxCommandDuration_ms;
   }
 
   /**
@@ -174,14 +178,29 @@ public abstract class RC {
     }
 
     // If the command were reset, it would be in created status
-    return !((commandStatus == COMMAND_STATUS.COMMAND_CREATED)
-        || (commandStatus == COMMAND_STATUS.COMMAND_RUNNING));
+    return switch (commandStatus) {
+      case COMMAND_RUNNING, COMMAND_CREATED -> false;
+      default -> {
+        if (!commandHasEnded) {
+          if (onCompleteCallbackFunction != null) {
+            onCompleteCallbackFunction.run();
+          }
+          onCompleteCommand();
+          commandHasEnded = true;
+        }
+        yield true;
+      }
+    };
+
+//    return !((commandStatus == COMMAND_STATUS.COMMAND_CREATED)
+//        || (commandStatus == COMMAND_STATUS.COMMAND_RUNNING));
   }
 
   /** Used to reset commands to be able to be run again */
   public void resetRC() {
     commandStatus = COMMAND_STATUS.COMMAND_CREATED;
     commandHasStarted = false;
+    commandHasEnded = false;
   }
 
   public void setCommandComplete() {

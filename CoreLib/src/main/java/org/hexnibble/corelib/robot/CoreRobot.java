@@ -318,8 +318,8 @@ public class CoreRobot extends NewCoreRobotSystem {
   /** Bulk read the control hub. */
   public void bulkReadControlHub() {
     previousCHubBulkReadTime = currentCHubBulkReadTime;
-    currentCHubBulkReadTime = System.currentTimeMillis();
     controlHub.clearBulkCache();
+    currentCHubBulkReadTime = System.currentTimeMillis();
 //    Msg.log("CHub bulk read time=" + (System.currentTimeMillis() - currentCHubBulkReadTime));
   }
 
@@ -327,8 +327,8 @@ public class CoreRobot extends NewCoreRobotSystem {
   public void bulkReadExpansionHub() {
     if (expansionHub != null) {
       previousEHubBulkReadTime = currentEHubBulkReadTime;
-      currentEHubBulkReadTime = System.currentTimeMillis();
       expansionHub.clearBulkCache();
+      currentEHubBulkReadTime = System.currentTimeMillis();
     }
   }
 
@@ -355,12 +355,12 @@ public class CoreRobot extends NewCoreRobotSystem {
     }
   }
 
-  public int getCHubBulkReadTimeDelta() {
-    return (int) (currentCHubBulkReadTime - previousCHubBulkReadTime);
+  public long getCHubBulkReadTimeDelta() {
+    return (currentCHubBulkReadTime - previousCHubBulkReadTime);
   }
 
-  public int getEHubBulkReadTimeDelta() {
-    return (int) (currentEHubBulkReadTime - previousEHubBulkReadTime);
+  public long getEHubBulkReadTimeDelta() {
+    return (currentEHubBulkReadTime - previousEHubBulkReadTime);
   }
 
   // endregion ** Hub Functions **

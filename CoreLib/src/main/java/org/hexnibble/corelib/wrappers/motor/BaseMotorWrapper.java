@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.hexnibble.corelib.misc.Constants;
+import org.hexnibble.corelib.misc.Msg;
 
 /**
  * This is a base wrapper class for FTC motors.
@@ -247,32 +248,35 @@ public class BaseMotorWrapper {
     return power;
   }
 
+//  /**
+//   * Set the motor power, but first clamp motor power to be between -1.0 - +1.0.
+//   * If clamping is not desired, use setPowerNoClamping.
+//   *
+//   * @param power Requested motor power
+//   */
+//  @Deprecated
+//  public void setPower(double power) {
+//    setPowerNoClamping(Math.clamp(power, -1.0, 1.0));
+//  }
+
   /**
-   * Set the motor power, but first clamp motor power to be between -1.0 - +1.0.
-   * If clamping is not desired, use setPowerNoClamping.
+   * <p>Set the motor power. A motor command will only be sent if the requested power
+   * exceeds the threshold, and if the difference from the current power also exceeds the threshold.
+   *
+   * <p>The SDK will clamp and also check that the power value is different than what was previously
+   * set so those checks will not be done here.
    *
    * @param power Requested motor power
    */
   public void setPower(double power) {
-    setPowerNoClamping(Math.clamp(power, -1.0, 1.0));
-  }
-
-  /**
-   * Set the motor power without clamping. A motor command will only be sent if the requested power
-   * exceeds the threshold, and if the difference from the current power also exceeds the threshold,
-   * unless the request is for 0.
-   * If clamping is desired, use setPower.
-   *
-   * @param power Requested motor power
-   */
-  public void setPowerNoClamping(double power) {
     if (Math.abs(power) < Constants.MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND) {
       power = 0.0;
     }
 
-    if (((power == 0.0) && (this.power != 0.0))
-          || (Math.abs(power - this.power) > Constants.MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND)) {
+//    if (((power == 0.0) && (this.power != 0.0))
+//          || (Math.abs(power - this.power) > Constants.MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND)) {
 
+    if (Math.abs(power - this.power) > Constants.MOTOR_POWER_THRESHOLD_FOR_NEW_COMMAND) {
       this.power = power;
       motor.setPower(this.power);
     }

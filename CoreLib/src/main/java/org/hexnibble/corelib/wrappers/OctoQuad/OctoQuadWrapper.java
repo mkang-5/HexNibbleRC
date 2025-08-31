@@ -27,8 +27,8 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
     private static final float goBILDA_4_BAR_POD_COUNTS_PER_MM_Y = 20.0585f;    // Counts/mm in our Y direction
 
     private static final float IMUHeadingScalar = 1.0f;
-    private static final int LocalizerVelocityInterval_ms = 15;
-    private static final int EncoderVelocityInterval_ms = 15;
+    private static final int LocalizerVelocityInterval_ms = 10;
+    private static final int EncoderVelocityInterval_ms = 10;
 
     private final String className = getClass().getSimpleName();
 
@@ -47,6 +47,8 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
                            float tcpOffsetX_mm, float tcpOffsetY_mm) {
         oq = hwMap.get(OctoQuadFWv3.class, oqDeviceName);
         oq.resetEverything();
+
+        oq.setChannelBankConfig(OctoQuadFWv3.ChannelBankConfig.BANK1_QUADRATURE_BANK2_PULSE_WIDTH);
 
         localizerData = new OctoQuadFWv3.LocalizerDataBlock();
         encoderData = new OctoQuadFWv3.EncoderDataBlock();
@@ -88,12 +90,19 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
         oq.setSingleVelocitySampleInterval(3, EncoderVelocityInterval_ms);
 
         oq.setI2cRecoveryMode(OctoQuadFWv3.I2cRecoveryMode.MODE_1_PERIPH_RST_ON_FRAME_ERR);
-        oq.saveParametersToFlash();
 
         // Reset the localizer pose to (0, 0, 0) and calibrate IMU, using the settings above.
         // This function will NOT block until calibration of the IMU is complete -
         // for that you need to look at the status returned by getLocalizerStatus()
         oq.resetLocalizerAndCalibrateIMU();
+    }
+
+    public void saveParametersToFlash() {
+        oq.saveParametersToFlash();
+    }
+
+    public void setPortToDistanceSensor(int port) {
+        oq.setSingleChannelPulseWidthParams(port, 1, 1850);
     }
 
     // region IMUIface Functions
@@ -187,7 +196,7 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
     }
 
     /**
-     * Obtain encoder counts as a list
+     * Obtain encoder counts as a list using the most recently read data.
      * @return List of encoder counts. LR encoder is index 0. FB encoder is index 1.
      */
     @Override
@@ -199,15 +208,34 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
     }
 
     /**
-     * Retrieve the encoder positions (in mm).
-     *
-     * @return List of encoder positions
+     * Obtain encoder positions (mm) as a list using the most recently read data.
+     * @return List of encoder positions (mm). LR encoder is index 0. FB encoder is index 1.
      */
     public ArrayList<Double> getOdometryEncoderPositions_mm() {
         ArrayList<Double> positions = new ArrayList<>(2);
         positions.add(encoderData.positions[LR_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM_X);
         positions.add(encoderData.positions[FB_odoWheelPort] / (double) goBILDA_4_BAR_POD_COUNTS_PER_MM_Y);
         return positions;
+    }
+
+    /**
+     * Obtain position information for the specified port.
+     * For a quadrature encoder port, this retrieves the encoder count.
+     * For a PWM port, this retrieves the pulse width (us)
+     * @param portNumber Port number (0 - 7) for the desired encoder
+     * @return Encoder count or pulse width (us)
+     */
+    public int getPositionInformation(int portNumber) {
+        return encoderData.positions[portNumber];
+    }
+
+    /**
+     * Obtain encoder velocity for the specified encoder.
+     * @param portNumber Port number (0 - 7) for the desired encoder
+     * @return Encoder velocity
+     */
+    public int getEncoderVelocity(int portNumber) {
+        return encoderData.velocities[portNumber];
     }
 
     public void setLocalizerHeading(float headingRad) {
