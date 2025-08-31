@@ -1,13 +1,13 @@
 package org.hexnibble.corelib.commands.rc.mechanisms;
 
 import java.util.function.Supplier;
-import org.hexnibble.corelib.commands.rc.RCk;
+
+import org.hexnibble.corelib.commands.rc.RC;
 import org.hexnibble.corelib.motion.pid.PIDController;
 import org.hexnibble.corelib.motion.pid.PIDSettings;
 import org.hexnibble.corelib.wrappers.motor.WheelMotor;
 
-@Deprecated(since = "5/24/25", forRemoval = true)
-public class FlywheelRCJ extends RCk {
+public class FlywheelRC extends RC {
   private final WheelMotor motor;
 
   public enum ROTATION_DIRECTION {
@@ -27,7 +27,7 @@ public class FlywheelRCJ extends RCk {
 
   private double controlValue;
 
-  public FlywheelRCJ(
+  public FlywheelRC(
       WheelMotor wheelMotor,
       ROTATION_DIRECTION rotationDirection,
       PIDSettings PIDSettings,

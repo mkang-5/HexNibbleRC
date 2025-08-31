@@ -1,6 +1,6 @@
 //package org.hexnibble.corelib.opmodes
 //
-//import org.hexnibble.corelib.commands.rc.RCk
+//import org.hexnibble.corelib.commands.rc.kotlin.RCk
 //import org.hexnibble.corelib.commands.rc.RCControllerk
 //
 //open class CoreOpModeProgram(

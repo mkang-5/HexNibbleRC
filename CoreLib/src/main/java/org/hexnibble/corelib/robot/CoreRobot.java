@@ -25,6 +25,7 @@ import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
+import org.hexnibble.corelib.robot_system.NewCoreRobotSystem;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
 import org.hexnibble.corelib.wrappers.sensor.IMUIface;
 import org.hexnibble.corelib.wrappers.sensor.IMUWrapper;
@@ -91,7 +92,7 @@ I2C 3: -
 */
 // endregion ** Hub Ports **
 
-public class CoreRobot extends CoreRobotSystem {
+public class CoreRobot extends NewCoreRobotSystem {
   // region ** Hub Parameters **
   protected String CONTROL_HUB_NAME = "Control Hub";
   protected String EXPANSION_HUB_NAME = "Expansion Hub 2";
@@ -129,14 +130,14 @@ public class CoreRobot extends CoreRobotSystem {
 
   // Drivetrain
   public MecanumDrivetrain drivetrain;
-  protected boolean
-      fieldCentricDrive; // Flag whether to offset heading when sending driving commands to perform
-                         // field- vs. robot-centric driving
+
+  // Flag whether to offset heading when sending driving commands to perform
+  // field- vs. robot-centric driving
+  protected boolean fieldCentricDrive;
 
   protected final int TARGET_POSITION_TOLERANCE = 5;
 
   // Odometry
-//  protected BaseOdometry odometry;
   protected OdometryIface odometry;
 
   // Motors and Servos
@@ -147,7 +148,7 @@ public class CoreRobot extends CoreRobotSystem {
     DEFAULT
   }
 
-  protected Map<String, CoreRobotSystem> robotSystemList;
+  protected Map<String, NewCoreRobotSystem> robotSystemList;
 
   // Sensors
   protected Limelight3A limelight;
@@ -158,9 +159,10 @@ public class CoreRobot extends CoreRobotSystem {
 
   // Commands
 //  protected final List<RobotCommand> robotDrivetrainCommandQueue = new ArrayList<>();
-  protected final List<String> completedRCList =
-      new ArrayList<>(); // Store IDs of completed Robot Commands (we do not save cancelled
-                         // commands)
+
+// Store IDs of completed Robot Commands (we do not save cancelled commands)
+//  protected final List<String> completedRCList = new ArrayList<>();
+
   protected boolean cancelCurrentDrivetrainRobotCommand;
 
   protected boolean isPTOEngaged;
@@ -237,7 +239,7 @@ public class CoreRobot extends CoreRobotSystem {
                     MecanumDrivetrain.WHEEL_MODULE_NAME.RF) // FB odometry wheel (y movements)
                 ));
 
-    robotSystemList.values().forEach(CoreRobotSystem::initializeSystem);
+    robotSystemList.values().forEach(NewCoreRobotSystem::initializeSystem);
   }
 
   /**
@@ -256,14 +258,14 @@ public class CoreRobot extends CoreRobotSystem {
 
     // Clear robot command-related lists
 //    robotDrivetrainCommandQueue.clear();
-    completedRCList.clear();
+//    completedRCList.clear();
 
     cancelCurrentDrivetrainRobotCommand = false;
 
-    if (drivetrain != null) {
-      drivetrain.resetSystem();
-//      drivetrainManualMovementUpdated = false;
-    }
+//    if (drivetrain != null) {
+//      drivetrain.resetSystem();
+////      drivetrainManualMovementUpdated = false;
+//    }
 
 //    drivetrainManualMovement_X = 0.0;
 //    drivetrainManualMovement_Y = 0.0;
@@ -278,11 +280,7 @@ public class CoreRobot extends CoreRobotSystem {
       LEDStick.setColor(0);
     }
 
-//    //        motorList.values().forEach(BaseMotorWrapper::reset);
-//    servoList.values().forEach(BaseServoWrapper::reset);
-//    sensorList.values().forEach(CoreSensorWrapper::reset);
-//
-    robotSystemList.values().forEach(CoreRobotSystem::resetSystem);
+    robotSystemList.values().forEach(NewCoreRobotSystem::resetSystem);
   }
 
   public void destructor() {
@@ -650,75 +648,9 @@ public class CoreRobot extends CoreRobotSystem {
   //    }
   // endregion ** Motor Functions **
 
-
-  protected void addRobotSystemToList(String systemName, CoreRobotSystem robotSystem) {
+  protected void addRobotSystemToList(String systemName, NewCoreRobotSystem robotSystem) {
     robotSystemList.put(systemName, robotSystem);
   }
-
-  /**
-   * Clear system robot command list for a robot system. This cancels any auto movements involving that
-   * system.
-   *
-   * @param systemName Name of the system for the manual movement
-   */
-  public void clearSystemRCList(String systemName) {
-    robotSystemList.get(systemName).clearSystemRCList();
-  }
-//
-//  public double getLinearSystemCurrentPosition_mm(
-//      String complexSystemName, String linearSystemName) {
-//    return robotSystemList
-//        .get(complexSystemName)
-//        .getLinearMechanismCurrentPosition_mm(linearSystemName);
-//  }
-//
-//
-//  public void resetLinearSystemMotorEncoder(String complexSystemName, String linearSystemName) {
-//    robotSystemList.get(complexSystemName).resetLinearMechanismEncoder(linearSystemName);
-//  }
-
-  public void setLinearSystemMotorRunMode(
-      String complexSystemName, String linearSystemName, DcMotor.RunMode runMode) {
-    robotSystemList
-        .get(complexSystemName)
-        .setLinearMechanismMotorRunMode(linearSystemName, runMode);
-  }
-
-  public void setLinearSystemMotorPower(
-      String complexSystemName, String linearSystemName, double motorPower) {
-    robotSystemList
-        .get(complexSystemName)
-        .setLinearMechanismMotorPower(linearSystemName, motorPower);
-  }
-
-  // region ** Distance Sensor Functions **
-  //    public DistanceSensorWrapper addDistanceSensor(String sensorName) {
-  //        DistanceSensorWrapper sensor = new DistanceSensorWrapper(hwMap, sensorName);
-  //        if (sensorList == null) {
-  //            sensorList = new HashMap<>();
-  //        }
-  //        sensorList.put(sensorName, sensor);
-  //        return sensor;
-  //    }
-
-  //    /**
-  //     * Returns the distance sensor reading (mm)
-  //     * @param sensorName Name of the distance sensor as defined in the robot configuration.
-  //     * @return Distance (mm) reading
-  //     */
-  //    public double getDistanceSensorDistance(String sensorName) {
-  //        // Check for null object because if there is a hardware malfunction, the sensor may not
-  // have been detected and added to the list.
-  //        // We do not want the robot to stop working because of this.
-  //        DistanceSensorWrapper sensor = (DistanceSensorWrapper) sensorList.get(sensorName);
-  //        if (sensor != null) {
-  //            return sensor.getDistanceSensorReading();
-  //        }
-  //        else return -1.0;
-  //    }
-
-  // endregion
-
 
   // region ** LED Functions **
   /**
@@ -824,20 +756,20 @@ public class CoreRobot extends CoreRobotSystem {
   // endregion
 
   // region ** Robot Command Functions **
-  /**
-   * Check if the specified command ID is complete. This is done by searching the list of completed
-   * commands to see if the specified command ID is present. If the ID is found, it is removed from
-   * the list.
-   *
-   * @param commandID
-   * @return True/False whether the command ID was present
-   */
-  public boolean isCommandComplete(String commandID) {
-    if (completedRCList.contains(commandID)) {
-      completedRCList.remove(commandID);
-      return true;
-    } else return false;
-  }
+//  /**
+//   * Check if the specified command ID is complete. This is done by searching the list of completed
+//   * commands to see if the specified command ID is present. If the ID is found, it is removed from
+//   * the list.
+//   *
+//   * @param commandID
+//   * @return True/False whether the command ID was present
+//   */
+//  public boolean isCommandComplete(String commandID) {
+//    if (completedRCList.contains(commandID)) {
+//      completedRCList.remove(commandID);
+//      return true;
+//    } else return false;
+//  }
 
   /**
    * Queue a movement to X,Y coordinates, with an IMU-style heading, in alliance CF.
@@ -1203,9 +1135,6 @@ public class CoreRobot extends CoreRobotSystem {
 //        d.driveMecanumByCartesianENU(joystickX, joystickY, spin, headingOffsetDegrees);
 //      }
 
-    robotSystemList.values().forEach(CoreRobotSystem::processCommands);
-
-    super.processCommands();
-//    drivetrain.processCommands();
+    robotSystemList.values().forEach(NewCoreRobotSystem::processCommands);
   }
 }

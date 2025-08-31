@@ -1,8 +1,7 @@
-package org.hexnibble.corelib.commands.rc
+package org.hexnibble.corelib.commands.rc.deprecated.kotlin
 
 import org.hexnibble.corelib.misc.Msg
 import org.hexnibble.corelib.misc.Timer
-import org.hexnibble.corelib.misc.Timer.TimerUnit
 
 abstract class RCk @JvmOverloads constructor(
   protected val commandID: String = "",
@@ -28,7 +27,7 @@ abstract class RCk @JvmOverloads constructor(
    * Return elapsed command time.
    * If the command has not yet started, -999 is returned
    */
-  protected fun getElapsedCommandTime(timeUnit: TimerUnit): Long {
+  protected fun getElapsedCommandTime(timeUnit: Timer.TimerUnit): Long {
     return commandDurationTimer?.getElapsedTime(timeUnit) ?: -999
   }
 
@@ -64,7 +63,7 @@ abstract class RCk @JvmOverloads constructor(
       // Check if command timed out, if applicable
       if ((maxCommandDurationMs == 0)
         || ((maxCommandDurationMs > 0)
-            && (commandDurationTimer!!.getElapsedTime(TimerUnit.ms)
+            && (commandDurationTimer!!.getElapsedTime(Timer.TimerUnit.ms)
             > maxCommandDurationMs))
       ) {
         commandStatus = COMMAND_STATUSES.COMMAND_TIMED_OUT

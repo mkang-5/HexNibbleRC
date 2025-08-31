@@ -145,21 +145,14 @@ public class DriveController {
    * @param holdPose Pose to hold, with IMU heading in radians
    */
   private void setHoldPose(Pose2D holdPose) {
-//    this.holdPose = new Pose2D(holdPose);
-
     if (currentPath instanceof Spin) {
       this.holdPose = new Pose2D(holdPose.x, holdPose.y, currentPath.getTargetHeading());
-//      this.holdPose.heading = currentPath.getTargetPose().heading;
       Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting SPIN hold pose to: " + this.holdPose);
     }
     else {
       this.holdPose = new Pose2D(currentPath.getTargetPose());
       Msg.log(getClass().getSimpleName(), "setHoldPose", "Setting hold pose to: " + this.holdPose);
     }
-
-//    xPIDController.reset();
-//    yPIDController.reset();
-//    rotationPIDController.reset();
   }
 
   /**

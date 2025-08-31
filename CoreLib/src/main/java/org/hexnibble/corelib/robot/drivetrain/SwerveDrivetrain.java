@@ -189,8 +189,6 @@ public class SwerveDrivetrain extends BaseDrivetrain {
    @Override
    public void processCommands() {
       if (dtManualMovementUpdated) {
-         clearSystemRCList();
-
          driveByRobotCartesianENU(dtManual_X, dtManual_Y, dtManual_cwSpin - dtManual_ccwSpin, currentIMUHeading);
 
          updateServoPositions();

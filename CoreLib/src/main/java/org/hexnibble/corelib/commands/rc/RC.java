@@ -2,6 +2,9 @@ package org.hexnibble.corelib.commands.rc;
 
 import org.hexnibble.corelib.misc.Timer;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 public abstract class RC {
   protected final String commandID;
   private int maxCommandDuration_ms;
@@ -14,21 +17,33 @@ public abstract class RC {
     COMMAND_TIMED_OUT,
     COMMAND_SUCCESSFULLY_COMPLETED
   }
-
   protected COMMAND_STATUS commandStatus;
+
+  public enum CONFLICT_BEHAVIOR {
+    CANCEL,   // Cancel the incoming RC
+    OVERRIDE, // Override (delete) the existing conflicting RC
+    QUEUE,    // Queue to run once existing conflicting commands have completed
+  }
+  protected CONFLICT_BEHAVIOR conflictBehavior;
+
   protected boolean commandHasStarted;
   protected final boolean logCommandStart;
 
   // Functions to run on start, failed, and complete
   protected Runnable onStartCallbackFunction, onCompleteCallbackFunction;
 
+  protected HashSet<String> requirements;
+
   public RC(String commandID, int maxCommandDuration_ms,
+      CONFLICT_BEHAVIOR conflictBehavior,
       Runnable onStartCallbackFunction,
       Runnable onCompleteCallbackFunction,
       boolean logCommandStart) {
 
     this.commandID = commandID;
     this.maxCommandDuration_ms = maxCommandDuration_ms < 0 ? -1 : maxCommandDuration_ms;
+
+    this.conflictBehavior = conflictBehavior;
 
     this.onStartCallbackFunction = onStartCallbackFunction;
     this.onCompleteCallbackFunction = onCompleteCallbackFunction;
@@ -44,6 +59,7 @@ public abstract class RC {
     this(
         commandID,
         maxCommandDuration_ms,
+        CONFLICT_BEHAVIOR.OVERRIDE,
         onStartCallbackFunction,
         onCompleteCallbackFunction,
         false);
@@ -65,12 +81,20 @@ public abstract class RC {
     this("", -1, null, null);
   }
 
+  public void addRequirements(String... reqs) {
+    requirements.addAll(Arrays.asList(reqs));
+  }
+
   protected long getElapsedCommandTime(Timer.TimerUnit timeUnit) {
     return commandDurationTimer.getElapsedTime(timeUnit);
   }
 
   protected void setMaxCommandDuration_ms(int maxCommandDuration_ms) {
     this.maxCommandDuration_ms = maxCommandDuration_ms;
+  }
+
+  public CONFLICT_BEHAVIOR getConflictBehavior() {
+    return conflictBehavior;
   }
 
   protected final void ensureCommandStarted() {
@@ -99,17 +123,17 @@ public abstract class RC {
    * If the command has started, check whether the elapsed time has exceeded the maximum duration
    * and set the COMMAND_TIMED_OUT flag if so.
    */
-  private void checkIfCommandTimedOut() {
+  private boolean checkIfCommandTimedOut() {
     if (commandHasStarted) {
       // Check if command timed out, if applicable
-      if ((maxCommandDuration_ms == 0)
-          || ((maxCommandDuration_ms > 0)
-              && (commandDurationTimer.getElapsedTime(Timer.TimerUnit.ms)
-                  > maxCommandDuration_ms))) {
+      if ((maxCommandDuration_ms >= 0)
+              && (commandDurationTimer.getElapsedTime(Timer.TimerUnit.ms) > maxCommandDuration_ms)) {
 
         commandStatus = COMMAND_STATUS.COMMAND_TIMED_OUT;
+        return true;
       }
     }
+    return false;
   }
 
   /**
@@ -120,6 +144,14 @@ public abstract class RC {
 
   public final String getCommandID() {
     return commandID;
+  }
+
+  /**
+   * Set the maximum command duration to the specified value (ms)
+   * @param maxCommandDuration_ms Maximum command duration (ms)
+   */
+  protected void setMaxCommandDurationMs(int maxCommandDuration_ms) {
+
   }
 
   /**
@@ -136,8 +168,10 @@ public abstract class RC {
    */
   public boolean processRC() {
     ensureCommandStarted();
-    processCommand();
-    checkIfCommandTimedOut();
+
+    if (!checkIfCommandTimedOut()) {
+      processCommand();
+    }
 
     // If the command were reset, it would be in created status
     return !((commandStatus == COMMAND_STATUS.COMMAND_CREATED)

@@ -52,6 +52,11 @@ public class Constants {
       DcMotorSimple.Direction.FORWARD;
   // endregion
 
+  public static double FLYWHEEL_PID_Ks = 0.0;
+  public static double FLYWHEEL_PID_Kp = 0.0;
+  public static double FLYWHEEL_PID_Ki = 0.0;
+  public static double FLYWHEEL_PID_Kd = 0.0;
+
   // region ** Controller Dead Zones **
   public static float CONTROLLER_STICK_MOVEMENT_THRESHOLD = 0.02f;
 

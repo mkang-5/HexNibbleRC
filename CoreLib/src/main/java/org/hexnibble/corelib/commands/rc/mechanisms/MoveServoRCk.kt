@@ -1,6 +1,6 @@
 package org.hexnibble.corelib.commands.rc.mechanisms
 
-import org.hexnibble.corelib.commands.rc.RCk
+import org.hexnibble.corelib.commands.rc.deprecated.kotlin.RCk
 import org.hexnibble.corelib.wrappers.servo.RegularServo
 
 /**

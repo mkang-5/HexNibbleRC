@@ -76,38 +76,25 @@ public class WheelMotor extends BaseMotorWrapper {
    *     attached to the encoderType.
    * @param targetPositionTolerance Target position tolerance (in counts)
    */
-  public WheelMotor(
-      HardwareMap hwMap,
-      String motorName,
-      MOTOR_MODEL motorModel,
-      DcMotor.Direction runDirection,
-      DcMotor.RunMode runMode,
-      ENCODER encoderType,
-      DcMotorSimple.Direction encoderDirection,
-      double externalGearReduction,
-      double wheelDiameter_mm,
-      int targetPositionTolerance) {
-    super(
-        hwMap,
-        motorName,
-        motorModel,
-        runDirection,
-        runMode,
-        encoderType,
-        encoderDirection,
-        externalGearReduction,
-        targetPositionTolerance);
+  public WheelMotor(HardwareMap hwMap, String motorName,
+                    MOTOR_MODEL motorModel, DcMotor.Direction runDirection,
+                    DcMotor.RunMode runMode,
+                    ENCODER encoderType, DcMotorSimple.Direction encoderDirection,
+                    double externalGearReduction, double wheelDiameter_mm,
+                    int targetPositionTolerance) {
+
+    super(hwMap, motorName, motorModel, runDirection, runMode,
+        encoderType, encoderDirection,
+        externalGearReduction, targetPositionTolerance);
 
     this.wheelDiameter_mm = wheelDiameter_mm;
 
     if (encoderType == ENCODER.INTERNAL) {
-      countsPer_mm =
-          countsPerRev
-              * internalGearReduction
-              * this.externalGearReduction
+      countsPer_mm = countsPerRev * internalGearReduction * externalGearReduction
               / (this.wheelDiameter_mm * Math.PI);
-    } else {
-      countsPer_mm = countsPerRev / (this.wheelDiameter_mm * Math.PI);
+    }
+    else {
+      countsPer_mm = countsPerRev / (wheelDiameter_mm * Math.PI);
     }
   }
 

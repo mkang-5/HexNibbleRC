@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.hexnibble.corelib.misc.Constants;
 
+/**
+ * This is a base wrapper class for FTC motors.
+ */
 public class BaseMotorWrapper {
   public enum MOTOR_MODEL {
     GoBildaYJ_30,
@@ -30,7 +33,6 @@ public class BaseMotorWrapper {
   public static final double REV_GEAR_CARTRIDGE_5_1 = 5.23;
   public static final double REV_GEAR_CARTRIDGE_4_1 = 3.61;
   public static final double REV_GEAR_CARTRIDGE_3_1 = 2.89;
-
   public static final double AXON_MITER_GEAR = 52.0 / 18.0;
 
   protected final String motorName;
@@ -74,15 +76,10 @@ public class BaseMotorWrapper {
    *     if an INTERNAL encoderType is specified
    * @param externalGearReduction External gear reduction
    */
-  public BaseMotorWrapper(
-      HardwareMap hwMap,
-      String motorName,
-      MOTOR_MODEL motorModel,
-      DcMotor.Direction runDirection,
-      DcMotor.RunMode runMode,
-      ENCODER encoderType,
-      DcMotor.Direction encoderDirection,
-      double externalGearReduction) {
+  public BaseMotorWrapper(HardwareMap hwMap, String motorName, MOTOR_MODEL motorModel,
+      DcMotor.Direction runDirection, DcMotor.RunMode runMode,
+      ENCODER encoderType, DcMotor.Direction encoderDirection, double externalGearReduction) {
+
     if (hwMap == null) {
       throw new NullPointerException();
     }
@@ -171,25 +168,13 @@ public class BaseMotorWrapper {
    * @param externalGearReduction External gear reduction
    * @param targetPositionToleranceCounts Target position tolerance (counts)
    */
-  public BaseMotorWrapper(
-      HardwareMap hwMap,
-      String motorName,
-      MOTOR_MODEL motorModel,
-      DcMotor.Direction runDirection,
-      DcMotor.RunMode runMode,
-      ENCODER encoderType,
-      DcMotor.Direction encoderDirection,
-      double externalGearReduction,
-      int targetPositionToleranceCounts) {
-    this(
-        hwMap,
-        motorName,
-        motorModel,
-        runDirection,
-        runMode,
-        encoderType,
-        encoderDirection,
-        externalGearReduction);
+  public BaseMotorWrapper(HardwareMap hwMap, String motorName, MOTOR_MODEL motorModel,
+      DcMotor.Direction runDirection, DcMotor.RunMode runMode,
+      ENCODER encoderType, DcMotor.Direction encoderDirection,
+      double externalGearReduction, int targetPositionToleranceCounts) {
+
+    this(hwMap, motorName, motorModel, runDirection, runMode,
+        encoderType, encoderDirection, externalGearReduction);
 
     this.targetPositionToleranceCounts = targetPositionToleranceCounts;
     motor.setTargetPositionTolerance(this.targetPositionToleranceCounts);

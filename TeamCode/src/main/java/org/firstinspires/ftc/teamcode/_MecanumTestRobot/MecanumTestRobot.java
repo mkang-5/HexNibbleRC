@@ -11,6 +11,7 @@ import org.hexnibble.corelib.robot.CoreRobot;
 import org.hexnibble.corelib.robot.TwoWheelOdometry;
 import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.robot_system.CoreRobotSystem;
+import org.hexnibble.corelib.robot_system.NewCoreRobotSystem;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadFWv3;
 import org.hexnibble.corelib.wrappers.OctoQuad.OctoQuadWrapper;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
@@ -94,7 +95,7 @@ public class MecanumTestRobot extends CoreRobot {
 
         addRobotSystemToList("Drivetrain", drivetrain);
 
-        robotSystemList.values().forEach(CoreRobotSystem::initializeSystem);
+        robotSystemList.values().forEach(NewCoreRobotSystem::initializeSystem);
     }
 
 //    public Pose2D getCurrentPose() {

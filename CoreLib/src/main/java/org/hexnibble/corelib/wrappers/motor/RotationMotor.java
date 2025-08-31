@@ -25,27 +25,14 @@ public class RotationMotor extends BaseMotorWrapper {
    * @param maxPositionDegrees Maximum position (mm) of the linear mechanism
    * @param targetPositionToleranceDegrees Target position tolerance (in degrees)
    */
-  public RotationMotor(
-      HardwareMap hwMap,
-      String motorName,
-      MOTOR_MODEL motorModel,
-      DcMotor.Direction runDirection,
-      DcMotor.RunMode runMode,
-      ENCODER encoderType,
-      DcMotorSimple.Direction encoderDirection,
+  public RotationMotor(HardwareMap hwMap, String motorName, MOTOR_MODEL motorModel,
+      DcMotor.Direction runDirection, DcMotor.RunMode runMode,
+      ENCODER encoderType, DcMotorSimple.Direction encoderDirection,
       double externalGearReduction,
-      double minPositionDegrees,
-      double maxPositionDegrees,
-      double targetPositionToleranceDegrees) {
-    super(
-        hwMap,
-        motorName,
-        motorModel,
-        runDirection,
-        runMode,
-        encoderType,
-        encoderDirection,
-        externalGearReduction);
+      double minPositionDegrees, double maxPositionDegrees, double targetPositionToleranceDegrees) {
+
+    super(hwMap, motorName, motorModel, runDirection, runMode,
+        encoderType, encoderDirection, externalGearReduction);
 
     countsPerDegree = countsPerRev * internalGearReduction * this.externalGearReduction / 360.0;
     currentPositionDegrees = 0.0;

@@ -26,6 +26,10 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
     private static final float goBILDA_4_BAR_POD_COUNTS_PER_MM_X = 19.950f;     // Counts/mm in our X direction
     private static final float goBILDA_4_BAR_POD_COUNTS_PER_MM_Y = 20.0585f;    // Counts/mm in our Y direction
 
+    private static final float IMUHeadingScalar = 1.0f;
+    private static final int LocalizerVelocityInterval_ms = 15;
+    private static final int EncoderVelocityInterval_ms = 15;
+
     private final String className = getClass().getSimpleName();
 
     /**
@@ -34,6 +38,7 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
      * (where +X is forward, +Y is left, and +Heading is CCW spin), use values relative to our
      * robot-centric coordinate system for this constructor. They will be appropriately converted.
      *
+     * @param LR_odoWheelPort OQ Port for LR encoder (0 - 7)
      * @param LR_odoWheelDirection Direction of the LR encoder (+ is positive X/horizontal axis)
      */
     public OctoQuadWrapper(HardwareMap hwMap, String oqDeviceName,
@@ -60,20 +65,30 @@ public class OctoQuadWrapper implements IMUIface, OdometryIface {
         else {
             oq.setSingleEncoderDirection(LR_odoWheelPort, OctoQuadFWv3.EncoderDirection.FORWARD);
         }
-        oq.setLocalizerPortY(LR_odoWheelPort);
-        oq.setLocalizerCountsPerMM_Y(goBILDA_4_BAR_POD_COUNTS_PER_MM_X);
-        oq.setLocalizerTcpOffsetMM_Y(-tcpOffsetX_mm);
+//        oq.setLocalizerPortY(LR_odoWheelPort);
+//        oq.setLocalizerCountsPerMM_Y(goBILDA_4_BAR_POD_COUNTS_PER_MM_X);
+//        oq.setLocalizerTcpOffsetMM_Y(-tcpOffsetX_mm);
 
         // For FB directions, the OctoQuad uses +X forward.
         oq.setSingleEncoderDirection(FB_odoWheelPort, FB_odoWheelDirection);
-        oq.setLocalizerPortX(FB_odoWheelPort);
-        oq.setLocalizerCountsPerMM_X(goBILDA_4_BAR_POD_COUNTS_PER_MM_Y);
-        oq.setLocalizerTcpOffsetMM_X(tcpOffsetY_mm);
+//        oq.setLocalizerPortX(FB_odoWheelPort);
+//        oq.setLocalizerCountsPerMM_X(goBILDA_4_BAR_POD_COUNTS_PER_MM_Y);
+//        oq.setLocalizerTcpOffsetMM_X(tcpOffsetY_mm);
 
-        oq.setLocalizerImuHeadingScalar(1.0f);
+        oq.setAllLocalizerParameters(
+              FB_odoWheelPort, LR_odoWheelPort,
+              goBILDA_4_BAR_POD_COUNTS_PER_MM_Y, goBILDA_4_BAR_POD_COUNTS_PER_MM_X,
+              tcpOffsetY_mm, -tcpOffsetX_mm,
+              IMUHeadingScalar, LocalizerVelocityInterval_ms);
 
-        oq.setLocalizerVelocityIntervalMS(15);
+//        oq.setLocalizerImuHeadingScalar(1.0f);
+//        oq.setLocalizerVelocityIntervalMS(15);
+
+        oq.setSingleVelocitySampleInterval(2, EncoderVelocityInterval_ms);
+        oq.setSingleVelocitySampleInterval(3, EncoderVelocityInterval_ms);
+
         oq.setI2cRecoveryMode(OctoQuadFWv3.I2cRecoveryMode.MODE_1_PERIPH_RST_ON_FRAME_ERR);
+        oq.saveParametersToFlash();
 
         // Reset the localizer pose to (0, 0, 0) and calibrate IMU, using the settings above.
         // This function will NOT block until calibration of the IMU is complete -

@@ -1,10 +1,8 @@
 package org.hexnibble.corelib.commands.rc.mechanisms;
 
-import org.hexnibble.corelib.commands.rc.RCk;
+import org.hexnibble.corelib.commands.rc.deprecated.kotlin.RCk;
 import org.hexnibble.corelib.wrappers.servo.RegularServo;
 
-// TODO: ADD SUPPORT FOR USING ENCODERS ON SERVO TO DETERMINE WHETHER GOT TO END POSITION
-@Deprecated(since = "5/25/25", forRemoval = true)
 public class MoveServoRCJ extends RCk {
   private final RegularServo servo;
   private final double targetServoLocation;

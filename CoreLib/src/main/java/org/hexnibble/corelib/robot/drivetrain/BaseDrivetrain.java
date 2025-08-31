@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.hexnibble.corelib.motion.DriveController;
-import org.hexnibble.corelib.robot_system.CoreRobotSystem;
+import org.hexnibble.corelib.robot_system.NewCoreRobotSystem;
 
-abstract public class BaseDrivetrain extends CoreRobotSystem {
+abstract public class BaseDrivetrain extends NewCoreRobotSystem {
    DriveController dtController;
 
    protected double dtManual_X;  // X Joystick movement, range -1.0 (left) to +1.0 (right)
@@ -49,6 +49,7 @@ abstract public class BaseDrivetrain extends CoreRobotSystem {
       dtController = new DriveController(this);
    }
 
+   @Override
    public void resetSystem() {
       super.resetSystem();
 

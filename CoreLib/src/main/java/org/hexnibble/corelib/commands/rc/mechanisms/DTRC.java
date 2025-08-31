@@ -1,6 +1,6 @@
 //package org.hexnibble.corelib.commands.rc.mechanisms;
 //
-//import org.hexnibble.corelib.commands.rc.RCk;
+//import org.hexnibble.corelib.commands.rc.kotlin.RCk;
 //import org.hexnibble.corelib.motion.DriveController;
 //
 //public class DTRC extends RCk {

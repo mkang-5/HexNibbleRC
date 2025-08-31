@@ -13,7 +13,7 @@ import java.util.Set;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.hexnibble.corelib.commands.rc.LogRCk;
 import org.hexnibble.corelib.commands.rc.RC;
-import org.hexnibble.corelib.commands.rc.RCk;
+import org.hexnibble.corelib.commands.rc.deprecated.kotlin.RCk;
 import org.hexnibble.corelib.commands.rc.mechanisms.MoveLinearMechanismToPositionRCk;
 import org.hexnibble.corelib.commands.rc.mechanisms.MoveServoRCk;
 import org.hexnibble.corelib.misc.Msg;
@@ -49,7 +49,6 @@ public class CoreRobotSystem {
     servoList = new HashMap<>();
     sensorList = new HashMap<>();
     mechanismList = new HashMap<>();
-    Msg.log("CoreRobotSystem", "Constructor", "Ending");
   }
 
   /** This should be called during robot setup to initialize any hardware that needs it. */
@@ -108,31 +107,6 @@ public class CoreRobotSystem {
     servoList.put(servoName, servo);
     return servo;
   }
-//
-//  @Deprecated
-//  protected RegularToggleServo addRegularToggleServo(
-//      String servoName,
-//      BaseServoWrapper.SERVO_MODEL servoModel,
-//      String servoEncoderName,
-//      DcMotorSimple.Direction encoderDirection,
-//      double minPosition,
-//      double maxPosition,
-//      double minTogglePosition,
-//      double maxTogglePosition) {
-//    RegularToggleServo servo =
-//        new RegularToggleServo(
-//            hwMap,
-//            servoName,
-//            servoModel,
-//            servoEncoderName,
-//            encoderDirection,
-//            minPosition,
-//            maxPosition,
-//            minTogglePosition,
-//            maxTogglePosition);
-//    servoList.put(servoName, servo);
-//    return servo;
-//  }
 
   protected CRServo addCRServo(
       String servoName, BaseServoWrapper.SERVO_MODEL servoModel,

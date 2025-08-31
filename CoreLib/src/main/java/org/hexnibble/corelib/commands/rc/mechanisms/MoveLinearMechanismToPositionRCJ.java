@@ -1,6 +1,6 @@
 package org.hexnibble.corelib.commands.rc.mechanisms;
 
-import org.hexnibble.corelib.commands.rc.RCk;
+import org.hexnibble.corelib.commands.rc.deprecated.kotlin.RCk;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Timer;
 import org.hexnibble.corelib.robot_system.LinearMechanism;
