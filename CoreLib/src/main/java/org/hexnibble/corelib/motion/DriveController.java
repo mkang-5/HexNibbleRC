@@ -11,7 +11,6 @@ import org.hexnibble.corelib.motion.path.Spin;
 import org.hexnibble.corelib.motion.pid.PIDController;
 import org.hexnibble.corelib.motion.pid.PIDSettings;
 import org.hexnibble.corelib.motion.pid.dtRotationPIDController;
-import org.hexnibble.corelib.opmodes.CoreLinearOpMode;
 import org.hexnibble.corelib.robot.drivetrain.BaseDrivetrain;
 
 /*  The DriveController holds a drivetrain movement PathChain and directs the processes to move

@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.hexnibble.corelib.misc.Constants;
-import org.hexnibble.corelib.misc.Msg;
 
 /**
  * This is a base wrapper class for FTC motors.

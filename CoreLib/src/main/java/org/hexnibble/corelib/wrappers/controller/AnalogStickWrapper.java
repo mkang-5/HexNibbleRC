@@ -1,7 +1,6 @@
 package org.hexnibble.corelib.wrappers.controller;
 
 import static org.hexnibble.corelib.misc.Constants.CONTROLLER_LEFT_TRIGGER_DEAD_ZONE;
-import static org.hexnibble.corelib.misc.Constants.CONTROLLER_STICK_MOVEMENT_THRESHOLD;
 
 /**
  * A wrapper class for the analog joysticks on the controller.

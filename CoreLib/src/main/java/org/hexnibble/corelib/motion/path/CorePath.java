@@ -1,6 +1,5 @@
 package org.hexnibble.corelib.motion.path;
 
-import org.hexnibble.corelib.misc.Field;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.misc.Pose2D;
 

@@ -4,12 +4,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.hexnibble.corelib.misc.ConfigFile;
-import org.hexnibble.corelib.motion.pid.dtRotationPIDController;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
 import org.hexnibble.corelib.wrappers.servo.BaseServoWrapper;
 import org.hexnibble.corelib.wrappers.servo.CRPIDServo;
-import org.hexnibble.corelib.wrappers.servo.CRServo;
 
 public class SwerveModule extends WheelModule {
    CRPIDServo servo;

@@ -5,7 +5,6 @@ import static org.hexnibble.corelib.wrappers.controller.ButtonWrapper.BUTTON_STA
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.hexnibble.corelib.commands.rc.mechanisms.FlywheelRC;
 import org.hexnibble.corelib.motion.path.CorePath;
 import org.hexnibble.corelib.opmodes.CoreLinearOpMode;
 import org.hexnibble.corelib.robot.CoreRobot;
