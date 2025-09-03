@@ -4,10 +4,10 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-public class GoBildaPWMLightJ {
+public class GoBildaPWMLight {
   private final ServoImplEx light;
 
-  public GoBildaPWMLightJ(HardwareMap hwMap, String pwmLightName) {
+  public GoBildaPWMLight(HardwareMap hwMap, String pwmLightName) {
     light = hwMap.get(ServoImplEx.class, pwmLightName);
   }
 
