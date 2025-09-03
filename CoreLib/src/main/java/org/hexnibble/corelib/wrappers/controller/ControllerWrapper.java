@@ -58,7 +58,7 @@ public class ControllerWrapper {
   }
 
   // Rumble
-  Gamepad.RumbleEffect rumbleEffect;
+  private final Gamepad.RumbleEffect rumbleEffect;
 
 
   public ControllerWrapper(Gamepad gamepadReference) {

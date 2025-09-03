@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
-@Deprecated(since = "5/25/25", forRemoval = true)
 public class GoBildaPWMLightJ {
   private final ServoImplEx light;
 
@@ -21,7 +20,7 @@ public class GoBildaPWMLightJ {
     setPWM();
   }
 
-  public void reinitialize() {
+  public void reset() {
     setPWM();
   }
 

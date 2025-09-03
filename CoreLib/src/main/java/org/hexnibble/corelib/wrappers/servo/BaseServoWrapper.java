@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.hexnibble.corelib.misc.Msg;
-import org.hexnibble.corelib.wrappers.AnalogInputWrapper;
+import org.hexnibble.corelib.wrappers.sensor.AnalogSensorWrapper;
 
 import java.util.HashMap;
 
@@ -18,7 +18,8 @@ public abstract class BaseServoWrapper {
 
   protected final String servoName;
 
-  protected final AnalogInputWrapper servoEncoder;
+//  protected final AnalogInputWrapper servoEncoder;
+  protected final AnalogSensorWrapper servoEncoder;
   protected final DcMotorSimple.Direction encoderDirection;
 
   protected double targetPosition;
@@ -100,7 +101,7 @@ public abstract class BaseServoWrapper {
     }
 
     if (encoderName != null) {
-      this.servoEncoder = new AnalogInputWrapper(encoderName, hwMap);
+      this.servoEncoder = new AnalogSensorWrapper(hwMap, encoderName);
       this.encoderDirection = encoderDirection;
     }
     else {

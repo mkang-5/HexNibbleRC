@@ -7,7 +7,7 @@ import org.hexnibble.corelib.misc.Vector2D;
 
 public class Line extends CorePath
 {
-    Pose2D startPose;
+    private final Pose2D startPose;
 
     private final double targetHeadingToleranceTranslation_mm = 5.0;
     private final double targetHeadingToleranceRadians = Math.toRadians(2.0);
