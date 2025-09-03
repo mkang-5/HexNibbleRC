@@ -18,14 +18,14 @@ android {
         buildConfig = true
     }
 
-    compileSdk 35
+    compileSdk = 35
 
     compileOptions {
         // May 2025:
         // JavaVersion >17 will cause the RobotController to be unable to load with an
         // Annotation-related fatal error
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     namespace = 'com.qualcomm.ftcrobotcontroller'
 }

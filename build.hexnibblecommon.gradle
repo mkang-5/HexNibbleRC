@@ -6,7 +6,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 android {
-    compileSdk 35
+    compileSdk = 35
 
     defaultConfig {
         // The Rev Control Hub SDK is 25 so the minSdkVersion cannot be greater
@@ -20,8 +20,8 @@ android {
         // May 2025:
         // JavaVersion >17 will cause the RobotController to be unable to load with an
         // Annotation-related fatal error
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
