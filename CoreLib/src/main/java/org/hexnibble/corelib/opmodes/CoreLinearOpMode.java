@@ -20,6 +20,8 @@ import org.hexnibble.corelib.robot.drivetrain.MecanumDrivetrain;
 import org.hexnibble.corelib.wrappers.controller.AnalogStickToFunction;
 import org.hexnibble.corelib.wrappers.controller.ButtonToFunction;
 import org.hexnibble.corelib.wrappers.controller.ControllerWrapper;
+import org.hexnibble.corelib.wrappers.sensor.LimelightWrapper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -43,6 +45,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   // Robot Variables
   protected static CoreRobot robot;
   protected MecanumDrivetrain d;
+  protected LimelightWrapper ll;
   protected static HardwareMap currentHardwareMap;
 
   // Pathing Variables
@@ -140,16 +143,19 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
       didAUTOOpModeJustCompleteSuccessfully = false; // reset flag
     }
 
-    // Create controllers
-//    controller1 = new ControllerWrapper(gamepad1);
-//    controller2 = new ControllerWrapper(gamepad2);
-
     if (!AllianceInfo.isInfoSet()) {
-      promptForAndSetAllianceColorAndSide();
+      try {
+        promptForAndSetAllianceColorAndSide();
+      }
+      catch (StopOpModeException e) {
+        Msg.log(className, "promptForOtherInitInfo", "StopOpMode pressed during " + e.getMessage());
+        onStopOpMode();
+      }
     }
+    Msg.log(className, "promptForOtherInitInfo", "Continuing after try");
 
     if (opModeType == OP_MODE_TYPE.AUTO) {
-      promptForOtherAutoInitInfo();
+      promptForSupplementalAutoInitInfo();
       setStartingFieldPose(AllianceInfo.getAllianceColor(), AllianceInfo.getAllianceSide());
     }
 
@@ -157,9 +163,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     //  So check whether the hardware map has changed, and if so store the new map
     //  and set the robot object to null.
     if (currentHardwareMap != hardwareMap) {
-      Msg.log(
-              className,
-              "refreshCurrentHardwareMap",
+      Msg.log(className, "refreshCurrentHardwareMap",
               "Hardware map has changed. Deleting any existing robot object and storing new hardwareMap = "
                       + hardwareMap);
       robot = null;
@@ -176,19 +180,25 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
       robot.resetSystem();
     }
     d = robot.drivetrain;
+    ll = robot.getLimelight();
 
-    if (opModeType == OP_MODE_TYPE.AUTO) {
-      robot.setPoseEstimate(Pose2D.convertFieldCFAbsoluteToAllianceCFAbsolute(startingFieldPose,
-          AllianceInfo.getAllianceColor()));
-    }
-    robot.bulkReadControlHub();
-    robot.bulkReadExpansionHub();
+//    if (opModeType == OP_MODE_TYPE.AUTO) {
+//      robot.setPoseEstimate(Pose2D.convertFieldCFAbsoluteToAllianceCFAbsolute(startingFieldPose,
+//          AllianceInfo.getAllianceColor()));
+//    }
+//    robot.bulkReadControlHub();
+//    robot.bulkReadExpansionHub();
 
     // Check battery voltage
+    robot.bulkReadControlHub();   // Check if this is necessary to read voltage
     double startingBatteryVoltage = robot.getRobotBatteryVoltage();
     Msg.log(className, "initializeOpMode", "Starting battery voltage: " + startingBatteryVoltage);
     if (startingBatteryVoltage < ConfigFile.ROBOT_MIN_BATTERY_VOLTAGE_FOR_WARNING) {
       Msg.log(className, "initializeOpMode", "Low starting battery voltage!");
+    }
+
+    if (opModeType == OP_MODE_TYPE.AUTO) {
+      performAutonomousChecks();
     }
 
     Msg.log(className, "initializeOpMode", "Drivetrain object=" + d);
@@ -219,6 +229,11 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
           "Control Hub Bulk Cache Mode=" + robot.getHubBulkCachingMode(CoreRobot.HUB_TYPE.CONTROL_HUB)
               + ", Expansion Hub Bulk Cache Mode=" + robot.getHubBulkCachingMode(CoreRobot.HUB_TYPE.EXPANSION_HUB));
     }
+
+    if (ll != null) {
+      ll.stop();
+    }
+
     Msg.log(className, "onStopOpMode", "Avg Actual/Desired Loop Time (ms)="
           + averageActualLoopTime_ms + "/" + averageDesiredLoopTime_ms
           + ", Min=" + minLoopTime_ms
@@ -265,9 +280,11 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   }
 
   /**
-   * Create the robot object to use with the OpMode. This is called by initializeOpMode() after
+   * <p>Override this function when a derived robot class is used.</p>
+   *
+   * <p>Create the robot object to use with the OpMode. This is called by initializeOpMode() after
    * prompting for alliance color/side, other init info, and setting the starting field pose. It is
-   * only called if the robot object does not exist or an AUTO OpMode is starting
+   * only called if the robot object does not exist or an AUTO OpMode is starting</p>
    */
   protected CoreRobot createRobotObject(HardwareMap hwMap) {
     return new CoreRobot(hwMap, "CoreRobot");
@@ -337,12 +354,14 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
       onStopOpMode();
     }
   }
+  // endregion ** Utility Functions **
 
+  // region ** AUTO Functions **
   /**
    * Override this function to prompt for other info needed during initialization For example,
    * alternate starting positions
    */
-  protected void promptForOtherAutoInitInfo() {}
+  protected void promptForSupplementalAutoInitInfo() {}
 
   /**
    * This method sets the starting X,Y coordinates (in mm) of the center of the robot, as well as
@@ -379,16 +398,82 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     }
 
     Msg.log(
-        className,
-        "setStartingFieldPose",
-        "Setting starting position (field CF) as: "
-            + startingFieldPose.x
-            + ", "
-            + startingFieldPose.y
-            + ", hdg="
-            + Math.toDegrees(startingFieldPose.heading));
+        className, "setStartingFieldPose",
+        "Setting starting position (field CF) as: " + startingFieldPose);
   }
-  // endregion ** Utility Functions **
+
+  /**
+   * Display reminders on the driver station screen about appropriate setup
+   * such as preloading of items and positioning of mechanisms.
+   * This function should be overridden for each season.
+   */
+  protected void performAutonomousChecks() {
+    Msg.log(className, "performAutonomousChecks", "Starting.");
+
+    // Start and check Limelight
+    if (!isStopRequested()) {
+      Msg.log(className, "performAutonomousChecks",
+              "Starting and checking Limelight. Setting vision pipeline.");
+
+      // Check Limelight
+      if (ll != null) {
+        // The LL must be started before isLimelightConnected() will provide an appropriate result.
+        ll.start();
+
+        if (ll.isDisconnected()) {
+          // The check can be overridden in case of hardware failure
+          boolean skipLimelightCheck = false;
+
+          Msg.log(className, "performAutonomousChecks", "Limelight is not connected!");
+
+          while (!isStopRequested() && ll.isDisconnected() && !skipLimelightCheck) {
+            telemetry.addLine("Limelight not connected. Please ensure the cable is connected.");
+            telemetry.addLine("Press X to skip the Limelight check (in case of hardware failure)");
+            telemetry.update();
+
+            // Update the controllers
+            controller1.updateGamepadData();
+            controller2.updateGamepadData();
+            if (controller1.isButtonNewlyPressed(
+                    ControllerWrapper.BUTTON_NAME.cross, ControllerWrapper.SHIFT_BUTTON.NONE)
+                    || controller2.isButtonNewlyPressed(
+                    ControllerWrapper.BUTTON_NAME.cross, ControllerWrapper.SHIFT_BUTTON.NONE)) {
+              skipLimelightCheck = true;
+            }
+
+            ll.start();
+          }
+        }
+
+        if (isStopRequested()) { // Check if stop was pressed while waiting for the above input
+          Msg.log(className, "performAutonomousChecks", "OpMode STOP requested.");
+          return;
+        }
+
+//        if (AllianceInfo.getAllianceSide() == AllianceInfo.ALLIANCE_SIDE.LEFT) {
+//          ll.setPipeline(0);
+//        }
+//        else {
+//          if (AllianceInfo.getAllianceColor() == AllianceInfo.ALLIANCE_COLOR.RED) {
+//            ll.setPipeline(1);
+//          }
+//          else {
+//            ll.setPipeline(2);
+//          }
+//        }
+      }
+    }
+
+    robot.resetOdometryEncodersAndPose();
+//    robot.bulkReadControlHub();   // This is not needed if using the OctoQuad
+    robot.setPoseEstimate(
+        Pose2D.convertFieldCFAbsoluteToAllianceCFAbsolute(startingFieldPose, AllianceInfo.getAllianceColor()));
+
+    telemetry.addLine("Do NOT move the robot drivetrain any more.");
+    telemetry.update();
+  }
+
+    // endregion ** AUTO Functions **
 
   // region ** Queue robot command functions **
 //  /**

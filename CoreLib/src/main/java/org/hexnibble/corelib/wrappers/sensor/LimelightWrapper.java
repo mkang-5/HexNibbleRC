@@ -19,13 +19,24 @@ public class LimelightWrapper extends CoreSensorWrapper<Limelight3A> {
   //    private final Limelight3A limelight;
   private final double[] pythonSettings;
 
+  private final int DEFAULT_POLL_RATE_HZ = 100;
+  private int pollRateHz;
+
   public LimelightWrapper(HardwareMap hwMap, String llName) {
     super(hwMap, Limelight3A.class, llName);
 
     pythonSettings = new double[] {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
+    this.pollRateHz = DEFAULT_POLL_RATE_HZ;
+    sensor.setPollRateHz(DEFAULT_POLL_RATE_HZ);
+  }
+
+  public void reset() {
+    sensor.stop();
+    sensor.setPollRateHz(pollRateHz);
   }
 
   public void setPollRateHz(int rateHz) {
+    pollRateHz = rateHz;
     sensor.setPollRateHz(rateHz);
   }
 
@@ -41,7 +52,13 @@ public class LimelightWrapper extends CoreSensorWrapper<Limelight3A> {
     sensor.updatePythonInputs(pythonSettings);
   }
 
-  public boolean pipelineSwitch(int targetPipeline) {
+  /**
+   * Set pipeline: 0 = Red Sample 1 = Blue Sample 2 = Yellow Sample
+   *
+   * @param targetPipeline
+   * @return True if pipeline successfully set
+   */
+  public boolean setPipeline(int targetPipeline) {
     return sensor.pipelineSwitch(targetPipeline);
   }
 
@@ -52,4 +69,26 @@ public class LimelightWrapper extends CoreSensorWrapper<Limelight3A> {
   public LLResult getLatestResult() {
     return sensor.getLatestResult();
   }
+
+  /** Start polling of Limelight data */
+  public void start() {
+    sensor.start();
+  }
+
+  public void stop() {
+    sensor.stop();
+  }
+
+  public void close() {
+    sensor.close();
+  }
+
+  public boolean isDisconnected() {
+    return sensor == null || !sensor.isConnected();
+  }
+
+  public boolean isRunning() {
+    return sensor != null && sensor.isRunning();
+  }
+
 }

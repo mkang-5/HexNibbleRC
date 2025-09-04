@@ -9,6 +9,7 @@ import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.wrappers.sensor.ColorSensorWrapper;
 import org.hexnibble.corelib.wrappers.sensor.CoreSensorWrapper;
 import org.hexnibble.corelib.wrappers.sensor.DistanceSensorWrapper;
+import org.hexnibble.corelib.wrappers.sensor.LimelightWrapper;
 import org.hexnibble.corelib.wrappers.sensor.TouchSensorWrapper;
 import org.hexnibble.corelib.wrappers.servo.BaseServoWrapper;
 import org.hexnibble.corelib.wrappers.servo.CRServo;
@@ -111,6 +112,12 @@ public abstract class NewCoreRobotSystem {
 
    public TouchSensorWrapper addTouchSensor(String sensorName) {
       TouchSensorWrapper sensor = new TouchSensorWrapper(hwMap, sensorName);
+      sensorList.put(sensorName, sensor);
+      return sensor;
+   }
+
+   public LimelightWrapper addLimelightSensor(String sensorName) {
+      LimelightWrapper sensor = new LimelightWrapper(hwMap, sensorName);
       sensorList.put(sensorName, sensor);
       return sensor;
    }

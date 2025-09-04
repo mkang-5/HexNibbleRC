@@ -7,7 +7,8 @@ import java.util.ArrayList;
 public interface OdometryIface {
 
    /**
-    * Reset odometry wheel encoders and pose
+    * Reset odometry wheel encoders and pose.
+    * If using the OctoQuad, this will also reset the IMU.
     */
    void resetEncodersAndPose();
 

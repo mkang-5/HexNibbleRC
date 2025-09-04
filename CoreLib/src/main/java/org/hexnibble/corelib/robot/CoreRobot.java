@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.util.Log;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.hardware.sparkfun.SparkFunLEDStick;
@@ -27,6 +26,7 @@ import org.hexnibble.corelib.robot_system.NewCoreRobotSystem;
 import org.hexnibble.corelib.wrappers.motor.BaseMotorWrapper;
 import org.hexnibble.corelib.wrappers.sensor.IMUIface;
 import org.hexnibble.corelib.wrappers.sensor.IMUWrapper;
+import org.hexnibble.corelib.wrappers.sensor.LimelightWrapper;
 
 // region ** Hub Ports **
 /* ///////////////////////////
@@ -149,7 +149,7 @@ public class CoreRobot extends NewCoreRobotSystem {
   protected Map<String, NewCoreRobotSystem> robotSystemList;
 
   // Sensors
-  protected Limelight3A limelight;
+  protected LimelightWrapper limelight;
   protected SparkFunLEDStick LEDStick;
 
   // Vision
@@ -214,8 +214,6 @@ public class CoreRobot extends NewCoreRobotSystem {
             BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_435, DcMotor.RunMode.RUN_WITHOUT_ENCODER,
             1.0, TARGET_POSITION_TOLERANCE, 48.0);
 
-    addRobotSystemToList("Drivetrain", drivetrain);
-
     // Create odometry object
     Msg.logIfDebug(className, "initializeRobot", "Creating odometry servos and object.");
     odometry =
@@ -236,6 +234,11 @@ public class CoreRobot extends NewCoreRobotSystem {
                 drivetrain.getWheelMotorObject(
                     MecanumDrivetrain.WHEEL_MODULE_NAME.RF) // FB odometry wheel (y movements)
                 ));
+
+    addRobotSystemToList("Drivetrain", drivetrain);
+
+    // Sensors
+//    limelight = addLimelightSensor("Limelight");
 
     robotSystemList.values().forEach(NewCoreRobotSystem::initializeSystem);
   }
@@ -268,10 +271,6 @@ public class CoreRobot extends NewCoreRobotSystem {
 //    drivetrainManualMovement_X = 0.0;
 //    drivetrainManualMovement_Y = 0.0;
 //    drivetrainManualMovement_Spin = 0.0;
-
-    if (limelight != null) {
-      limelight.stop();
-    }
 
     if (LEDStick != null) {
       LEDStick.setBrightness(4);
@@ -360,7 +359,6 @@ public class CoreRobot extends NewCoreRobotSystem {
   public long getEHubBulkReadTimeDelta() {
     return (currentEHubBulkReadTime - previousEHubBulkReadTime);
   }
-
   // endregion ** Hub Functions **
 
   // region ** IMU Functions **
@@ -439,16 +437,20 @@ public class CoreRobot extends NewCoreRobotSystem {
    */
   public void setPoseEstimate(Pose2D newPose) {
     if (odometry != null) {
+      Msg.log(className, "setPoseEstimate", "Setting pose to " + newPose);
       odometry.setPoseEstimate(newPose);
     }
   }
 
+  /**
+   * Reset odometry wheel encoders and pose.
+   * If using the OctoQuad, this will also reset the IMU.
+   */
   public void resetOdometryEncodersAndPose() {
     if (odometry != null) {
       odometry.resetEncodersAndPose();
     }
   }
-
   // endregion ** Odometry Functions **
 
   // region ** Motor Functions **
@@ -522,18 +524,6 @@ public class CoreRobot extends NewCoreRobotSystem {
   //        Set<String> listOfMotorNames = motorList.keySet();
   //        return listOfMotorNames.toArray(new String[0]);
   //    }
-
-  public void setDrivetrainBrakeMode(DcMotor.ZeroPowerBehavior brakeMode) {
-    drivetrain.setBrakeMode(brakeMode);
-  }
-
-  public double getDrivetrainMotorCurrent(MecanumDrivetrain.WHEEL_MODULE_NAME motorName) {
-    return drivetrain.getMotorCurrent(motorName);
-  }
-
-  public double getDrivetrainMotorPower(MecanumDrivetrain.WHEEL_MODULE_NAME motorName) {
-    return drivetrain.getMotorPower(motorName);
-  }
 
   /*
       public double getMotorCurrentVelocityRPM(String motorName) {
@@ -707,51 +697,13 @@ public class CoreRobot extends NewCoreRobotSystem {
       LEDStick.setBrightness(brightness);
     }
   }
-
   // endregion **
 
-  // region /* Limelight */
-  /**
-   * Set pipeline: 0 = Red Sample 1 = Blue Sample 2 = Yellow Sample
-   *
-   * @param pipelineIndex
-   */
-  public void setLimelightPipeline(int pipelineIndex) {
-    Msg.log(className, "setLimelightPipeline", "Switching LL pipeline to " + pipelineIndex);
-    limelight.pipelineSwitch(pipelineIndex);
+  // region ** Limelight **
+  public LimelightWrapper getLimelight() {
+    return limelight;
   }
-
-  /** Start polling of Limelight data */
-  public void startLimeLight() {
-    if (limelight != null) {
-      limelight.start();
-    }
-  }
-
-  public void stopLimeLight() {
-    if (limelight != null) {
-      limelight.stop();
-    }
-  }
-
-  public void closeLimeLight() {
-    if (limelight != null) {
-      limelight.close();
-    }
-  }
-
-  public boolean isLimelightBeingUsed() {
-    return !(limelight == null);
-  }
-
-  public boolean isLimelightDisconnected() {
-    return limelight == null || !limelight.isConnected();
-  }
-
-  public boolean isLimeLightRunning() {
-    return limelight != null && limelight.isRunning();
-  }
-  // endregion
+  // endregion ** Limelight **
 
   // region ** Robot Command Functions **
 //  /**
