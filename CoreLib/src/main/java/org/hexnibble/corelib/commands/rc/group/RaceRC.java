@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Run multiple commands in parallel, ending as soon as a single command completes.
+ */
 public class RaceRC extends RC {
    private final List<RC> commandList;
 

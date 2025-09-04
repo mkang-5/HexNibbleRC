@@ -44,24 +44,15 @@ public final class RCController {
       }
 
       // Process robot commands
-      // This will bulk read hubs and read IMU
-      // The robot also processes commands for each robot system
+      // This will bulk read hubs and read IMU, process odometry, and
+      // process commands for each robot system
       robot.processCommands();
 
       // Update general running commands
-//      Msg.log(getClass().getSimpleName(), "processCommands", "Updating activeRCList");
       if (!activeRCList.isEmpty() && activeRCList.get(0).processRC()) {
          activeRCList.remove(0);
       }
 
-//      dtController.processPath(robot.getStoredIMUHeadingDegrees());
       dtController.processPath(robot.getRobotPoseEstimate());
-
-//      if (pedroFollower != null) {
-//         pedroFollower.update();
-//         //            Msg.log("PPose: " + pedroFollower.getPose().getX() + ", " +
-//         // pedroFollower.getPose().getY() + ", " +
-//         // Math.toDegrees(pedroFollower.getPose().getHeading()));
-//      }
    }
 }
