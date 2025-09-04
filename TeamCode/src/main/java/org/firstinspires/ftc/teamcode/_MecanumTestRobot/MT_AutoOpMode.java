@@ -28,6 +28,6 @@ public class MT_AutoOpMode extends CoreLinearOpMode {
 
     @Override
     protected void promptForSupplementalAutoInitInfo() {
-
+        super.promptForSupplementalAutoInitInfo();
     }
 }
