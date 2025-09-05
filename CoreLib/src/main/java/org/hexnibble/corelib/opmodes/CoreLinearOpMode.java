@@ -576,7 +576,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
    *
    * @return True/False whether the loop time has met the threshold minimum loop time
    */
-  private boolean processLoopTime() {
+  protected boolean processLoopTime() {
     final long currentElapsedTime_ms = OpModeRunTimer.getElapsedTime(Timer.TimerUnit.ms);
 
     currentLoopTime_ms = (currentElapsedTime_ms - prevElapsedTime_ms);

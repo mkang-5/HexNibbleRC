@@ -20,7 +20,7 @@ public final class RCController {
    private final List<RC> activeRCList = new ArrayList<>();
 
    public RCController(CoreLinearOpMode.OP_MODE_TYPE opModeType,
-                       @NonNull CoreRobot robot, @NonNull DriveController dtController,
+                       @NonNull CoreRobot robot, DriveController dtController,
                        ControllerWrapper controller1, ControllerWrapper controller2) {
 
       this.robot = robot;

@@ -2,21 +2,21 @@ package org.hexnibble.corelib.opmodes;
 
 import org.hexnibble.corelib.commands.rc.RC;
 import org.hexnibble.corelib.commands.rc.RCController;
+import org.hexnibble.corelib.misc.Pose2D;
+import org.hexnibble.corelib.motion.DriveController;
+import org.hexnibble.corelib.robot.CoreRobot;
 
-
-public class CoreOpModeProgramJ {
+public class CoreAutoProgram {
+  protected CoreRobot robot;
+  protected RCController rcController;
+  protected DriveController dtController;
+  protected final Pose2D startingPose;
   private boolean programComplete;
 
-  // Pedro
-  protected RCController rcController;
-//  protected Follower pedroFollower;
-//  protected final Pose startingPedroPose;
-
-  public CoreOpModeProgramJ(
-        RCController rcController) { //, Follower pedroFollower, Pose startingPedroPose) {
+  public CoreAutoProgram(CoreRobot robot, RCController rcController, Pose2D startingPose) {
     this.rcController = rcController;
-//    this.pedroFollower = pedroFollower;
-//    this.startingPedroPose = startingPedroPose;
+    dtController = robot.drivetrain.getDtController();
+    this.startingPose = new Pose2D(startingPose);
     this.programComplete = false;
 
     createPaths();
