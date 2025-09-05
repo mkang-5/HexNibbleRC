@@ -99,32 +99,36 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   // region ** Main Functions **
   @Override
   public void runOpMode() {
-    initializeOpMode();
+    try {
+      initializeOpMode();
 
-    Msg.log(className, "runOpMode", "Creating new rcController object");
-    rcController = new RCController(opModeType, robot, robot.drivetrain.getDtController(), controller1, controller2);
+      telemetry.addLine("Ready.");
+      telemetry.update();
 
-    telemetry.addLine("Ready.");
-    telemetry.update();
+      waitForStart();
 
-    waitForStart();
+      // Play pressed
+      if (opModeIsActive()) {
+        // Stuff to run before OpMode Loop
+        onPressPlay();
 
-    // Play pressed
-    if (opModeIsActive()) {
-      // Stuff to run before OpMode Loop
-      onPressPlay();
+        while (opModeIsActive()) {
 
-      while (opModeIsActive()) {
+          if (processLoopTime()) {
+            rcController.processCommands();
 
-        if (processLoopTime()) {
-          rcController.processCommands();
-
-          if (!isStopRequested()) {
-            createTelemetryMessageForEachLoop();
+            if (!isStopRequested()) {
+              createTelemetryMessageForEachLoop();
+            }
           }
         }
       }
     }
+    catch (StopOpModeException e) {
+      Msg.log(className, "runOpMode",
+            "StopOpMode pressed during " + e.getMessage());
+    }
+
     onStopOpMode();
   }
 
@@ -134,7 +138,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
    * other initialization info - set starting field pose - create robot object - initialize IMU -
    * create controller
    */
-  protected void initializeOpMode() {
+  protected void initializeOpMode() throws StopOpModeException {
     Msg.log(className, "initializeOpMode", "Initializing OpMode Type: " + opModeType);
 
     // Clear Alliance info if starting an AUTO OpMode
@@ -144,15 +148,8 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     }
 
     if (!AllianceInfo.isInfoSet()) {
-      try {
         promptForAndSetAllianceColorAndSide();
-      }
-      catch (StopOpModeException e) {
-        Msg.log(className, "promptForOtherInitInfo", "StopOpMode pressed during " + e.getMessage());
-        onStopOpMode();
-      }
     }
-    Msg.log(className, "promptForOtherInitInfo", "Continuing after try");
 
     if (opModeType == OP_MODE_TYPE.AUTO) {
       promptForSupplementalAutoInitInfo();
@@ -179,6 +176,10 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     else {
       robot.resetSystem();
     }
+
+    Msg.log(className, "initializeOpMode", "Creating new rcController object");
+    rcController = new RCController(opModeType, robot, robot.drivetrain.getDtController(), controller1, controller2);
+
     d = robot.drivetrain;
     ll = robot.getLimelight();
 
@@ -209,12 +210,6 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     initializeLoopTimer();
     Msg.log(getClass().getSimpleName(), "onStartOpMode", "OpMode Started");
   }
-
-//  protected void processCommands() {
-//    rcController.processCommands();
-//
-//    createTelemetryMessageForEachLoop();
-//  }
 
   protected void onStopOpMode() {
     rcController = null;
@@ -291,68 +286,57 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
   }
 
   /** Prompt for and set alliance color and side */
-  private void promptForAndSetAllianceColorAndSide() {
-    try {
-      ControllerWrapper controller1 = new ControllerWrapper(gamepad1);
-      ControllerWrapper controller2 = new ControllerWrapper(gamepad2);
+  private void promptForAndSetAllianceColorAndSide() throws StopOpModeException {
+    ControllerWrapper controller1 = new ControllerWrapper(gamepad1);
+    ControllerWrapper controller2 = new ControllerWrapper(gamepad2);
 
-      AllianceInfo.ALLIANCE_COLOR allianceColor = null;
-      while (!isStopRequested() && (allianceColor == null)) {
-        telemetry.addLine("Please choose ALLIANCE color:");
-        telemetry.addLine("\tLEFT BUMPER = BLUE Alliance");
-        telemetry.addLine("\tRIGHT BUMPER = RED Alliance\n");
-        telemetry.update();
+    AllianceInfo.ALLIANCE_COLOR allianceColor = null;
+    while (!isStopRequested() && (allianceColor == null)) {
+      telemetry.addLine("Please choose ALLIANCE color:");
+      telemetry.addLine("\tLEFT BUMPER = BLUE Alliance");
+      telemetry.addLine("\tRIGHT BUMPER = RED Alliance\n");
+      telemetry.update();
 
-        controller1.updateGamepadData();
-        controller2.updateGamepadData();
-        if ((controller1.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.left_bumper))
-            || (controller2.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.left_bumper))) {
-          allianceColor = AllianceInfo.ALLIANCE_COLOR.BLUE;
-        } else if ((controller1.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.right_bumper))
-            || (controller2.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.right_bumper))) {
-          allianceColor = AllianceInfo.ALLIANCE_COLOR.RED;
-        }
+      controller1.updateGamepadData();
+      controller2.updateGamepadData();
+      if ((controller1.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.left_bumper))
+          || (controller2.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.left_bumper))) {
+        allianceColor = AllianceInfo.ALLIANCE_COLOR.BLUE;
+      } else if ((controller1.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.right_bumper))
+          || (controller2.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.right_bumper))) {
+        allianceColor = AllianceInfo.ALLIANCE_COLOR.RED;
       }
-      if (isStopRequested()) throw new StopOpModeException("promptForAllianceColor");
+    }
+    if (isStopRequested()) throw new StopOpModeException("promptForAllianceColor");
 
-      AllianceInfo.ALLIANCE_SIDE allianceSide = null;
-      while (!isStopRequested() && (allianceSide == null)) {
-        telemetry.addData("Alliance Color: ", allianceColor);
-        telemetry.addLine("\nNow choose starting SIDE:");
-        telemetry.addLine("\tLEFT BUMPER = LEFT side");
-        telemetry.addLine("\tRIGHT BUMPER = RIGHT Side");
-        telemetry.addLine("");
-        telemetry.update();
-
-        controller1.updateGamepadData();
-        controller2.updateGamepadData();
-        if ((controller1.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.left_bumper))
-            || (controller2.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.left_bumper))) {
-          allianceSide = AllianceInfo.ALLIANCE_SIDE.LEFT;
-        } else if ((controller1.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.right_bumper))
-            || (controller2.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.right_bumper))) {
-          allianceSide = AllianceInfo.ALLIANCE_SIDE.RIGHT;
-        }
-      }
-      if (isStopRequested()) throw new StopOpModeException("promptForAllianceSide");
-
-      AllianceInfo.setAllianceInfo(allianceColor, allianceSide);
-
-      Msg.log(
-          className,
-          "promptForAllianceColorAndSide",
-          "Alliance Color=" + allianceColor + ", Alliance Side=" + allianceSide);
-
+    AllianceInfo.ALLIANCE_SIDE allianceSide = null;
+    while (!isStopRequested() && (allianceSide == null)) {
+      telemetry.addData("Alliance Color: ", allianceColor);
+      telemetry.addLine("\nNow choose starting SIDE:");
+      telemetry.addLine("\tLEFT BUMPER = LEFT side");
+      telemetry.addLine("\tRIGHT BUMPER = RIGHT Side");
       telemetry.addLine("");
       telemetry.update();
+
+      controller1.updateGamepadData();
+      controller2.updateGamepadData();
+      if ((controller1.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.left_bumper))
+          || (controller2.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.left_bumper))) {
+        allianceSide = AllianceInfo.ALLIANCE_SIDE.LEFT;
+      } else if ((controller1.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.right_bumper))
+          || (controller2.isButtonNewlyPressed(ControllerWrapper.BUTTON_NAME.right_bumper))) {
+        allianceSide = AllianceInfo.ALLIANCE_SIDE.RIGHT;
+      }
     }
-    catch (StopOpModeException e) {
-      Msg.log(
-          className,
-          "promptForAndSetAllianceColorAndSide",
-          "StopOpMode pressed during " + e.getMessage());
-      onStopOpMode();
-    }
+    if (isStopRequested()) throw new StopOpModeException("promptForAllianceSide");
+
+    AllianceInfo.setAllianceInfo(allianceColor, allianceSide);
+
+    Msg.log(className, "promptForAllianceColorAndSide",
+        "Alliance Color=" + allianceColor + ", Alliance Side=" + allianceSide);
+
+    telemetry.addLine("");
+    telemetry.update();
   }
   // endregion ** Utility Functions **
 
@@ -361,7 +345,7 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
    * Override this function to prompt for other info needed during initialization For example,
    * alternate starting positions
    */
-  protected void promptForSupplementalAutoInitInfo() {}
+  protected void promptForSupplementalAutoInitInfo() throws StopOpModeException {}
 
   /**
    * This method sets the starting X,Y coordinates (in mm) of the center of the robot, as well as
@@ -407,48 +391,45 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
    * such as preloading of items and positioning of mechanisms.
    * This function should be overridden for each season.
    */
-  protected void performAutonomousChecks() {
+  protected void performAutonomousChecks() throws StopOpModeException {
     Msg.log(className, "performAutonomousChecks", "Starting.");
+    if (isStopRequested()) throw new StopOpModeException("performAutonomousChecks 1");
 
     // Start and check Limelight
-    if (!isStopRequested()) {
-      Msg.log(className, "performAutonomousChecks",
+    Msg.log(className, "performAutonomousChecks",
               "Starting and checking Limelight. Setting vision pipeline.");
 
-      // Check Limelight
-      if (ll != null) {
-        // The LL must be started before isLimelightConnected() will provide an appropriate result.
-        ll.start();
+    // Check Limelight
+    if (ll != null) {
+      // The LL must be started before isLimelightConnected() will provide an appropriate result.
+      ll.start();
 
-        if (ll.isDisconnected()) {
-          // The check can be overridden in case of hardware failure
-          boolean skipLimelightCheck = false;
+      if (ll.isDisconnected()) {
+        // The check can be overridden in case of hardware failure
+        boolean skipLimelightCheck = false;
 
-          Msg.log(className, "performAutonomousChecks", "Limelight is not connected!");
+        Msg.log(className, "performAutonomousChecks", "Limelight is not connected!");
 
-          while (!isStopRequested() && ll.isDisconnected() && !skipLimelightCheck) {
-            telemetry.addLine("Limelight not connected. Please ensure the cable is connected.");
-            telemetry.addLine("Press X to skip the Limelight check (in case of hardware failure)");
-            telemetry.update();
+        while (!isStopRequested() && ll.isDisconnected() && !skipLimelightCheck) {
+          telemetry.addLine("Limelight not connected. Please ensure the cable is connected.");
+          telemetry.addLine("Press X to skip the Limelight check (in case of hardware failure)");
+          telemetry.update();
 
-            // Update the controllers
-            controller1.updateGamepadData();
-            controller2.updateGamepadData();
-            if (controller1.isButtonNewlyPressed(
-                    ControllerWrapper.BUTTON_NAME.cross, ControllerWrapper.SHIFT_BUTTON.NONE)
-                    || controller2.isButtonNewlyPressed(
-                    ControllerWrapper.BUTTON_NAME.cross, ControllerWrapper.SHIFT_BUTTON.NONE)) {
-              skipLimelightCheck = true;
-            }
-
-            ll.start();
+          // Update the controllers
+          controller1.updateGamepadData();
+          controller2.updateGamepadData();
+          if (controller1.isButtonNewlyPressed(
+                  ControllerWrapper.BUTTON_NAME.cross, ControllerWrapper.SHIFT_BUTTON.NONE)
+                  || controller2.isButtonNewlyPressed(
+                  ControllerWrapper.BUTTON_NAME.cross, ControllerWrapper.SHIFT_BUTTON.NONE)) {
+            skipLimelightCheck = true;
           }
-        }
 
-        if (isStopRequested()) { // Check if stop was pressed while waiting for the above input
-          Msg.log(className, "performAutonomousChecks", "OpMode STOP requested.");
-          return;
+          ll.start();
         }
+      }
+
+      if (isStopRequested()) throw new StopOpModeException("performAutonomousChecks 2");
 
 //        if (AllianceInfo.getAllianceSide() == AllianceInfo.ALLIANCE_SIDE.LEFT) {
 //          ll.setPipeline(0);
@@ -461,19 +442,20 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
 //            ll.setPipeline(2);
 //          }
 //        }
-      }
     }
 
     robot.resetOdometryEncodersAndPose();
 //    robot.bulkReadControlHub();   // This is not needed if using the OctoQuad
-    robot.setPoseEstimate(
-        Pose2D.convertFieldCFAbsoluteToAllianceCFAbsolute(startingFieldPose, AllianceInfo.getAllianceColor()));
+
+//  *** TEMPORARY FOR TESTING ***
+//    robot.setPoseEstimate(
+//        Pose2D.convertFieldCFAbsoluteToAllianceCFAbsolute(startingFieldPose, AllianceInfo.getAllianceColor()));
+    robot.setPoseEstimate(new Pose2D(0.0, 0.0, 0.0));
 
     telemetry.addLine("Do NOT move the robot drivetrain any more.");
     telemetry.update();
   }
-
-    // endregion ** AUTO Functions **
+  // endregion ** AUTO Functions **
 
   // region ** Queue robot command functions **
 //  /**
@@ -613,8 +595,8 @@ public abstract class CoreLinearOpMode extends LinearOpMode {
     }
     else return false;
   }
-
   // endregion ** Loop Timer Functions **
+
   // region ** Telemetry Functions **
   protected void createTelemetryMessageForEachLoop() {
     addTelemetryHeader();

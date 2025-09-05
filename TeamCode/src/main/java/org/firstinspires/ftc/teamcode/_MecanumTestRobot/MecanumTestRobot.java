@@ -95,21 +95,21 @@ public class MecanumTestRobot extends CoreRobot {
 
             IMU = new IMUWrapper(hwMap, IMU_NAME, CH_LOGO_FACING_DIRECTION, CH_USB_FACING_DIRECTION);
         }
-
-        WheelMotor wheelMotor1 = new WheelMotor(hwMap, "FlyWheel1",
-              BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_6000, DcMotorSimple.Direction.REVERSE,
-              DcMotor.RunMode.RUN_WITHOUT_ENCODER,
-              BaseMotorWrapper.ENCODER.INTERNAL, DcMotorSimple.Direction.REVERSE,
-              1.0, 48.0);
-        WheelMotor wheelMotor2 = new WheelMotor(hwMap, "FlyWheel2",
-              BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_6000, DcMotorSimple.Direction.FORWARD,
-              DcMotor.RunMode.RUN_WITHOUT_ENCODER,
-              BaseMotorWrapper.ENCODER.INTERNAL, DcMotorSimple.Direction.FORWARD,
-              1.0, 48.0);
-        flyWheelSystem = new FlyWheelSystem(hwMap, "FlyWheelSystem", wheelMotor1, wheelMotor2);
+//
+//        WheelMotor wheelMotor1 = new WheelMotor(hwMap, "FlyWheel1",
+//              BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_6000, DcMotorSimple.Direction.REVERSE,
+//              DcMotor.RunMode.RUN_WITHOUT_ENCODER,
+//              BaseMotorWrapper.ENCODER.INTERNAL, DcMotorSimple.Direction.REVERSE,
+//              1.0, 48.0);
+//        WheelMotor wheelMotor2 = new WheelMotor(hwMap, "FlyWheel2",
+//              BaseMotorWrapper.MOTOR_MODEL.GoBildaYJ_6000, DcMotorSimple.Direction.FORWARD,
+//              DcMotor.RunMode.RUN_WITHOUT_ENCODER,
+//              BaseMotorWrapper.ENCODER.INTERNAL, DcMotorSimple.Direction.FORWARD,
+//              1.0, 48.0);
+//        flyWheelSystem = new FlyWheelSystem(hwMap, "FlyWheelSystem", wheelMotor1, wheelMotor2);
 
         addRobotSystemToList("Drivetrain", drivetrain);
-        addRobotSystemToList("FlyWheelSystem", flyWheelSystem);
+//        addRobotSystemToList("FlyWheelSystem", flyWheelSystem);
 
         robotSystemList.values().forEach(NewCoreRobotSystem::initializeSystem);
     }
@@ -122,16 +122,16 @@ public class MecanumTestRobot extends CoreRobot {
         return ((OctoQuadWrapper) odometry).getLocalizerStatus();
     }
 
-    public boolean isFlyWheelActive() {
-        return !(flyWheelSystem.getTargetVelocityRPM() == 0);
-    }
-
-    public void turnOffFlyWheel() {
-        Msg.log(getClass().getSimpleName(), "turnOffFlyWheel", "Turning off FlyWheel");
-        flyWheelSystem.setTargetVelocityRPM(0);
-    }
-
-    public FlywheelRC qFlyWheel(int targetRPM) {
-        return new FlywheelRC(flyWheelSystem, this::getEHubBulkReadTimeDelta, targetRPM);
-    }
+//    public boolean isFlyWheelActive() {
+//        return !(flyWheelSystem.getTargetVelocityRPM() == 0);
+//    }
+//
+//    public void turnOffFlyWheel() {
+//        Msg.log(getClass().getSimpleName(), "turnOffFlyWheel", "Turning off FlyWheel");
+//        flyWheelSystem.setTargetVelocityRPM(0);
+//    }
+//
+//    public FlywheelRC qFlyWheel(int targetRPM) {
+//        return new FlywheelRC(flyWheelSystem, this::getEHubBulkReadTimeDelta, targetRPM);
+//    }
 }

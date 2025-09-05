@@ -74,15 +74,15 @@ public class MT_TeleOpMode extends CoreLinearOpMode {
               new ButtonToFunction(ControllerWrapper.BUTTON_NAME.dpad_right, NEWLY_PRESSED, ControllerWrapper.OPTION_SHIFT,
                     () -> r.drivetrain.qTestCurveRight(rcController, r.getRobotPoseEstimate()))
         );
-        controller1.addActiveButtonGroup(
-              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.cross,
-                    () -> {
-                        if (r.isFlyWheelActive()) {
-                            r.turnOffFlyWheel();
-                        }
-                        else rcController.qRC(r.qFlyWheel(5000));
-                    })
-        );
+//        controller1.addActiveButtonGroup(
+//              new ButtonToFunction(ControllerWrapper.BUTTON_NAME.cross,
+//                    () -> {
+//                        if (r.isFlyWheelActive()) {
+//                            r.turnOffFlyWheel();
+//                        }
+//                        else rcController.qRC(r.qFlyWheel(5000));
+//                    })
+//        );
 
 
         // Check motor powers
