@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.hexnibble.corelib.misc.Msg;
 import org.hexnibble.corelib.wrappers.sensor.ColorSensorWrapper;
 import org.hexnibble.corelib.wrappers.sensor.CoreSensorWrapper;
-import org.hexnibble.corelib.wrappers.sensor.DistanceSensorWrapper;
+import org.hexnibble.corelib.wrappers.sensor.RevDistanceSensorWrapper;
 import org.hexnibble.corelib.wrappers.sensor.LimelightWrapper;
 import org.hexnibble.corelib.wrappers.sensor.TouchSensorWrapper;
 import org.hexnibble.corelib.wrappers.servo.BaseServoWrapper;
@@ -41,6 +41,10 @@ public abstract class NewCoreRobotSystem {
       servoList.values().forEach(BaseServoWrapper::initialize);
    }
 
+   /**
+    * Reset the system. This is called at the beginning of an OpMode if the robot object is not
+    * recreated.
+    */
    public void resetSystem() {
       //        motorList.values().forEach(BaseMotorWrapper::reset);
       servoList.values().forEach(BaseServoWrapper::reset);
@@ -104,8 +108,8 @@ public abstract class NewCoreRobotSystem {
       return sensor;
    }
 
-   public DistanceSensorWrapper addDistanceSensor(String sensorName) {
-      DistanceSensorWrapper sensor = new DistanceSensorWrapper(hwMap, sensorName);
+   public RevDistanceSensorWrapper addDistanceSensor(String sensorName) {
+      RevDistanceSensorWrapper sensor = new RevDistanceSensorWrapper(hwMap, sensorName);
       sensorList.put(sensorName, sensor);
       return sensor;
    }

@@ -153,7 +153,7 @@ public class CoreRobot extends NewCoreRobotSystem {
   protected SparkFunLEDStick LEDStick;
 
   // Vision
-  public VisionPortal visionPortal;
+//  public VisionPortal visionPortal;
 
   // Commands
 //  protected final List<RobotCommand> robotDrivetrainCommandQueue = new ArrayList<>();
@@ -386,8 +386,7 @@ public class CoreRobot extends NewCoreRobotSystem {
   public double getStoredIMUHeadingDegrees() {
     return IMU.getStoredIMUHeadingDegrees();
   }
-
-  // endregion IMU Functions
+  // endregion ** IMU Functions **
 
   // region ** Odometry Functions **
 

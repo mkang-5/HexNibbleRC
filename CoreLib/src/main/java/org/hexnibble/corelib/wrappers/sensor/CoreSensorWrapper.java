@@ -24,5 +24,16 @@ public class CoreSensorWrapper<T> {
     return sensor;
   }
 
+   /**
+   * Call this function to reset the sensor for a new OpMode.
+   */
   public void reset() {}
+
+  /**
+   * Obtain sensor data as a string to be used for telemetry.
+   * @return Sensor data (string)
+   */
+  public String getCachedSensorDataAsString() {
+    return sensorName;
+  }
 }

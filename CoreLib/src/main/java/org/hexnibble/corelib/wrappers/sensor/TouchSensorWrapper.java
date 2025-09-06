@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.hexnibble.corelib.misc.Msg;
 
 public class TouchSensorWrapper extends CoreSensorWrapper<TouchSensor> {
+  private boolean cachedIsPressed;
+
   public TouchSensorWrapper(HardwareMap hwMap, String sensorName) {
     super(hwMap, TouchSensor.class, sensorName);
 
@@ -18,6 +20,12 @@ public class TouchSensorWrapper extends CoreSensorWrapper<TouchSensor> {
    * @return True if the sensor is pressed.
    */
   public boolean isPressed() {
-    return sensor.isPressed();
+    cachedIsPressed = sensor.isPressed();
+    return cachedIsPressed;
+  }
+
+  @Override
+  public String getCachedSensorDataAsString() {
+    return sensorName + " IsPressed = " + cachedIsPressed;
   }
 }
